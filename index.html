@@ -1311,6 +1311,32 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
         </div>
       </div>
 
+      <!-- 전체 음성 일괄 생성 -->
+      <div class="setting-row">
+        <div class="setting-head">
+          <div>
+            <div class="setting-label">전체 음성 미리 생성</div>
+            <div class="setting-sub">모든 레시피 · 미생성 항목만 자동 처리</div>
+          </div>
+          <button class="api-btn" id="cacheAllBtn" style="flex-shrink:0;">생성 시작</button>
+        </div>
+        <!-- 진행 상황 표시 -->
+        <div id="cacheAllStatus" style="display:none;margin-top:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="dots" id="cacheAllDots" style="display:none;"><span></span><span></span><span></span></div>
+              <span id="cacheAllIcon" style="font-size:13px;display:none;"></span>
+              <span id="cacheAllText" style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);"></span>
+            </div>
+            <button id="cacheAllStopBtn" style="display:none;font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;">중단</button>
+          </div>
+          <div style="height:3px;background:var(--border);border-radius:3px;overflow:hidden;">
+            <div id="cacheAllBar" style="height:100%;background:var(--accent);border-radius:3px;transition:width .3s;width:0%;"></div>
+          </div>
+          <div id="cacheAllRecipeName" style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:4px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+        </div>
+      </div>
+
       <!-- Worker URL -->
       <div class="setting-row">
         <div class="setting-label">동기화 서버 (Worker URL)</div>
@@ -3097,6 +3123,128 @@ document.getElementById("paramsHead").addEventListener("click",function(){
   var open=body.style.display==="none";
   body.style.display=open?"block":"none";
   arrow.textContent=open?"-":"+";
+});
+
+// --- 전체 음성 일괄 생성 ---
+var _cacheAllStopped=false;
+var _cacheAllRunning=false;
+
+function setCacheAllUI(state, text, pct, recipeName){
+  var status=document.getElementById("cacheAllStatus");
+  var dots=document.getElementById("cacheAllDots");
+  var icon=document.getElementById("cacheAllIcon");
+  var txt=document.getElementById("cacheAllText");
+  var bar=document.getElementById("cacheAllBar");
+  var rname=document.getElementById("cacheAllRecipeName");
+  var stopBtn=document.getElementById("cacheAllStopBtn");
+  var startBtn=document.getElementById("cacheAllBtn");
+  if(state==="idle"){
+    status.style.display="none";
+    startBtn.textContent="생성 시작";startBtn.disabled=false;
+  } else if(state==="running"){
+    status.style.display="block";
+    dots.style.display="flex";icon.style.display="none";
+    txt.textContent=text||"";txt.style.color="var(--muted)";
+    bar.style.width=(pct||0)+"%";
+    rname.textContent=recipeName||"";
+    stopBtn.style.display="inline-block";
+    startBtn.textContent="생성 중...";startBtn.disabled=true;
+  } else if(state==="done"){
+    status.style.display="block";
+    dots.style.display="none";
+    icon.style.display="inline";icon.textContent="✓";icon.style.color="var(--success)";
+    txt.textContent=text||"완료";txt.style.color="var(--success)";
+    bar.style.width="100%";
+    rname.textContent="";
+    stopBtn.style.display="none";
+    startBtn.textContent="생성 시작";startBtn.disabled=false;
+  } else if(state==="stopped"){
+    dots.style.display="none";
+    icon.style.display="inline";icon.textContent="—";icon.style.color="var(--muted)";
+    txt.textContent=text||"중단됨";txt.style.color="var(--muted)";
+    stopBtn.style.display="none";
+    startBtn.textContent="생성 시작";startBtn.disabled=false;
+  } else if(state==="err"){
+    dots.style.display="none";
+    icon.style.display="inline";icon.textContent="✕";icon.style.color="var(--danger)";
+    txt.textContent=text||"오류";txt.style.color="var(--danger)";
+    stopBtn.style.display="none";
+    startBtn.textContent="생성 시작";startBtn.disabled=false;
+  }
+}
+
+// 레시피 하나의 텍스트 목록 생성 (cacheAllStepAudio와 동일한 로직)
+function getRecipeTexts(recipeSteps){
+  var texts=[];
+  recipeSteps.forEach(function(s){
+    if(s.sec===0)texts.push(toSpeakText(s.name));
+    else if(s.desc)texts.push(toSpeakText(s.name));
+    else{
+      texts.push(toSpeakText(s.name+". "+s.sec+"초"));
+      texts.push("three","two","one");
+    }
+  });
+  texts.push(toSpeakText("추출 완료. 맛있는 커피 드세요."));
+  return texts.filter(function(v,i,a){return a.indexOf(v)===i;});
+}
+
+async function cacheAllRecipes(){
+  if(_cacheAllRunning)return;
+  if(!getActiveKey()){showToast("API 키를 먼저 설정해주세요");return;}
+  var recipes=getLocalRecipes();
+  if(!recipes||recipes.length===0){showToast("저장된 레시피가 없습니다");return;}
+
+  _cacheAllRunning=true;
+  _cacheAllStopped=false;
+
+  // 전체 텍스트 목록 수집 + IDB 존재 여부 확인 → 미생성만 추출
+  var tasks=[]; // {text, recipeName}
+  for(var ri=0;ri<recipes.length;ri++){
+    var rec=recipes[ri];
+    var texts=getRecipeTexts(rec.steps);
+    for(var ti=0;ti<texts.length;ti++){
+      var key=makeAudioKey(texts[ti]);
+      var cached=await idbGet(key);
+      if(!cached) tasks.push({text:texts[ti], recipeName:rec.name});
+    }
+  }
+
+  if(tasks.length===0){
+    _cacheAllRunning=false;
+    setCacheAllUI("done","모든 레시피 음성이 이미 준비되어 있습니다",100,"");
+    return;
+  }
+
+  var total=tasks.length, done=0, skipped=0;
+  setCacheAllUI("running","확인 중... 0/"+total, 0, "");
+
+  for(var i=0;i<tasks.length;i++){
+    if(_cacheAllStopped)break;
+    var task=tasks[i];
+    setCacheAllUI("running", done+"/"+total+" 생성됨", Math.round(done/total*100), task.recipeName);
+    try{
+      await fetchAudio(task.text);
+      done++;
+    } catch{
+      skipped++;
+    }
+    setCacheAllUI("running", done+"/"+total+" 생성됨", Math.round(done/total*100), task.recipeName);
+  }
+
+  _cacheAllRunning=false;
+  if(_cacheAllStopped){
+    setCacheAllUI("stopped", done+"/"+total+" 생성 후 중단됨");
+  } else {
+    var msg=done+"개 생성 완료"+(skipped>0?" ("+skipped+"개 실패)":"");
+    setCacheAllUI("done", msg, 100, "");
+  }
+}
+
+document.getElementById("cacheAllBtn").addEventListener("click",cacheAllRecipes);
+document.getElementById("cacheAllStopBtn").addEventListener("click",function(){
+  _cacheAllStopped=true;
+  this.disabled=true;
+  this.textContent="중단 중...";
 });
 
 // 설정 저장
