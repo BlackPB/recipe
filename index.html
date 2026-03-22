@@ -4,22 +4,169 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>핸드드립 타이머</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500;700&family=Playfair+Display:wght@400;500;700&family=Space+Mono:wght@400;700&family=Outfit:wght@200;300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=IBM+Plex+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 /* --- 테마 --- */
 :root{
+  /* dark (기본) — 원래 골드 다크 */
   --bg:#0e0e0e;--surface:#161616;--surface2:#1e1e1e;
   --border:#2a2a2a;--border-hi:#3c3c3c;
   --accent:#c8a96e;--accent2:#e8c990;
   --text:#f0ede8;--muted:#666;
   --danger:#e05a4a;--success:#5ab870;--radius:8px;
+  --font-body:'Noto Sans KR',sans-serif;
+  --font-mono:'DM Mono',monospace;
+  --font-display:'DM Mono',monospace;
+  --header-bg:var(--surface);
+  --card-shadow:none;
+  --btn-radius:8px;
+  --accent-glow:none;
+  --bg-texture:none;
 }
-[data-theme="light"]{--bg:#f5f0eb;--surface:#fff;--surface2:#f0ebe4;--border:#e0d8cf;--border-hi:#c8bfb5;--accent:#8b6339;--accent2:#a07845;--text:#2a1f14;--muted:#8a7a6a;}
-[data-theme="mocha"]{--bg:#1a1410;--surface:#241c16;--surface2:#2e251d;--border:#3d3028;--border-hi:#5a4535;--accent:#d4a574;--accent2:#e8c09a;--text:#f2ece4;--muted:#7a6454;}
-[data-theme="slate"]{--bg:#0d1117;--surface:#161b22;--surface2:#1f2937;--border:#2d3748;--border-hi:#4a5568;--accent:#64b5f6;--accent2:#90caf9;--text:#e2e8f0;--muted:#718096;}
-[data-theme="ivory"]{--bg:#faf7f2;--surface:#ffffff;--surface2:#f3ede4;--border:#e8ddd0;--border-hi:#d4c4b0;--accent:#7c6248;--accent2:#9a7d5e;--text:#2c1f14;--muted:#9a8878;}
-[data-theme="midnight"]{--bg:#07080f;--surface:#0e1018;--surface2:#161824;--border:#1e2235;--border-hi:#2d324d;--accent:#b8965a;--accent2:#d4ae78;--text:#eeeaf8;--muted:#5a5878;}
+
+/* ── 1. MODERN — 클린 화이트, 네온 민트 포인트 ── */
+[data-theme="modern"]{
+  --bg:#f8f9fc;--surface:#ffffff;--surface2:#f0f2f7;
+  --border:#e2e6ef;--border-hi:#c8d0e0;
+  --accent:#00c896;--accent2:#00e6a8;
+  --text:#0d1117;--muted:#8892a4;
+  --danger:#f04060;--success:#00c896;--radius:12px;
+  --font-body:'Outfit',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+  --font-display:'Outfit',sans-serif;
+  --header-bg:#ffffff;
+  --card-shadow:0 2px 16px rgba(0,200,150,.08),0 1px 4px rgba(0,0,0,.06);
+  --btn-radius:999px;
+  --accent-glow:0 0 20px rgba(0,200,150,.25);
+  --bg-texture:none;
+}
+
+/* ── 2. MINIMAL — 종이질감 오프화이트, 먹색 타이포 ── */
+[data-theme="minimal"]{
+  --bg:#fafaf8;--surface:#ffffff;--surface2:#f4f4f0;
+  --border:#e8e8e2;--border-hi:#d0d0c8;
+  --accent:#1a1a1a;--accent2:#444;
+  --text:#1a1a1a;--muted:#999;
+  --danger:#c0392b;--success:#27ae60;--radius:4px;
+  --font-body:'Outfit',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+  --font-display:'Cormorant Garamond',serif;
+  --header-bg:#fafaf8;
+  --card-shadow:none;
+  --btn-radius:4px;
+  --accent-glow:none;
+  --bg-texture:none;
+}
+
+/* ── 3. VIVID — 딥 퍼플 다크, 일렉트릭 핑크 포인트 ── */
+[data-theme="vivid"]{
+  --bg:#0a0010;--surface:#130820;--surface2:#1e1030;
+  --border:#2d1850;--border-hi:#4a2880;
+  --accent:#ff3cac;--accent2:#ff70c8;
+  --text:#f0e8ff;--muted:#7a5898;
+  --danger:#ff4060;--success:#40e0a0;--radius:10px;
+  --font-body:'Outfit',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+  --font-display:'Outfit',sans-serif;
+  --header-bg:#130820;
+  --card-shadow:0 0 30px rgba(255,60,172,.12),0 2px 8px rgba(0,0,0,.5);
+  --btn-radius:10px;
+  --accent-glow:0 0 24px rgba(255,60,172,.4);
+  --bg-texture:none;
+}
+
+/* ── 4. CALM — 딥 포레스트 그린, 세이지 포인트 ── */
+[data-theme="calm"]{
+  --bg:#0f1a14;--surface:#162010;--surface2:#1e2a1a;
+  --border:#263320;--border-hi:#3a4f30;
+  --accent:#8fbc6a;--accent2:#a8d484;
+  --text:#e8f0e0;--muted:#607050;
+  --danger:#d4604a;--success:#8fbc6a;--radius:10px;
+  --font-body:'Noto Sans KR',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+  --font-display:'Noto Sans KR',sans-serif;
+  --header-bg:#162010;
+  --card-shadow:0 2px 12px rgba(0,0,0,.35);
+  --btn-radius:10px;
+  --accent-glow:none;
+  --bg-texture:none;
+}
+
+/* ── 5. NOIR — 순수 블랙, 차가운 화이트 타이포 ── */
+[data-theme="noir"]{
+  --bg:#000000;--surface:#0a0a0a;--surface2:#111111;
+  --border:#1c1c1c;--border-hi:#2e2e2e;
+  --accent:#e8e8e8;--accent2:#ffffff;
+  --text:#f5f5f5;--muted:#444;
+  --danger:#cc3333;--success:#44aa66;--radius:2px;
+  --font-body:'Outfit',sans-serif;
+  --font-mono:'Space Mono',monospace;
+  --font-display:'Space Mono',monospace;
+  --header-bg:#000000;
+  --card-shadow:none;
+  --btn-radius:2px;
+  --accent-glow:none;
+  --bg-texture:none;
+}
+
+/* ── 6. LATTE — 크림 라이트, 에스프레소 브라운 ── */
+[data-theme="latte"]{
+  --bg:#f7f2ec;--surface:#fdfaf6;--surface2:#ede8e0;
+  --border:#d8cfc4;--border-hi:#bfb4a8;
+  --accent:#6b4226;--accent2:#8b5a36;
+  --text:#2a1a0e;--muted:#9a8878;
+  --danger:#c0402a;--success:#5a8a40;--radius:12px;
+  --font-body:'Noto Sans KR',sans-serif;
+  --font-mono:'DM Mono',monospace;
+  --font-display:'Playfair Display',serif;
+  --header-bg:#fdfaf6;
+  --card-shadow:0 2px 12px rgba(107,66,38,.08);
+  --btn-radius:12px;
+  --accent-glow:none;
+  --bg-texture:none;
+}
+
+/* ── 7. OCEAN — 딥 네이비, 시안 포인트 ── */
+[data-theme="ocean"]{
+  --bg:#04101e;--surface:#071828;--surface2:#0d2238;
+  --border:#123050;--border-hi:#1e4870;
+  --accent:#00d4ff;--accent2:#40e8ff;
+  --text:#d8f0ff;--muted:#3a6080;
+  --danger:#ff5060;--success:#40d890;--radius:10px;
+  --font-body:'Outfit',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+  --font-display:'Outfit',sans-serif;
+  --header-bg:#071828;
+  --card-shadow:0 0 28px rgba(0,212,255,.1),0 2px 8px rgba(0,0,0,.6);
+  --btn-radius:10px;
+  --accent-glow:0 0 20px rgba(0,212,255,.3);
+  --bg-texture:none;
+}
+
+/* ── 8. PAPER — 따뜻한 크림 라이트 인쇄물 ── */
+[data-theme="paper"]{
+  --bg:#f2ece0;--surface:#faf6ee;--surface2:#e8e0d0;
+  --border:#d4c8b4;--border-hi:#b8a890;
+  --accent:#2c4a7c;--accent2:#3d5e96;
+  --text:#1a1208;--muted:#8a8070;
+  --danger:#a83020;--success:#3a7040;--radius:6px;
+  --font-body:'Noto Sans KR',sans-serif;
+  --font-mono:'IBM Plex Mono',monospace;
+  --font-display:'Playfair Display',serif;
+  --header-bg:#faf6ee;
+  --card-shadow:0 1px 6px rgba(0,0,0,.08);
+  --btn-radius:6px;
+  --accent-glow:none;
+  --bg-texture:none;
+}
+
+/* 레거시 테마 유지 */
+[data-theme="light"]{--bg:#f5f0eb;--surface:#fff;--surface2:#f0ebe4;--border:#e0d8cf;--border-hi:#c8bfb5;--accent:#8b6339;--accent2:#a07845;--text:#2a1f14;--muted:#8a7a6a;--radius:8px;--font-body:'Noto Sans KR',sans-serif;--font-mono:'DM Mono',monospace;--font-display:'DM Mono',monospace;--header-bg:#fff;--card-shadow:none;--btn-radius:8px;--accent-glow:none;}
+[data-theme="mocha"]{--bg:#1a1410;--surface:#241c16;--surface2:#2e251d;--border:#3d3028;--border-hi:#5a4535;--accent:#d4a574;--accent2:#e8c09a;--text:#f2ece4;--muted:#7a6454;--radius:8px;--font-body:'Noto Sans KR',sans-serif;--font-mono:'DM Mono',monospace;--font-display:'DM Mono',monospace;--header-bg:#241c16;--card-shadow:none;--btn-radius:8px;--accent-glow:none;}
+[data-theme="slate"]{--bg:#0d1117;--surface:#161b22;--surface2:#1f2937;--border:#2d3748;--border-hi:#4a5568;--accent:#64b5f6;--accent2:#90caf9;--text:#e2e8f0;--muted:#718096;--radius:8px;--font-body:'Noto Sans KR',sans-serif;--font-mono:'DM Mono',monospace;--font-display:'DM Mono',monospace;--header-bg:#161b22;--card-shadow:none;--btn-radius:8px;--accent-glow:none;}
+[data-theme="ivory"]{--bg:#faf7f2;--surface:#ffffff;--surface2:#f3ede4;--border:#e8ddd0;--border-hi:#d4c4b0;--accent:#7c6248;--accent2:#9a7d5e;--text:#2c1f14;--muted:#9a8878;--radius:8px;--font-body:'Noto Sans KR',sans-serif;--font-mono:'DM Mono',monospace;--font-display:'DM Mono',monospace;--header-bg:#ffffff;--card-shadow:none;--btn-radius:8px;--accent-glow:none;}
+[data-theme="midnight"]{--bg:#07080f;--surface:#0e1018;--surface2:#161824;--border:#1e2235;--border-hi:#2d324d;--accent:#b8965a;--accent2:#d4ae78;--text:#eeeaf8;--muted:#5a5878;--radius:8px;--font-body:'Noto Sans KR',sans-serif;--font-mono:'DM Mono',monospace;--font-display:'DM Mono',monospace;--header-bg:#0e1018;--card-shadow:none;--btn-radius:8px;--accent-glow:none;}
 
 /* --- 전역 스크롤바 --- */
 ::-webkit-scrollbar{width:4px;height:4px;}
@@ -33,7 +180,7 @@
 
 /* --- 모바일: 전체화면 --- */
 html,body{height:100%;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;height:100vh;height:100svh;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sans KR',sans-serif);display:flex;flex-direction:column;height:100vh;height:100svh;overflow:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);box-sizing:border-box;}
 .app-wrap{display:flex;flex-direction:column;flex:1;overflow:hidden;}
 
 /* --- 데스크탑: 중앙 카드 --- */
@@ -212,9 +359,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .custom-select-option.selected{color:var(--accent);background:rgba(200,169,110,.12);font-weight:500;}
 .custom-select-option.empty{color:var(--muted);font-size:12px;}
 .custom-select-separator{height:1px;background:var(--border);margin:4px 0;}
-.header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--surface);}
+.header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;flex-shrink:0;border-bottom:1px solid var(--border);background:var(--header-bg,var(--surface));}
 .header-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
-.logo{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;}
+.logo{font-family:var(--font-display,'DM Mono',monospace);font-size:10px;letter-spacing:.15em;color:var(--accent);text-transform:uppercase;}
 .header-right{display:flex;gap:8px;}
 .icon-btn{width:34px;height:34px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface);color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s,color .15s;flex-shrink:0;}
 .icon-btn:hover{border-color:var(--border-hi);color:var(--text);}
@@ -231,7 +378,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .step-cards{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;padding-bottom:8px;}
 
 /* 단계 카드 */
-.step-card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:border-color .15s;cursor:pointer;}
+.step-card{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);transition:border-color .15s,box-shadow .15s;cursor:pointer;box-shadow:var(--card-shadow,none);}
 .step-card:hover{border-color:var(--border-hi);}
 .step-card.editing{border-color:var(--accent);cursor:default;}
 .step-card-view{display:flex;align-items:center;gap:12px;padding:11px 14px;}
@@ -272,9 +419,9 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .step-card-edit input[type=number]:focus{border-color:var(--accent);}
 .sec-lbl-sm{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0;}
 .card-save-btn{
-  padding:7px 14px;border-radius:6px;
+  padding:7px 14px;border-radius:var(--btn-radius,6px);
   border:1px solid var(--accent);background:var(--accent);
-  color:#0e0e0e;font-family:'Noto Sans KR',sans-serif;
+  color:#0e0e0e;font-family:var(--font-body,'Noto Sans KR',sans-serif);
   font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;
   transition:background .15s;flex-shrink:0;
 }
@@ -303,10 +450,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 1s linear;}
 .step-track{height:2px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px;}
 .step-fill{height:100%;background:rgba(200,169,110,.35);border-radius:2px;transition:width 1s linear;}
-.main-card{flex-shrink:1;min-height:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 16px 14px;text-align:center;margin-bottom:10px;}
+.main-card{flex-shrink:1;min-height:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 16px 14px;text-align:center;margin-bottom:10px;box-shadow:var(--card-shadow,none);}
 .step-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;margin-bottom:6px;}
 .step-title-timer{font-weight:300;margin-bottom:12px;transition:color .3s;white-space:nowrap;overflow:hidden;width:100%;display:block;font-size:clamp(13px, calc(2.2dvh * var(--start-btn-size, 1)), 36px);}
-.time-display{font-family:'DM Mono',monospace;font-weight:300;letter-spacing:-.02em;line-height:1;margin-bottom:12px;color:var(--text);transition:color .3s;font-size:clamp(36px, calc(10dvh * var(--start-btn-size, 1)), 120px);}
+.time-display{font-family:var(--font-mono,'DM Mono',monospace);font-weight:300;letter-spacing:-.02em;line-height:1;margin-bottom:12px;color:var(--text);transition:color .3s;font-size:clamp(36px, calc(10dvh * var(--start-btn-size, 1)), 120px);}
 /* 단계 1: 큰 화면 (900px+) — 기본 */
 /* 단계 2: 중간 화면 (700~900px) */
 @media(max-height:900px) and (orientation:portrait){
@@ -349,10 +496,10 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 
 /* --- 버튼 --- */
 .btn-row{display:flex;gap:8px;flex-shrink:0;padding-bottom:4px;}
-.btn-primary{flex:1;padding:11px;border-radius:var(--radius);border:1px solid var(--accent);background:var(--accent);color:#0e0e0e;font-family:'Noto Sans KR',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s,transform .1s;}
-.btn-primary:hover{background:var(--accent2);}
+.btn-primary{flex:1;padding:11px;border-radius:var(--btn-radius,var(--radius));border:1px solid var(--accent);background:var(--accent);color:#0e0e0e;font-family:var(--font-body,'Noto Sans KR',sans-serif);font-size:14px;font-weight:500;cursor:pointer;transition:background .15s,transform .1s,box-shadow .15s;}
+.btn-primary:hover{background:var(--accent2);box-shadow:var(--accent-glow,none);}
 .btn-primary:active{transform:scale(.98);}
-.btn-secondary{flex:1;padding:11px 14px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;transition:border-color .15s,color .15s;text-align:center;}
+.btn-secondary{flex:1;padding:11px 14px;border-radius:var(--btn-radius,var(--radius));border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font-body,'Noto Sans KR',sans-serif);font-size:13px;cursor:pointer;transition:border-color .15s,color .15s;text-align:center;}
 .btn-secondary:hover{border-color:var(--muted);color:var(--text);}
 /* 타이머 버튼 비율 */
 #pauseBtn{flex:var(--pause-flex,2);}
@@ -398,7 +545,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 /* --- 모달 공통 --- */
 .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:200;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(2px);}
 .modal-overlay.open{display:flex;}
-.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:520px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;}
+.modal-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;width:100%;max-width:520px;max-height:96vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:var(--card-shadow,none);}
 .modal-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);flex-shrink:0;}
 .modal-title{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;}
 .modal-badge{font-family:'DM Mono',monospace;font-size:9px;padding:2px 6px;border-radius:3px;background:rgba(200,169,110,.15);color:var(--accent);margin-left:8px;display:none;}
@@ -441,7 +588,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .recipe-name-input{flex:1;min-width:100px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:8px 10px;outline:none;}
 .recipe-name-input:focus{border-color:var(--accent);}
 .recipe-name-input::placeholder{color:#3a3a3a;}
-.btn-sm{padding:8px 12px;border-radius:var(--radius);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s,background .15s;}
+.btn-sm{padding:8px 12px;border-radius:var(--btn-radius,var(--radius));font-family:var(--font-body,'Noto Sans KR',sans-serif);font-size:12px;cursor:pointer;white-space:nowrap;transition:border-color .15s,color .15s,background .15s;}
 .btn-sm-accent{border:1px solid var(--accent);background:transparent;color:var(--accent);}
 .btn-sm-accent:hover{background:rgba(200,169,110,.1);}
 .btn-sm-muted{border:1px solid var(--border);background:transparent;color:var(--muted);}
@@ -554,7 +701,7 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .slider-val{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);}
 /* number input 스피너 테마 적용 */
 input[type=number]{-webkit-appearance:textfield;appearance:textfield;color-scheme:dark;}
-[data-theme="light"] input[type=number],[data-theme="sky"] input[type=number]{color-scheme:light;}
+[data-theme="light"] input[type=number],[data-theme="ivory"] input[type=number],[data-theme="modern"] input[type=number],[data-theme="minimal"] input[type=number],[data-theme="latte"] input[type=number],[data-theme="paper"] input[type=number]{color-scheme:light;}
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button{
   -webkit-appearance:inner-spin-button;
@@ -577,15 +724,23 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .preview-dots{display:none;gap:3px;margin-left:auto;}
 .preview-btn.loading .preview-dots{display:flex;}
 .theme-grid{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-.theme-btn{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:12px;cursor:pointer;transition:border-color .15s,color .15s;}
+.theme-btn{display:flex;align-items:center;gap:6px;padding:6px 11px;border-radius:var(--radius);border:1px solid var(--border);background:var(--surface2);color:var(--muted);font-family:var(--font-body,'Noto Sans KR',sans-serif);font-size:12px;cursor:pointer;transition:border-color .15s,color .15s;}
 .theme-btn:hover,.theme-btn.active{border-color:var(--accent);color:var(--text);}
 .theme-swatch{width:13px;height:13px;border-radius:50%;border:2px solid transparent;flex-shrink:0;}
+/* 와이드 테마 버튼 */
+.theme-btn-wide{width:calc(50% - 4px);padding:8px 12px;gap:10px;align-items:center;}
+.theme-btn-info{display:flex;flex-direction:column;gap:1px;text-align:left;min-width:0;}
+.theme-btn-name{font-size:12px;color:var(--text);font-weight:500;line-height:1.2;}
+.theme-btn-wide .theme-swatch{width:22px;height:22px;flex-shrink:0;}
+.theme-btn-desc{font-family:var(--font-mono,'DM Mono',monospace);font-size:9px;color:var(--muted);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.theme-btn-wide:hover .theme-btn-name,.theme-btn-wide.active .theme-btn-name{color:var(--accent);}
+.theme-btn-wide.active{border-color:var(--accent);background:rgba(128,128,128,.08);}
 .sync-bar{display:none;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px;}
 .sync-bar.on{display:flex;}
 .settings-footer{display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--border);margin-top:4px;}
-.settings-save{flex:1;padding:10px;border-radius:var(--radius);border:1px solid var(--accent);background:var(--accent);color:#0e0e0e;font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;}
+.settings-save{flex:1;padding:10px;border-radius:var(--btn-radius,var(--radius));border:1px solid var(--accent);background:var(--accent);color:#0e0e0e;font-family:var(--font-body,'Noto Sans KR',sans-serif);font-size:13px;font-weight:500;cursor:pointer;transition:background .15s;}
 .settings-save:hover{background:var(--accent2);}
-.settings-cancel{padding:10px 14px;border-radius:var(--radius);border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:13px;cursor:pointer;}
+.settings-cancel{padding:10px 14px;border-radius:var(--btn-radius,var(--radius));border:1px solid var(--border);background:transparent;color:var(--muted);font-family:var(--font-body,'Noto Sans KR',sans-serif);font-size:13px;cursor:pointer;}
 .export-row{display:flex;gap:8px;margin-top:10px;}
 
 /* --- 레시피 기본정보 카드 --- */
@@ -909,15 +1064,52 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
       <!-- 테마 -->
       <div class="setting-row">
-        <div class="setting-label">테마 색상</div>
-        <div class="setting-sub">앱 전체 색상 테마</div>
-        <div class="theme-grid">
-          <button class="theme-btn" data-theme="dark"><span class="theme-swatch" style="background:#0e0e0e;border-color:#c8a96e;"></span>다크</button>
-          <button class="theme-btn" data-theme="light"><span class="theme-swatch" style="background:#f5f0eb;border-color:#8b6339;"></span>라이트</button>
-          <button class="theme-btn" data-theme="mocha"><span class="theme-swatch" style="background:#1a1410;border-color:#d4a574;"></span>모카</button>
-          <button class="theme-btn" data-theme="slate"><span class="theme-swatch" style="background:#0d1117;border-color:#64b5f6;"></span>슬레이트</button>
-          <button class="theme-btn" data-theme="ivory"><span class="theme-swatch" style="background:#faf7f2;border-color:#7c6248;"></span>아이보리</button>
-          <button class="theme-btn" data-theme="midnight"><span class="theme-swatch" style="background:#07080f;border-color:#b8965a;"></span>미드나잇</button>
+        <div class="collapsible-head" id="themeHead">
+          <div>
+            <div class="setting-label">테마</div>
+            <div class="setting-sub" id="themeCurrentLabel">앱 전체 색상 · 폰트 · 스타일 변경</div>
+          </div>
+          <span class="collapse-arrow" id="themeArrow">+</span>
+        </div>
+        <div id="themeBody" style="display:none;margin-top:12px;">
+          <div class="theme-grid">
+            <button class="theme-btn theme-btn-wide" data-theme="dark">
+              <span class="theme-swatch" style="background:#0e0e0e;border-color:#c8a96e;"></span>
+              <span class="theme-btn-info"><span class="theme-btn-name">골드 다크</span><span class="theme-btn-desc">기본 · 골드 포인트</span></span>
+            </button>
+            <button class="theme-btn theme-btn-wide" data-theme="modern">
+              <span class="theme-swatch" style="background:#f8f9fc;border-color:#00c896;"></span>
+              <span class="theme-btn-info"><span class="theme-btn-name">모던</span><span class="theme-btn-desc">화이트 · 민트 포인트</span></span>
+            </button>
+            <button class="theme-btn theme-btn-wide" data-theme="minimal">
+              <span class="theme-swatch" style="background:#fafaf8;border-color:#1a1a1a;"></span>
+              <span class="theme-btn-info"><span class="theme-btn-name">미니멀</span><span class="theme-btn-desc">종이 · 세리프 타이포</span></span>
+            </button>
+            <button class="theme-btn theme-btn-wide" data-theme="vivid">
+              <span class="theme-swatch" style="background:#0a0010;border-color:#ff3cac;"></span>
+              <span class="theme-btn-info"><span class="theme-btn-name">비비드</span><span class="theme-btn-desc">딥 퍼플 · 네온 핑크</span></span>
+            </button>
+            <button class="theme-btn theme-btn-wide" data-theme="calm">
+              <span class="theme-swatch" style="background:#0f1a14;border-color:#8fbc6a;"></span>
+              <span class="theme-btn-info"><span class="theme-btn-name">캄</span><span class="theme-btn-desc">포레스트 · 세이지</span></span>
+            </button>
+            <button class="theme-btn theme-btn-wide" data-theme="noir">
+              <span class="theme-swatch" style="background:#000;border-color:#e8e8e8;"></span>
+              <span class="theme-btn-info"><span class="theme-btn-name">누아르</span><span class="theme-btn-desc">퓨어 블랙 · 모노</span></span>
+            </button>
+            <button class="theme-btn theme-btn-wide" data-theme="latte">
+              <span class="theme-swatch" style="background:#f7f2ec;border-color:#6b4226;"></span>
+              <span class="theme-btn-info"><span class="theme-btn-name">라떼</span><span class="theme-btn-desc">크림 · 에스프레소</span></span>
+            </button>
+            <button class="theme-btn theme-btn-wide" data-theme="ocean">
+              <span class="theme-swatch" style="background:#04101e;border-color:#00d4ff;"></span>
+              <span class="theme-btn-info"><span class="theme-btn-name">오션</span><span class="theme-btn-desc">딥 네이비 · 시안</span></span>
+            </button>
+            <button class="theme-btn theme-btn-wide" data-theme="paper">
+              <span class="theme-swatch" style="background:#f2ece0;border-color:#2c4a7c;"></span>
+              <span class="theme-btn-info"><span class="theme-btn-name">페이퍼</span><span class="theme-btn-desc">크림 · 잉크 블루</span></span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -1330,12 +1522,32 @@ function markPending(){ pendingBadge.classList.add("on"); }
 function clearPending(){ pendingBadge.classList.remove("on"); }
 
 // --- 테마 ---
+var THEME_NAMES={
+  "dark":"골드 다크","modern":"모던","minimal":"미니멀","vivid":"비비드",
+  "calm":"캄","noir":"누아르","latte":"라떼","ocean":"오션","paper":"페이퍼",
+  "light":"라이트","mocha":"모카","slate":"슬레이트","ivory":"아이보리","midnight":"미드나잇"
+};
 function applyTheme(t){
   currentTheme=t;
   document.documentElement.setAttribute("data-theme", t==="dark"?"":t);
   localStorage.setItem("theme",t);
   document.querySelectorAll(".theme-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.theme===t); });
+  // 섹션 서브 레이블에 현재 테마명 표시
+  var lbl=document.getElementById("themeCurrentLabel");
+  if(lbl) lbl.textContent="현재: "+(THEME_NAMES[t]||t);
+  // 테마별 폰트 변수를 body에 반영
+  var style=getComputedStyle(document.documentElement);
+  var fontBody=style.getPropertyValue("--font-body").trim();
+  if(fontBody) document.body.style.fontFamily=fontBody;
 }
+// 테마 접기/펼치기
+document.getElementById("themeHead").addEventListener("click",function(){
+  var body=document.getElementById("themeBody");
+  var arrow=document.getElementById("themeArrow");
+  var open=body.style.display==="none";
+  body.style.display=open?"block":"none";
+  arrow.textContent=open?"-":"+";
+});
 document.querySelectorAll(".theme-btn").forEach(function(b){
   b.addEventListener("click", function(){ applyTheme(b.dataset.theme); markPending(); });
 });
