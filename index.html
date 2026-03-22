@@ -2235,7 +2235,7 @@ function renderEditor(){
     si.addEventListener("input",function(){steps[i].sec=Math.max(0,parseInt(si.value)||0);updateTotalPreview();});
     db.addEventListener("click",function(){if(steps.length>1){steps.splice(i,1);renderEditor();}});
 
-    // ── 데스크탑 드래그 (recipeOrderList와 동일한 fixed+placeholder 방식) ──
+    // ── 데스크탑 드래그 ──
     var placeholder=null;
     handle.addEventListener("mousedown",function(e){
       e.preventDefault();
@@ -2243,11 +2243,18 @@ function renderEditor(){
       var rect=row.getBoundingClientRect();
       var itemH=row.offsetHeight+6;
       var dragging=false;
+
+      // placeholder: 원래 자리 표시
       placeholder=document.createElement("div");
       placeholder.style.cssText="height:"+itemH+"px;border:1.5px dashed var(--accent);border-radius:var(--radius);margin-bottom:6px;opacity:.5;flex-shrink:0;box-sizing:border-box;";
+      row.parentNode.insertBefore(placeholder,row.nextSibling);
+
+      // row를 overlay에 이식 — overflow 클리핑 완전 탈출
+      var overlay=document.getElementById("recipeModal");
+      overlay.appendChild(row);
       row.style.cssText="position:fixed;top:"+rect.top+"px;left:"+rect.left+"px;width:"+rect.width+"px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.45);opacity:.93;pointer-events:none;margin:0;";
       row.classList.add("dragging");
-      row.parentNode.insertBefore(placeholder,row.nextSibling);
+
       function onMove(e){
         var dy=e.clientY-startY;
         row.style.top=(rect.top+dy)+"px";
@@ -2265,9 +2272,15 @@ function renderEditor(){
       function onUp(){
         document.removeEventListener("mousemove",onMove);
         document.removeEventListener("mouseup",onUp);
+        // row를 stepsEditor로 복귀
         row.style.cssText="";
         row.classList.remove("dragging");
-        if(placeholder&&placeholder.parentNode){stepsEditor.insertBefore(row,placeholder);placeholder.parentNode.removeChild(placeholder);}
+        if(placeholder&&placeholder.parentNode){
+          stepsEditor.insertBefore(row,placeholder);
+          placeholder.parentNode.removeChild(placeholder);
+        } else {
+          stepsEditor.appendChild(row);
+        }
         placeholder=null;
         saveEditorOrder();
       }
@@ -2275,7 +2288,7 @@ function renderEditor(){
       document.addEventListener("mouseup",onUp);
     });
 
-    // ── 터치 드래그 (recipeOrderList와 동일한 방식) ──
+    // ── 터치 드래그 ──
     handle.addEventListener("touchstart",function(e){
       e.stopPropagation();
       var touch=e.touches[0];
@@ -2283,11 +2296,16 @@ function renderEditor(){
       var rect=row.getBoundingClientRect();
       var itemH=row.offsetHeight+6;
       var dragging=false;
+
       placeholder=document.createElement("div");
       placeholder.style.cssText="height:"+itemH+"px;border:1.5px dashed var(--accent);border-radius:var(--radius);margin-bottom:6px;opacity:.5;flex-shrink:0;box-sizing:border-box;";
+      row.parentNode.insertBefore(placeholder,row.nextSibling);
+
+      var overlay=document.getElementById("recipeModal");
+      overlay.appendChild(row);
       row.style.cssText="position:fixed;top:"+rect.top+"px;left:"+rect.left+"px;width:"+rect.width+"px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.45);opacity:.93;pointer-events:none;margin:0;";
       row.classList.add("dragging");
-      row.parentNode.insertBefore(placeholder,row.nextSibling);
+
       function onMove(e){
         e.preventDefault();
         var dy=e.touches[0].clientY-startY;
@@ -2308,7 +2326,12 @@ function renderEditor(){
         row.removeEventListener("touchend",onEnd);
         row.style.cssText="";
         row.classList.remove("dragging");
-        if(placeholder&&placeholder.parentNode){stepsEditor.insertBefore(row,placeholder);placeholder.parentNode.removeChild(placeholder);}
+        if(placeholder&&placeholder.parentNode){
+          stepsEditor.insertBefore(row,placeholder);
+          placeholder.parentNode.removeChild(placeholder);
+        } else {
+          stepsEditor.appendChild(row);
+        }
         placeholder=null;
         saveEditorOrder();
       }
