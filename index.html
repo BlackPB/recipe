@@ -550,6 +550,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
         <span class="lbl">총 추출 시간</span>
         <span class="val" id="homeTotalTime">-</span>
       </div>
+      <div id="voiceCacheBar" style="display:none;align-items:center;gap:8px;padding:6px 10px;background:var(--surface2);border-radius:var(--radius);margin-bottom:8px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">
+        <div class="dots" id="voiceCacheDots" style="display:none;"><span></span><span></span><span></span></div>
+        <span id="voiceCacheIcon" style="font-size:13px;display:none;">✓</span>
+        <span id="voiceCacheText"></span>
+      </div>
       <div class="btn-row">
         <button class="btn-primary" id="startBtn">시작하기</button>
       </div>
@@ -1188,10 +1193,72 @@ function toSpeakText(raw){
 // --- 오디오 ---
 var audioCache=new Map(), audioQueue=[], isPlayingAudio=false;
 var audioCtx=null;
-var currentAudioSrc=null; // 현재 재생 중인 AudioBufferSourceNode
-var _audioStopped=false;  // 강제 중단 플래그
+var currentAudioSrc=null;
+var _audioStopped=false;
 
-// iOS/Android 오디오 잠금 해제 — 모든 터치/클릭마다 resume 시도
+// --- IndexedDB 영구 음성 캐시 ---
+var _idb=null;
+var IDB_NAME="drip_audio_v1", IDB_STORE="voices";
+function openIDB(){
+  if(_idb)return Promise.resolve(_idb);
+  return new Promise(function(res,rej){
+    var req=indexedDB.open(IDB_NAME,1);
+    req.onupgradeneeded=function(e){e.target.result.createObjectStore(IDB_STORE);};
+    req.onsuccess=function(e){_idb=e.target.result;res(_idb);};
+    req.onerror=function(){rej();};
+  });
+}
+async function idbGet(key){
+  try{
+    var db=await openIDB();
+    return new Promise(function(res){
+      var tx=db.transaction(IDB_STORE,"readonly");
+      var req=tx.objectStore(IDB_STORE).get(key);
+      req.onsuccess=function(){res(req.result||null);};
+      req.onerror=function(){res(null);};
+    });
+  }catch{return null;}
+}
+async function idbSet(key,blob){
+  try{
+    var db=await openIDB();
+    return new Promise(function(res){
+      var tx=db.transaction(IDB_STORE,"readwrite");
+      tx.objectStore(IDB_STORE).put(blob,key);
+      tx.oncomplete=function(){res();};
+      tx.onerror=function(){res();};
+    });
+  }catch{}
+}
+async function idbDelete(key){
+  try{
+    var db=await openIDB();
+    return new Promise(function(res){
+      var tx=db.transaction(IDB_STORE,"readwrite");
+      tx.objectStore(IDB_STORE).delete(key);
+      tx.oncomplete=function(){res();};
+      tx.onerror=function(){res();};
+    });
+  }catch{}
+}
+async function idbKeys(){
+  try{
+    var db=await openIDB();
+    return new Promise(function(res){
+      var tx=db.transaction(IDB_STORE,"readonly");
+      var req=tx.objectStore(IDB_STORE).getAllKeys();
+      req.onsuccess=function(){res(req.result||[]);};
+      req.onerror=function(){res([]);};
+    });
+  }catch{return[];}
+}
+
+// 음성 캐시 키 생성 — 레시피+설정 포함
+function makeAudioKey(text){
+  return elVoice+"|"+getActiveKey().slice(-8)+"|"+JSON.stringify(voiceParams)+"|"+text;
+}
+
+// iOS/Android 오디오 잠금 해제
 function getAudioCtx(){
   if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
   if(audioCtx.state==="suspended") audioCtx.resume();
@@ -1205,7 +1272,6 @@ function unlockAudio(){
     src.buffer=buf;src.connect(ctx.destination);src.start(0);
   }catch{}
 }
-// 모든 오디오 즉시 중단
 function stopAudio(){
   _audioStopped=true;
   audioQueue=[];
@@ -1219,17 +1285,103 @@ document.addEventListener("touchend",unlockAudio,{passive:true});
 document.addEventListener("click",unlockAudio,{passive:true});
 
 async function fetchAudio(text){
+  // 1. 메모리 캐시
   if(audioCache.has(text))return audioCache.get(text);
+  // 2. IndexedDB 영구 캐시
+  var key=makeAudioKey(text);
+  var cached=await idbGet(key);
+  if(cached){
+    var url=URL.createObjectURL(cached);
+    audioCache.set(text,url);
+    return url;
+  }
+  // 3. API 요청
   var r=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+elVoice+"/stream",{
     method:"POST",headers:{"xi-api-key":getActiveKey(),"Content-Type":"application/json"},
     body:JSON.stringify({text:text,model_id:EL_MODEL,language_code:"ko",voice_settings:{stability:voiceParams.stability,similarity_boost:voiceParams.similarity,style:voiceParams.style,use_speaker_boost:true,speed:voiceParams.speed}})
   });
   if(!r.ok)throw new Error("fail");
-  var url=URL.createObjectURL(await r.blob());
+  var blob=await r.blob();
+  // IndexedDB에 영구 저장
+  await idbSet(key,blob);
+  var url=URL.createObjectURL(blob);
   audioCache.set(text,url);
   return url;
 }
+
 function getActiveKey(){return activeKeySlot===2?(elKey2||elKey):(elKey||elKey2);}
+
+// 현재 레시피 전체 음성 미리 다운로드
+var _cacheRecipeName="";
+async function cacheAllStepAudio(){
+  if(!getActiveKey())return;
+  var recipeName=steps.map(function(s){return s.name+s.sec;}).join("|");
+  if(_cacheRecipeName===recipeName){
+    // 이미 캐시됐는지 확인
+    var allCached=true;
+    for(var i=0;i<steps.length;i++){
+      var s=steps[i];
+      if(s.sec>0&&!s.desc){
+        var t=toSpeakText(s.name+". "+s.sec+"초");
+        var k=makeAudioKey(t);
+        var c=await idbGet(k);
+        if(!c){allCached=false;break;}
+      }
+    }
+    if(allCached){showVoiceCacheStatus("done");return;}
+  }
+  _cacheRecipeName=recipeName;
+  var texts=[];
+  steps.forEach(function(s,i){
+    if(s.sec===0)texts.push(toSpeakText(s.name));
+    else if(s.desc)texts.push(toSpeakText(s.name));
+    else{
+      texts.push(toSpeakText(s.name+". "+s.sec+"초"));
+      // 각 단계의 카운트다운도 캐싱
+      texts.push("three","two","one");
+    }
+  });
+  texts.push(toSpeakText("추출 완료. 맛있는 커피 드세요."));
+  // 중복 제거
+  texts=texts.filter(function(v,i,a){return a.indexOf(v)===i;});
+  var total=texts.length, done=0;
+  showVoiceCacheStatus("loading","음성 준비 중... 0/"+total);
+  for(var i=0;i<texts.length;i++){
+    if(!getActiveKey())break;
+    try{
+      await fetchAudio(texts[i]);
+      done++;
+      showVoiceCacheStatus("loading","음성 준비 중... "+done+"/"+total);
+    }catch{}
+  }
+  showVoiceCacheStatus("done");
+}
+
+function showVoiceCacheStatus(state, msg){
+  var bar=document.getElementById("voiceCacheBar");
+  var dots=document.getElementById("voiceCacheDots");
+  var icon=document.getElementById("voiceCacheIcon");
+  var txt=document.getElementById("voiceCacheText");
+  if(!bar)return;
+  if(state==="loading"){
+    bar.style.display="flex";
+    dots.style.display="flex";
+    icon.style.display="none";
+    txt.textContent=msg||"음성 준비 중...";
+    txt.style.color="var(--muted)";
+  } else if(state==="done"){
+    bar.style.display="flex";
+    dots.style.display="none";
+    icon.style.display="inline";
+    icon.style.color="var(--success)";
+    txt.textContent="오프라인 음성 준비 완료";
+    txt.style.color="var(--success)";
+    setTimeout(function(){bar.style.display="none";},3000);
+  } else {
+    bar.style.display="none";
+  }
+}
+
 async function prefetchNextStep(idx){
   if(!getActiveKey())return;
   var texts=[];
@@ -1289,11 +1441,6 @@ async function processQueue(){
 }
 
 // iOS: 앱 포그라운드 복귀 시 AudioContext 자동 resume
-document.addEventListener("visibilitychange",function(){
-  if(document.visibilityState==="visible"&&audioCtx&&audioCtx.state==="suspended"){
-    audioCtx.resume();
-  }
-});
 
 // --- Worker 동기화 ---
 function getLocalRecipes(){return JSON.parse(localStorage.getItem("recipes")||"[]");}
@@ -2106,6 +2253,8 @@ function loadRecipeByIdx(idx){
   showUpdateBtn(true);
   renderEditor();renderHome();
   markSaved();
+  // 백그라운드에서 음성 캐싱
+  if(getActiveKey()) setTimeout(function(){cacheAllStepAudio();},500);
 }
 
 headerRecipeSelect.addEventListener("change",function(){
@@ -2751,6 +2900,14 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
   else hint.innerHTML="레시피를 선택하거나 단계를 편집하고 저장하세요.";
   // 창 크기 바뀔 때 단계 제목 글자 크기 재계산
   window.addEventListener("resize",function(){fitStepTitle();});
+  // 앱 시작 시 현재 레시피 음성 캐싱
+  if(getActiveKey()) setTimeout(function(){cacheAllStepAudio();},1000);
+  // iOS 포그라운드 복귀 시 AudioContext resume
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState==="visible"&&audioCtx&&audioCtx.state==="suspended"){
+      audioCtx.resume();
+    }
+  });
 })();
 </script>
 </body>
