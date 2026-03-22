@@ -147,12 +147,22 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
     border-left:1px solid var(--border);
     gap:8px;
   }
-  .timer-side-panel .total-info{
-    flex-direction:column;align-items:center;justify-content:center;gap:2px;
-    padding:6px 8px;flex-shrink:0;margin-bottom:0;text-align:center;
+  /* 가로 모드에서 card-meta 숨김 (오른쪽 패널로 이동) */
+  .card-meta{display:none !important;}
+  /* 타이머 시간 더 크게 */
+  .time-display{font-size:clamp(36px,10dvh,96px) !important;margin-bottom:4px;}
+
+  /* 오른쪽 패널 meta */
+  .timer-side-meta{
+    display:grid;grid-template-columns:1fr 1fr;
+    gap:4px;flex-shrink:0;
+    border-bottom:1px solid var(--border);
+    padding-bottom:8px;margin-bottom:4px;
+    text-align:center;
   }
-  .timer-side-panel .total-info .lbl{font-size:10px;}
-  .timer-side-panel .total-info .val{font-size:16px;color:var(--accent);}
+  .timer-side-meta .meta-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+  .timer-side-meta .meta-val{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);}
+  .timer-side-meta .meta-val.hi{color:var(--accent);}
 
   /* 가로 버튼 - row1(일시정지/재개) 크게, row2(건너뛰기/중단) 작게 */
   .timer-btn-wrap{display:flex !important;flex-direction:column;gap:6px;width:100%;flex:1;}
@@ -288,27 +298,39 @@ body{background:var(--bg);color:var(--text);font-family:'Noto Sans KR',sans-seri
 .progress-fill{height:100%;background:var(--accent);border-radius:3px;transition:width 1s linear;}
 .step-track{height:2px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:4px;}
 .step-fill{height:100%;background:rgba(200,169,110,.35);border-radius:2px;transition:width 1s linear;}
-.main-card{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 16px 14px;text-align:center;margin-bottom:10px;}
-.step-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;margin-bottom:6px;}
-.step-title-timer{font-weight:300;margin-bottom:12px;transition:color .3s;white-space:nowrap;overflow:hidden;width:100%;display:block;font-size:clamp(13px, calc(2.2dvh * var(--start-btn-size, 1)), 36px);}
-.time-display{font-family:'DM Mono',monospace;font-weight:300;letter-spacing:-.02em;line-height:1;margin-bottom:12px;color:var(--text);transition:color .3s;font-size:clamp(36px, calc(10dvh * var(--start-btn-size, 1)), 120px);}
+.main-card{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px 12px;text-align:center;margin-bottom:8px;}
+.step-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;margin-bottom:4px;}
+.step-title-timer{font-weight:300;margin-bottom:8px;transition:color .3s;white-space:nowrap;overflow:hidden;width:100%;display:block;font-size:clamp(13px, calc(2.2dvh * var(--start-btn-size, 1)), 36px);}
+.time-display{font-family:'DM Mono',monospace;font-weight:300;letter-spacing:-.02em;line-height:1;margin-bottom:8px;color:var(--text);transition:color .3s;font-size:clamp(48px, calc(13dvh * var(--start-btn-size, 1)), 140px);}
 .time-display.urgent{color:var(--danger);}
-.card-meta{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);padding-top:10px;gap:4px;}
+.card-meta{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid var(--border);padding-top:8px;gap:4px;}
 .meta-item{text-align:center;}
 .meta-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
 .meta-val{font-family:'DM Mono',monospace;font-size:13px;color:var(--text);}
 .meta-val.hi{color:var(--accent);}
-.voice-loading{display:none;align-items:center;gap:6px;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);height:18px;margin-bottom:4px;}
+.voice-loading{display:none;align-items:center;gap:6px;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);height:16px;margin-bottom:3px;}
 .voice-loading.on{display:flex;}
 .dots{display:flex;gap:3px;}
 .dots span{width:4px;height:4px;border-radius:50%;background:var(--accent);animation:bop .8s infinite;}
 .dots span:nth-child(2){animation-delay:.15s;}
 .dots span:nth-child(3){animation-delay:.3s;}
 @keyframes bop{0%,80%,100%{transform:translateY(0);opacity:.3;}40%{transform:translateY(-4px);opacity:1;}}
-.next-card{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:9px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.next-card{flex-shrink:0;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
 .next-card .lbl{font-size:11px;color:var(--muted);}
 .next-card .val{font-size:13px;color:var(--text);}
-.step-list-mini{flex:1;overflow-y:auto;margin-bottom:10px;}
+.step-list-mini{flex:1;min-height:0;overflow-y:auto;margin-bottom:8px;}
+
+/* 소형 화면 (아이폰12미니 등 height<700) — 여백 더 압축 */
+@media(max-height:700px) and (orientation:portrait){
+  .main-card{padding:10px 14px 8px;margin-bottom:6px;}
+  .time-display{font-size:clamp(44px, calc(11dvh * var(--start-btn-size, 1)), 120px);}
+  .step-title-timer{margin-bottom:6px;}
+  .next-card{padding:6px 14px;margin-bottom:6px;}
+  .progress-wrap{margin-bottom:6px;}
+  .step-list-mini{margin-bottom:6px;}
+  .voice-loading{height:14px;margin-bottom:2px;}
+  #timerPanel{padding:6px 0;}
+}
 .step-mini{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:12px;color:#3a3a3a;border-bottom:1px solid var(--border);}
 .step-mini:last-child{border-bottom:none;}
 .step-mini.done{color:#2e2e2e;}
@@ -713,9 +735,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       </div>
       <!-- 오른쪽 패널 (가로 모드 전용) -->
       <div class="timer-side-panel">
-        <div class="total-info" style="margin-bottom:auto;">
-          <span class="lbl">총 추출 시간</span>
-          <span class="val" id="totalTimeDispSide">-</span>
+        <div class="timer-side-meta">
+          <div class="meta-item"><div class="meta-lbl">총 경과</div><div class="meta-val hi" id="totalElapsedDispL">0s</div></div>
+          <div class="meta-item"><div class="meta-lbl">총 추출</div><div class="meta-val" id="totalTimeDispL">-</div></div>
         </div>
         <div class="timer-btn-wrap">
           <div class="timer-btn-row1">
@@ -2972,8 +2994,10 @@ function updateUI(){
   document.getElementById("totalTimeVal").textContent=totalElapsed+" / "+total+"초";
   document.getElementById("totalElapsedDisp").textContent=(totalElapsed-descElapsed)+"s";
   document.getElementById("totalTimeDisp").textContent=fmtSec(total);
-  var side=document.getElementById("totalTimeDispSide");
-  if(side)side.textContent=fmtSec(total);
+  var elL=document.getElementById("totalElapsedDispL");
+  var ttL=document.getElementById("totalTimeDispL");
+  if(elL)elL.textContent=(totalElapsed-descElapsed)+"s";
+  if(ttL)ttL.textContent=fmtSec(total);
   var next=steps[currentStep+1];
   document.getElementById("nextStep").textContent=next?(next.name.replace(/\(.*?\)/g,"").trim()+" ("+(next.sec===0?"안내":next.sec+"초")+")"):"없음";
   renderMini();
