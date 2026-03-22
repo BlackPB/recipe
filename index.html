@@ -809,8 +809,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .done-popup-hint{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em;}
 
 /* --- 토스트 --- */
-.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.95);background:var(--surface);border:1px solid var(--border-hi);border-radius:var(--radius);padding:12px 22px;font-size:14px;color:var(--text);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.35);}
+.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.95);background:var(--surface);border:1px solid var(--border-hi);border-radius:var(--radius);padding:12px 22px;font-size:14px;color:var(--text);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.35);max-width:min(90vw,380px);text-align:center;}
 .toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
+.toast.long{white-space:normal;font-size:13px;}
 </style>
 </head>
 <body>
@@ -1408,7 +1409,7 @@ var currentStep=0, remaining=0, timer=null, isPaused=false, totalElapsed=0, desc
 var elKey        = localStorage.getItem("el_key") || "";
 var elKey2       = localStorage.getItem("el_key2") || "";
 var elKey3       = localStorage.getItem("el_key3") || "";
-var activeKeySlot= parseInt(localStorage.getItem("active_key_slot")||"1");
+var activeKeySlot= parseInt(localStorage.getItem("active_key_slot")||"1"); // 레거시 호환 — 실제 키 선택은 getKeyList() 순서로 처리
 var elVoice      = localStorage.getItem("el_voice") || "nPczCjzI2devNBz1zQrb";
 var voiceParams  = JSON.parse(localStorage.getItem("voice_params")||"null") || {stability:.75,similarity:.75,speed:.95,style:.10};
 var voiceEnabled = localStorage.getItem("voice_enabled") !== "false";
@@ -1568,6 +1569,13 @@ function showToast(m){
   toastEl.textContent=m;
   toastEl.classList.add("show");
   _toastT=setTimeout(function(){toastEl.classList.remove("show");_toastActive=false;},toastDuration);
+}
+// 키 소진 같은 중요 알림은 2.5초 고정
+function showToastLong(m){
+  clearTimeout(_toastT);
+  toastEl.textContent=m;
+  toastEl.classList.add("show","long");
+  _toastT=setTimeout(function(){toastEl.classList.remove("show","long");_toastActive=false;},2500);
 }
 function markPending(){ pendingBadge.classList.add("on"); }
 function clearPending(){ pendingBadge.classList.remove("on"); }
@@ -1880,39 +1888,50 @@ async function fetchAudio(text){
   // 1. 메모리 캐시
   if(audioCache.has(text))return audioCache.get(text);
   // 2. IndexedDB 영구 캐시
-  var key=makeAudioKey(text);
-  var cached=await idbGet(key);
+  var idbKey=makeAudioKey(text);
+  var cached=await idbGet(idbKey);
   if(cached){
     var url=URL.createObjectURL(cached);
     audioCache.set(text,url);
     return url;
   }
-  // 3. API 요청
-  var r=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+elVoice+"/stream",{
-    method:"POST",headers:{"xi-api-key":getActiveKey(),"Content-Type":"application/json"},
-    body:JSON.stringify({text:text,model_id:EL_MODEL,language_code:"ko",voice_settings:{stability:voiceParams.stability,similarity_boost:voiceParams.similarity,style:voiceParams.style,use_speaker_boost:true,speed:voiceParams.speed}})
-  });
-  if(!r.ok)throw new Error("fail");
-  var blob=await r.blob();
-  // IndexedDB에 영구 저장
-  await idbSet(key,blob);
-  var url=URL.createObjectURL(blob);
-  audioCache.set(text,url);
-  return url;
+  // 3. API — KEY 1→2→3 순서로 시도, 소진 시 자동 전환
+  var allKeys=getKeyList();
+  var lastErr=null;
+  for(var ki=0;ki<allKeys.length;ki++){
+    var key=allKeys[ki];
+    try{
+      var r=await fetchAudioWithKey(text,key);
+      var blob=await r.blob();
+      await idbSet(idbKey,blob);
+      var blobUrl=URL.createObjectURL(blob);
+      audioCache.set(text,blobUrl);
+      return blobUrl;
+    }catch(err){
+      lastErr=err;
+      if(err&&err.exhausted){
+        var keyLabel="KEY "+(ki+1);
+        var nextKey=allKeys[ki+1];
+        if(nextKey){
+          showToastLong("⚠ "+keyLabel+" 사용량 소진 → KEY "+(ki+2)+"로 전환");
+        } else {
+          showToastLong("⚠ "+keyLabel+" 사용량 소진 · 남은 키 없음");
+        }
+        continue;
+      }
+      throw err;
+    }
+  }
+  throw lastErr||new Error("all keys failed");
 }
 
 // 사용 가능한 키 배열 반환 (순서대로)
 function getKeyList(){
-  var keys=[elKey,elKey2,elKey3].filter(Boolean);
-  return keys;
+  return [elKey,elKey2,elKey3].filter(Boolean);
 }
 function getActiveKey(){
-  var keys=getKeyList();
-  return keys[0]||"";
+  return getKeyList()[0]||"";
 }
-
-// 소진된 키 추적
-var _exhaustedKeys=new Set();
 
 async function fetchAudioWithKey(text, key){
   var r=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+elVoice+"/stream",{
@@ -1927,52 +1946,9 @@ async function fetchAudioWithKey(text, key){
   return r;
 }
 
-async function fetchAudio(text){
-  // 1. 메모리 캐시
-  if(audioCache.has(text))return audioCache.get(text);
-  // 2. IndexedDB 영구 캐시
-  var idbKey=makeAudioKey(text);
-  var cached=await idbGet(idbKey);
-  if(cached){
-    var url=URL.createObjectURL(cached);
-    audioCache.set(text,url);
-    return url;
-  }
-  // 3. API — 키 순서대로 시도, 소진 시 다음 키로
-  var allKeys=[elKey,elKey2,elKey3].filter(Boolean);
-  var lastErr=null;
-  for(var ki=0;ki<allKeys.length;ki++){
-    var key=allKeys[ki];
-    try{
-      var r=await fetchAudioWithKey(text,key);
-      var blob=await r.blob();
-      await idbSet(idbKey,blob);
-      var blobUrl=URL.createObjectURL(blob);
-      audioCache.set(text,blobUrl);
-      return blobUrl;
-    }catch(err){
-      lastErr=err;
-      if(err&&err.exhausted){
-        // 사용량 소진 — 다음 키로
-        var keyLabel="KEY "+(ki+1);
-        var nextKey=allKeys[ki+1];
-        if(nextKey){
-          var nextLabel="KEY "+(ki+2);
-          showToast("⚠ "+keyLabel+" 사용량 소진 → "+nextLabel+"로 전환");
-        } else {
-          showToast("⚠ "+keyLabel+" 사용량 소진 · 남은 키 없음");
-        }
-        continue;
-      }
-      // 소진이 아닌 오류는 즉시 throw
-      throw err;
-    }
-  }
-  throw lastErr||new Error("all keys failed");
-}
 var _cacheRecipeName="";
 async function cacheAllStepAudio(){
-  if(!getActiveKey())return;
+  if(!getKeyList().length)return;
   var recipeName=steps.map(function(s){return s.name+s.sec;}).join("|");
   if(_cacheRecipeName===recipeName){
     // 이미 캐시됐는지 확인
@@ -2005,7 +1981,7 @@ async function cacheAllStepAudio(){
   var total=texts.length, done=0;
   showVoiceCacheStatus("loading","음성 준비 중... 0/"+total);
   for(var i=0;i<texts.length;i++){
-    if(!getActiveKey())break;
+    if(!getKeyList().length)break;
     try{
       await fetchAudio(texts[i]);
       done++;
@@ -2041,7 +2017,7 @@ function showVoiceCacheStatus(state, msg){
 }
 
 async function prefetchNextStep(idx){
-  if(!getActiveKey())return;
+  if(!getKeyList().length)return;
   var texts=[];
   if(idx<steps.length)texts.push(toSpeakText(steps[idx].name+". "+steps[idx].sec+"초"));
   texts.push("three","two","one");
@@ -2059,7 +2035,7 @@ async function processQueue(){
   if(!audioQueue.length){isPlayingAudio=false;return;}
   isPlayingAudio=true;
   var text=audioQueue.shift();
-  if(elKey){
+  if(getKeyList().length){
     try{
       voiceLoading.classList.add("on");
       var url=await fetchAudio(text);
@@ -3465,7 +3441,7 @@ workerConnectBtn.addEventListener("click",async function(){
 
 // 보이스 목록
 document.getElementById("loadVoicesBtn").addEventListener("click",async function(){
-  var key=apiKeyInput.value.trim()||getActiveKey();
+  var key=apiKeyInput.value.trim()||apiKeyInput2.value.trim()||apiKeyInput3.value.trim()||getActiveKey();
   if(!key){showToast("API 키를 먼저 입력해주세요");return;}
   var btn=document.getElementById("loadVoicesBtn");btn.textContent="불러오는 중...";
   try{
