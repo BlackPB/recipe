@@ -808,6 +808,12 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .done-popup-time{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);margin-bottom:20px;}
 .done-popup-hint{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.08em;}
 
+/* --- API 사용량 바 --- */
+.api-usage-wrap{display:flex;flex-direction:column;gap:3px;}
+.api-usage-bar-track{height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
+.api-usage-bar-fill{height:100%;border-radius:4px;transition:width .4s ease,background .4s;}
+.api-usage-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.04em;}
+
 /* --- 토스트 --- */
 .toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.95);background:var(--surface);border:1px solid var(--border-hi);border-radius:var(--radius);padding:12px 22px;font-size:14px;color:var(--text);opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;white-space:nowrap;z-index:999;box-shadow:0 8px 32px rgba(0,0,0,.35);max-width:min(90vw,380px);text-align:center;}
 .toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
@@ -1264,6 +1270,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
               </div>
             </div>
             <div class="status-row" id="apiStatus"><span class="status-dot"></span><span id="apiStatusText">미연결</span></div>
+            <div class="api-usage-wrap" id="apiUsage1" style="display:none;margin-top:5px;">
+              <div class="api-usage-bar-track"><div class="api-usage-bar-fill" id="apiUsageBar1"></div></div>
+              <div class="api-usage-label" id="apiUsageLabel1"></div>
+            </div>
           </div>
           <!-- 키 2 -->
           <div style="margin-bottom:10px;">
@@ -1275,6 +1285,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
               </div>
             </div>
             <div class="status-row" id="apiStatus2"><span class="status-dot"></span><span id="apiStatusText2">미연결</span></div>
+            <div class="api-usage-wrap" id="apiUsage2" style="display:none;margin-top:5px;">
+              <div class="api-usage-bar-track"><div class="api-usage-bar-fill" id="apiUsageBar2"></div></div>
+              <div class="api-usage-label" id="apiUsageLabel2"></div>
+            </div>
           </div>
           <!-- 키 3 -->
           <div style="margin-bottom:4px;">
@@ -1286,6 +1300,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
               </div>
             </div>
             <div class="status-row" id="apiStatus3"><span class="status-dot"></span><span id="apiStatusText3">미연결</span></div>
+            <div class="api-usage-wrap" id="apiUsage3" style="display:none;margin-top:5px;">
+              <div class="api-usage-bar-track"><div class="api-usage-bar-fill" id="apiUsageBar3"></div></div>
+              <div class="api-usage-label" id="apiUsageLabel3"></div>
+            </div>
           </div>
           <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:8px;line-height:1.6;">
             KEY 1 → KEY 2 → KEY 3 순서로 자동 전환<br>사용량 소진 또는 오류 시 다음 키로 시도
@@ -3387,33 +3405,74 @@ settingsSaveBtn.addEventListener("click",async function(){
   if(ok!==false)closeSettings();
 });
 
+// API 사용량 조회 + 표시
+async function fetchAndShowUsage(key, wrapId, barId, labelId, statusEl, statusTextEl){
+  var wrap=document.getElementById(wrapId);
+  var bar=document.getElementById(barId);
+  var label=document.getElementById(labelId);
+  if(!wrap||!bar||!label)return;
+  try{
+    var r=await fetch("https://api.elevenlabs.io/v1/user",{headers:{"xi-api-key":key}});
+    if(!r.ok){wrap.style.display="none";return;}
+    var data=await r.json();
+    var sub=data.subscription||{};
+    var used=sub.character_count||0;
+    var limit=sub.character_limit||0;
+    if(!limit){wrap.style.display="none";return;}
+    var remaining=Math.max(0,limit-used);
+    var pct=Math.min(100,Math.round(used/limit*100));
+    // 바 색상: 80% 이상 경고, 95% 이상 위험
+    var color=pct>=95?"var(--danger)":pct>=80?"#e0a840":"var(--success)";
+    wrap.style.display="block";
+    bar.style.width=pct+"%";
+    bar.style.background=color;
+    // 숫자 포맷
+    function fmt(n){return n>=1000?(n/1000).toFixed(1)+"k":n;}
+    label.textContent="잔여 "+fmt(remaining)+" / "+fmt(limit)+"자  ("+pct+"% 사용)";
+    label.style.color=pct>=95?"var(--danger)":pct>=80?"#e0a840":"var(--muted)";
+    // 상태 텍스트에도 간략히 표시
+    if(statusTextEl) statusTextEl.textContent="연결됨 · 잔여 "+fmt(remaining)+"자";
+  }catch{
+    wrap.style.display="none";
+  }
+}
+
 // API 확인
 apiSaveBtn.addEventListener("click",async function(){
   var key=apiKeyInput.value.trim();if(!key)return;
   draftKey=key;setStatus(apiStatus,apiStatusText,"","확인 중...");
   try{
     var r=await fetch("https://api.elevenlabs.io/v1/user",{headers:{"xi-api-key":key}});
-    if(r.ok){setStatus(apiStatus,apiStatusText,"ok","연결됨");markPending();}
-    else throw new Error();
-  }catch{setStatus(apiStatus,apiStatusText,"err","연결 실패");}
+    if(r.ok){
+      setStatus(apiStatus,apiStatusText,"ok","연결됨");
+      markPending();
+      fetchAndShowUsage(key,"apiUsage1","apiUsageBar1","apiUsageLabel1",apiStatus,apiStatusText);
+    } else throw new Error();
+  }catch{setStatus(apiStatus,apiStatusText,"err","연결 실패");document.getElementById("apiUsage1").style.display="none";}
 });
 apiSaveBtn2.addEventListener("click",async function(){
   var key=apiKeyInput2.value.trim();if(!key)return;
   draftKey2=key;setStatus(apiStatus2,apiStatusText2,"","확인 중...");
   try{
     var r=await fetch("https://api.elevenlabs.io/v1/user",{headers:{"xi-api-key":key}});
-    if(r.ok){setStatus(apiStatus2,apiStatusText2,"ok","연결됨");markPending();}
-    else throw new Error();
-  }catch{setStatus(apiStatus2,apiStatusText2,"err","연결 실패");}
+    if(r.ok){
+      setStatus(apiStatus2,apiStatusText2,"ok","연결됨");
+      markPending();
+      fetchAndShowUsage(key,"apiUsage2","apiUsageBar2","apiUsageLabel2",apiStatus2,apiStatusText2);
+    } else throw new Error();
+  }catch{setStatus(apiStatus2,apiStatusText2,"err","연결 실패");document.getElementById("apiUsage2").style.display="none";}
 });
 apiSaveBtn3.addEventListener("click",async function(){
   var key=apiKeyInput3.value.trim();if(!key)return;
   draftKey3=key;setStatus(apiStatus3,apiStatusText3,"","확인 중...");
   try{
     var r=await fetch("https://api.elevenlabs.io/v1/user",{headers:{"xi-api-key":key}});
-    if(r.ok){setStatus(apiStatus3,apiStatusText3,"ok","연결됨");markPending();}
-    else throw new Error();
-  }catch{setStatus(apiStatus3,apiStatusText3,"err","연결 실패");}
+    if(r.ok){
+      setStatus(apiStatus3,apiStatusText3,"ok","연결됨");
+      markPending();
+      fetchAndShowUsage(key,"apiUsage3","apiUsageBar3","apiUsageLabel3",apiStatus3,apiStatusText3);
+    } else throw new Error();
+  }catch{setStatus(apiStatus3,apiStatusText3,"err","연결 실패");document.getElementById("apiUsage3").style.display="none";}
 });
 
 // API 키 섹션 접기/펼치기
@@ -3423,6 +3482,12 @@ document.getElementById("apiKeyHead").addEventListener("click",function(){
   var open=body.style.display==="none";
   body.style.display=open?"block":"none";
   arrow.textContent=open?"-":"+";
+  // 섹션이 열릴 때 저장된 키 사용량 자동 조회
+  if(open){
+    if(elKey) fetchAndShowUsage(elKey,"apiUsage1","apiUsageBar1","apiUsageLabel1",apiStatus,apiStatusText);
+    if(elKey2) fetchAndShowUsage(elKey2,"apiUsage2","apiUsageBar2","apiUsageLabel2",apiStatus2,apiStatusText2);
+    if(elKey3) fetchAndShowUsage(elKey3,"apiUsage3","apiUsageBar3","apiUsageLabel3",apiStatus3,apiStatusText3);
+  }
 });
 
 // Worker 연결
