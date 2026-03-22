@@ -1248,28 +1248,48 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
       <!-- API 키 -->
       <div class="setting-row">
-        <div class="setting-label">ElevenLabs API 키</div>
-        <div class="setting-sub">자연스러운 한국어 AI 음성</div>
-        <!-- 키 1 -->
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">
-          <input type="radio" name="activeKey" id="activeKey1" value="1" style="accent-color:var(--accent);cursor:pointer;flex-shrink:0;">
-          <label for="activeKey1" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em;cursor:pointer;flex-shrink:0;">KEY 1</label>
-          <div class="api-row" style="flex:1;margin-bottom:0;">
-            <input class="api-input" type="password" id="apiKeyInput" placeholder="sk_...">
-            <button class="api-btn" id="apiSaveBtn">확인</button>
+        <div class="collapsible-head" id="apiKeyHead">
+          <div><div class="setting-label">ElevenLabs API 키</div><div class="setting-sub">최대 3개 · 사용량 소진 시 자동 전환</div></div>
+          <span class="collapse-arrow" id="apiKeyArrow">+</span>
+        </div>
+        <div id="apiKeyBody" style="display:none;margin-top:12px;">
+          <!-- 키 1 -->
+          <div style="margin-bottom:10px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.08em;flex-shrink:0;">KEY 1</span>
+              <div class="api-row" style="flex:1;margin-bottom:0;">
+                <input class="api-input" type="password" id="apiKeyInput" placeholder="sk_...">
+                <button class="api-btn" id="apiSaveBtn">확인</button>
+              </div>
+            </div>
+            <div class="status-row" id="apiStatus"><span class="status-dot"></span><span id="apiStatusText">미연결</span></div>
+          </div>
+          <!-- 키 2 -->
+          <div style="margin-bottom:10px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.08em;flex-shrink:0;">KEY 2</span>
+              <div class="api-row" style="flex:1;margin-bottom:0;">
+                <input class="api-input" type="password" id="apiKeyInput2" placeholder="sk_...">
+                <button class="api-btn" id="apiSaveBtn2">확인</button>
+              </div>
+            </div>
+            <div class="status-row" id="apiStatus2"><span class="status-dot"></span><span id="apiStatusText2">미연결</span></div>
+          </div>
+          <!-- 키 3 -->
+          <div style="margin-bottom:4px;">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+              <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);letter-spacing:.08em;flex-shrink:0;">KEY 3</span>
+              <div class="api-row" style="flex:1;margin-bottom:0;">
+                <input class="api-input" type="password" id="apiKeyInput3" placeholder="sk_...">
+                <button class="api-btn" id="apiSaveBtn3">확인</button>
+              </div>
+            </div>
+            <div class="status-row" id="apiStatus3"><span class="status-dot"></span><span id="apiStatusText3">미연결</span></div>
+          </div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:8px;line-height:1.6;">
+            KEY 1 → KEY 2 → KEY 3 순서로 자동 전환<br>사용량 소진 또는 오류 시 다음 키로 시도
           </div>
         </div>
-        <div class="status-row" id="apiStatus"><span class="status-dot"></span><span id="apiStatusText">미연결</span></div>
-        <!-- 키 2 -->
-        <div style="display:flex;align-items:center;gap:6px;margin-top:8px;margin-bottom:5px;">
-          <input type="radio" name="activeKey" id="activeKey2" value="2" style="accent-color:var(--accent);cursor:pointer;flex-shrink:0;">
-          <label for="activeKey2" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.06em;cursor:pointer;flex-shrink:0;">KEY 2</label>
-          <div class="api-row" style="flex:1;margin-bottom:0;">
-            <input class="api-input" type="password" id="apiKeyInput2" placeholder="sk_...">
-            <button class="api-btn" id="apiSaveBtn2">확인</button>
-          </div>
-        </div>
-        <div class="status-row" id="apiStatus2"><span class="status-dot"></span><span id="apiStatusText2">미연결</span></div>
       </div>
 
       <!-- 보이스 -->
@@ -1387,6 +1407,7 @@ var recipeInfo = {bean:"", temp:"", grind:"", water:"", comment:""};
 var currentStep=0, remaining=0, timer=null, isPaused=false, totalElapsed=0, descElapsed=0;
 var elKey        = localStorage.getItem("el_key") || "";
 var elKey2       = localStorage.getItem("el_key2") || "";
+var elKey3       = localStorage.getItem("el_key3") || "";
 var activeKeySlot= parseInt(localStorage.getItem("active_key_slot")||"1");
 var elVoice      = localStorage.getItem("el_voice") || "nPczCjzI2devNBz1zQrb";
 var voiceParams  = JSON.parse(localStorage.getItem("voice_params")||"null") || {stability:.75,similarity:.75,speed:.95,style:.10};
@@ -1408,6 +1429,7 @@ var draftParams  = JSON.parse(JSON.stringify(voiceParams));
 var draftVoice   = elVoice;
 var draftKey     = elKey;
 var draftKey2    = elKey2;
+var draftKey3    = elKey3;
 var EL_MODEL     = "eleven_turbo_v2_5";
 var PREVIEW_TEXT = "안녕하세요. 여러분들께 더 편안한 커피생활을 위해 만들어진 웹페이지입니다.";
 
@@ -1424,6 +1446,10 @@ var apiKeyInput2     = document.getElementById("apiKeyInput2");
 var apiSaveBtn2      = document.getElementById("apiSaveBtn2");
 var apiStatus2       = document.getElementById("apiStatus2");
 var apiStatusText2   = document.getElementById("apiStatusText2");
+var apiKeyInput3     = document.getElementById("apiKeyInput3");
+var apiSaveBtn3      = document.getElementById("apiSaveBtn3");
+var apiStatus3       = document.getElementById("apiStatus3");
+var apiStatusText3   = document.getElementById("apiStatusText3");
 var voiceLoading     = document.getElementById("voiceLoading");
 var voiceSelect      = document.getElementById("voiceSelect");
 var pauseBtn         = document.getElementById("pauseBtn");
@@ -1818,9 +1844,10 @@ async function idbKeys(){
   }catch{return[];}
 }
 
-// 음성 캐시 키 생성 — 레시피+설정 포함
+// 음성 캐시 키 생성 — 보이스+키조합+파라미터 포함
 function makeAudioKey(text){
-  return elVoice+"|"+getActiveKey().slice(-8)+"|"+JSON.stringify(voiceParams)+"|"+text;
+  var keyPart=(elKey||elKey2||elKey3||"").slice(-8);
+  return elVoice+"|"+keyPart+"|"+JSON.stringify(voiceParams)+"|"+text;
 }
 
 // iOS/Android 오디오 잠금 해제
@@ -1874,9 +1901,75 @@ async function fetchAudio(text){
   return url;
 }
 
-function getActiveKey(){return activeKeySlot===2?(elKey2||elKey):(elKey||elKey2);}
+// 사용 가능한 키 배열 반환 (순서대로)
+function getKeyList(){
+  var keys=[elKey,elKey2,elKey3].filter(Boolean);
+  return keys;
+}
+function getActiveKey(){
+  var keys=getKeyList();
+  return keys[0]||"";
+}
 
-// 현재 레시피 전체 음성 미리 다운로드
+// 소진된 키 추적
+var _exhaustedKeys=new Set();
+
+async function fetchAudioWithKey(text, key){
+  var r=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+elVoice+"/stream",{
+    method:"POST",
+    headers:{"xi-api-key":key,"Content-Type":"application/json"},
+    body:JSON.stringify({text:text,model_id:EL_MODEL,language_code:"ko",voice_settings:{stability:voiceParams.stability,similarity_boost:voiceParams.similarity,style:voiceParams.style,use_speaker_boost:true,speed:voiceParams.speed}})
+  });
+  if(!r.ok){
+    var status=r.status;
+    throw {status:status, exhausted:(status===429||status===401||status===403)};
+  }
+  return r;
+}
+
+async function fetchAudio(text){
+  // 1. 메모리 캐시
+  if(audioCache.has(text))return audioCache.get(text);
+  // 2. IndexedDB 영구 캐시
+  var idbKey=makeAudioKey(text);
+  var cached=await idbGet(idbKey);
+  if(cached){
+    var url=URL.createObjectURL(cached);
+    audioCache.set(text,url);
+    return url;
+  }
+  // 3. API — 키 순서대로 시도, 소진 시 다음 키로
+  var allKeys=[elKey,elKey2,elKey3].filter(Boolean);
+  var lastErr=null;
+  for(var ki=0;ki<allKeys.length;ki++){
+    var key=allKeys[ki];
+    try{
+      var r=await fetchAudioWithKey(text,key);
+      var blob=await r.blob();
+      await idbSet(idbKey,blob);
+      var blobUrl=URL.createObjectURL(blob);
+      audioCache.set(text,blobUrl);
+      return blobUrl;
+    }catch(err){
+      lastErr=err;
+      if(err&&err.exhausted){
+        // 사용량 소진 — 다음 키로
+        var keyLabel="KEY "+(ki+1);
+        var nextKey=allKeys[ki+1];
+        if(nextKey){
+          var nextLabel="KEY "+(ki+2);
+          showToast("⚠ "+keyLabel+" 사용량 소진 → "+nextLabel+"로 전환");
+        } else {
+          showToast("⚠ "+keyLabel+" 사용량 소진 · 남은 키 없음");
+        }
+        continue;
+      }
+      // 소진이 아닌 오류는 즉시 throw
+      throw err;
+    }
+  }
+  throw lastErr||new Error("all keys failed");
+}
 var _cacheRecipeName="";
 async function cacheAllStepAudio(){
   if(!getActiveKey())return;
@@ -2038,6 +2131,7 @@ async function loadRecipes(){
           if(s.elVoice){elVoice=s.elVoice;localStorage.setItem("el_voice",elVoice);}
           if(s.elKey){elKey=s.elKey;localStorage.setItem("el_key",elKey);apiKeyInput.value=elKey;setStatus(apiStatus,apiStatusText,"ok","연결됨");}
           if(s.elKey2){elKey2=s.elKey2;localStorage.setItem("el_key2",elKey2);apiKeyInput2.value=elKey2;setStatus(apiStatus2,apiStatusText2,"ok","연결됨");}
+          if(s.elKey3){elKey3=s.elKey3;localStorage.setItem("el_key3",elKey3);apiKeyInput3.value=elKey3;setStatus(apiStatus3,apiStatusText3,"ok","연결됨");}
           if(s.activeKeySlot){activeKeySlot=s.activeKeySlot;localStorage.setItem("active_key_slot",activeKeySlot);}
         }
         return data.recipes;
@@ -2050,7 +2144,7 @@ async function persistAll(recipes,defRecipe){
   setLocalRecipes(recipes);
   if(workerUrl){
     showSync("저장 중...");
-    try{await workerSave({recipes:recipes,defaultRecipe:defRecipe!==undefined?defRecipe:defaultRecipeName,settings:{voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,activeKeySlot:activeKeySlot}});hideSync();}
+    try{await workerSave({recipes:recipes,defaultRecipe:defRecipe!==undefined?defRecipe:defaultRecipeName,settings:{voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,elKey3:elKey3}});hideSync();}
     catch{hideSync();showToast("동기화 실패 - 로컬에만 저장됨");}
   }
 }
@@ -3052,7 +3146,7 @@ recipeApplyBtn.addEventListener("click",async function(){
 function openSettings(){
   settingsModal.classList.add("open");
   draftParams=JSON.parse(JSON.stringify(voiceParams));
-  draftVoice=elVoice;draftKey=elKey;draftKey2=elKey2;
+  draftVoice=elVoice;draftKey=elKey;draftKey2=elKey2;draftKey3=elKey3;
   voiceToggle.checked=voiceEnabled;
   document.getElementById("countdownToggle").checked=countdownEnabled;
   syncSettingsUI();clearPending();
@@ -3070,7 +3164,7 @@ function syncSettingsUI(){
   voiceSelect.value=draftVoice;
   apiKeyInput.value=draftKey;
   apiKeyInput2.value=draftKey2;
-  document.getElementById("activeKey"+(activeKeySlot===2?"2":"1")).checked=true;
+  apiKeyInput3.value=draftKey3;
   document.getElementById("recipeDropdownToggle").checked=recipeDropdownVisible;
   document.getElementById("landscapeReverseToggle").checked=landscapeReverse;
   if(workerUrl){workerUrlInput.value=workerUrl;setStatus(workerStatus,workerStatusText,"ok","연결됨");}
@@ -3087,7 +3181,7 @@ function restoreSettings(){
   voiceSelect.value=elVoice;
   if(elKey){apiKeyInput.value=elKey;setStatus(apiStatus,apiStatusText,"ok","연결됨");}
   if(elKey2){apiKeyInput2.value=elKey2;setStatus(apiStatus2,apiStatusText2,"ok","연결됨");}
-  document.getElementById("activeKey"+(activeKeySlot===2?"2":"1")).checked=true;
+  if(elKey3){apiKeyInput3.value=elKey3;setStatus(apiStatus3,apiStatusText3,"ok","연결됨");}
   if(workerUrl){workerUrlInput.value=workerUrl;setStatus(workerStatus,workerStatusText,"ok","연결됨");}
   ["stability","similarity","speed","style"].forEach(function(k){
     var sl=document.getElementById(k+"Slider");
@@ -3099,21 +3193,13 @@ function restoreSettings(){
   voiceSelect.addEventListener("change",function(){draftVoice=voiceSelect.value;markPending();});
   voiceToggle.addEventListener("change",function(){markPending();});
   document.getElementById("countdownToggle").addEventListener("change",function(){markPending();});
-  // 활성 키 슬롯 라디오 변경
-  document.querySelectorAll("input[name='activeKey']").forEach(function(r){
-    r.addEventListener("change",function(){
-      activeKeySlot=parseInt(r.value);
-      localStorage.setItem("active_key_slot",activeKeySlot);
-      markPending();
-    });
-  });
 }
 settingsBtn.addEventListener("click",openSettings);
 document.getElementById("settingsClose").addEventListener("click",function(){
-  draftParams=JSON.parse(JSON.stringify(voiceParams));draftVoice=elVoice;draftKey=elKey;draftKey2=elKey2;syncSettingsUI();clearPending();closeSettings();
+  draftParams=JSON.parse(JSON.stringify(voiceParams));draftVoice=elVoice;draftKey=elKey;draftKey2=elKey2;draftKey3=elKey3;syncSettingsUI();clearPending();closeSettings();
 });
 settingsCancelBtn.addEventListener("click",function(){
-  draftParams=JSON.parse(JSON.stringify(voiceParams));draftVoice=elVoice;draftKey=elKey;draftKey2=elKey2;syncSettingsUI();clearPending();closeSettings();
+  draftParams=JSON.parse(JSON.stringify(voiceParams));draftVoice=elVoice;draftKey=elKey;draftKey2=elKey2;draftKey3=elKey3;syncSettingsUI();clearPending();closeSettings();
 });
 
 // 파라미터 접기
@@ -3258,6 +3344,8 @@ async function applySettings(){
       if(r.ok){elKey=inputKey;localStorage.setItem("el_key",elKey);setStatus(apiStatus,apiStatusText,"ok","연결됨");}
       else{setStatus(apiStatus,apiStatusText,"err","키 오류");return false;}
     }catch{setStatus(apiStatus,apiStatusText,"err","연결 실패");return false;}
+  } else if(!inputKey&&elKey){
+    elKey="";localStorage.removeItem("el_key");setStatus(apiStatus,apiStatusText,"","미연결");
   }
   // KEY 2 검증
   var inputKey2=apiKeyInput2.value.trim();
@@ -3269,12 +3357,20 @@ async function applySettings(){
       else{setStatus(apiStatus2,apiStatusText2,"err","키 오류");return false;}
     }catch{setStatus(apiStatus2,apiStatusText2,"err","연결 실패");return false;}
   } else if(!inputKey2&&elKey2){
-    // 입력 지워진 경우 — 키 제거
     elKey2="";localStorage.removeItem("el_key2");setStatus(apiStatus2,apiStatusText2,"","미연결");
   }
-  // 활성 슬롯
-  var slotRadio=document.querySelector("input[name='activeKey']:checked");
-  if(slotRadio){activeKeySlot=parseInt(slotRadio.value);localStorage.setItem("active_key_slot",activeKeySlot);}
+  // KEY 3 검증
+  var inputKey3=apiKeyInput3.value.trim();
+  if(inputKey3&&inputKey3!==elKey3){
+    setStatus(apiStatus3,apiStatusText3,"","확인 중...");
+    try{
+      var r3=await fetch("https://api.elevenlabs.io/v1/user",{headers:{"xi-api-key":inputKey3}});
+      if(r3.ok){elKey3=inputKey3;localStorage.setItem("el_key3",elKey3);setStatus(apiStatus3,apiStatusText3,"ok","연결됨");}
+      else{setStatus(apiStatus3,apiStatusText3,"err","키 오류");return false;}
+    }catch{setStatus(apiStatus3,apiStatusText3,"err","연결 실패");return false;}
+  } else if(!inputKey3&&elKey3){
+    elKey3="";localStorage.removeItem("el_key3");setStatus(apiStatus3,apiStatusText3,"","미연결");
+  }
   voiceParams=JSON.parse(JSON.stringify(draftParams));
   elVoice=draftVoice;
   voiceEnabled=voiceToggle.checked;
@@ -3296,7 +3392,7 @@ async function applySettings(){
   if(url){workerUrl=url;localStorage.setItem("worker_url",workerUrl);}
   if(workerUrl){
     showSync("설정 동기화 중...");
-    try{await workerSave({recipes:getLocalRecipes(),defaultRecipe:defaultRecipeName,settings:{voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,activeKeySlot:activeKeySlot}});hideSync();}
+    try{await workerSave({recipes:getLocalRecipes(),defaultRecipe:defaultRecipeName,settings:{voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,elKey3:elKey3}});hideSync();}
     catch{hideSync();showToast("동기화 실패");}
   }
   clearPending();
@@ -3333,6 +3429,24 @@ apiSaveBtn2.addEventListener("click",async function(){
     if(r.ok){setStatus(apiStatus2,apiStatusText2,"ok","연결됨");markPending();}
     else throw new Error();
   }catch{setStatus(apiStatus2,apiStatusText2,"err","연결 실패");}
+});
+apiSaveBtn3.addEventListener("click",async function(){
+  var key=apiKeyInput3.value.trim();if(!key)return;
+  draftKey3=key;setStatus(apiStatus3,apiStatusText3,"","확인 중...");
+  try{
+    var r=await fetch("https://api.elevenlabs.io/v1/user",{headers:{"xi-api-key":key}});
+    if(r.ok){setStatus(apiStatus3,apiStatusText3,"ok","연결됨");markPending();}
+    else throw new Error();
+  }catch{setStatus(apiStatus3,apiStatusText3,"err","연결 실패");}
+});
+
+// API 키 섹션 접기/펼치기
+document.getElementById("apiKeyHead").addEventListener("click",function(){
+  var body=document.getElementById("apiKeyBody");
+  var arrow=document.getElementById("apiKeyArrow");
+  var open=body.style.display==="none";
+  body.style.display=open?"block":"none";
+  arrow.textContent=open?"-":"+";
 });
 
 // Worker 연결
@@ -3373,14 +3487,14 @@ document.getElementById("loadVoicesBtn").addEventListener("click",async function
 var previewAudio=null;
 var _previewBusy=false;
 previewBtn.addEventListener("click",async function(){
-  if(!getActiveKey()&&!draftKey&&!draftKey2){showToast("API 키가 없습니다");return;}
+  var activePreviewKey=draftKey||draftKey2||draftKey3||getActiveKey();
+  if(!activePreviewKey){showToast("API 키가 없습니다");return;}
   // 재생 중이면 중단
   if(previewAudio){previewAudio.pause();previewAudio=null;previewBtnText.textContent="미리 듣기";return;}
   // 생성 중이면 무시
   if(_previewBusy)return;
   _previewBusy=true;
   previewBtn.classList.add("loading");previewBtnText.textContent="생성 중...";
-  var activePreviewKey=(activeKeySlot===2?(draftKey2||draftKey):(draftKey||draftKey2))||getActiveKey();
   try{
     var r=await fetch("https://api.elevenlabs.io/v1/text-to-speech/"+(draftVoice||elVoice)+"/stream",{
       method:"POST",headers:{"xi-api-key":activePreviewKey,"Content-Type":"application/json"},
@@ -3398,7 +3512,7 @@ previewBtn.addEventListener("click",async function(){
 
 // 내보내기/불러오기
 document.getElementById("exportBtn").addEventListener("click",function(){
-  var p={version:1,exportedAt:new Date().toISOString(),voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,activeKeySlot:activeKeySlot,workerUrl:workerUrl,defaultRecipe:defaultRecipeName,theme:currentTheme,startBtnSize:startBtnSize,pauseFlex:pauseFlex,pauseFlexLandscape:pauseFlexLandscape,pauseBtnSizeLandscape:pauseBtnSizeLandscape,scrollSens:scrollSens};
+  var p={version:1,exportedAt:new Date().toISOString(),voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,elKey3:elKey3,workerUrl:workerUrl,defaultRecipe:defaultRecipeName,theme:currentTheme,startBtnSize:startBtnSize,pauseFlex:pauseFlex,pauseFlexLandscape:pauseFlexLandscape,pauseBtnSizeLandscape:pauseBtnSizeLandscape,scrollSens:scrollSens};
   var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:"application/json"}));
   a.download="handdrip-settings.json";a.click();showToast("내보내기 완료");
 });
@@ -3412,7 +3526,7 @@ importFile.addEventListener("change",async function(){
     if(p.elVoice)elVoice=p.elVoice;
     if(p.elKey)elKey=p.elKey;
     if(p.elKey2)elKey2=p.elKey2;
-    if(p.activeKeySlot)activeKeySlot=p.activeKeySlot;
+    if(p.elKey3)elKey3=p.elKey3;
     if(p.workerUrl)workerUrl=p.workerUrl;
     if(p.theme)applyTheme(p.theme);
     if(p.startBtnSize)applyStartBtnSize(p.startBtnSize);
@@ -3425,7 +3539,7 @@ importFile.addEventListener("change",async function(){
     localStorage.setItem("el_voice",elVoice);
     if(elKey)localStorage.setItem("el_key",elKey);
     if(elKey2)localStorage.setItem("el_key2",elKey2);
-    localStorage.setItem("active_key_slot",activeKeySlot);
+    if(elKey3)localStorage.setItem("el_key3",elKey3);
     if(workerUrl)localStorage.setItem("worker_url",workerUrl);
     if(defaultRecipeName)localStorage.setItem("default_recipe",defaultRecipeName);
     restoreSettings();var recipes=await loadRecipes();await renderRecipeSelect(recipes);
