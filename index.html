@@ -306,6 +306,13 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
   /* 타이머 시간 더 크게 */
   .time-display{font-size:clamp(24px, min(calc(9dvh * var(--start-btn-size, 1)), calc(12dvw * var(--start-btn-size, 1))), 96px) !important;margin-bottom:4px;}
 
+  /* 아이폰12미니 가로 (780×360) — 왼쪽 타이머 시간 잘림 방지 */
+  @media(max-width:820px) and (max-height:400px){
+    .time-display{font-size:clamp(20px, min(calc(7dvh * var(--start-btn-size, 1)), calc(9dvw * var(--start-btn-size, 1))), 60px) !important;}
+    .timer-content-area{padding:4px 8px;}
+    .step-title-timer{font-size:clamp(11px,1.8dvh,16px) !important;}
+  }
+
   /* 오른쪽 패널 meta */
   .timer-side-meta{
     display:grid;grid-template-columns:1fr 1fr;
@@ -614,7 +621,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
 .step-row:hover{border-color:var(--border-hi);}
 .step-row-top{display:flex;align-items:center;gap:4px;flex:1;min-width:0;}
 .step-row-bottom{display:flex;align-items:center;gap:3px;flex-shrink:0;margin-left:auto;}
-.step-row.dragging{opacity:.85;}
+.step-row.dragging{opacity:.85;transition:none !important;}
 .drag-handle{
   width:18px;height:20px;flex-shrink:0;cursor:grab;
   display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;
@@ -643,6 +650,18 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
 .step-sec-input{width:38px;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;text-align:center;padding:3px 3px;outline:none;-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield;}
 .step-sec-input::-webkit-inner-spin-button,.step-sec-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .step-sec-input:focus{border-color:var(--accent);}
+/* 단계 초 스테퍼 */
+.step-sec-stepper{display:inline-flex;align-items:center;gap:2px;flex-shrink:0;}
+.step-sec-stepper .sss-btn{width:22px;height:22px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:4px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;font-family:'DM Mono',monospace;transition:border-color .12s,color .12s;}
+.step-sec-stepper .sss-btn:hover{border-color:var(--accent);color:var(--accent);}
+.step-sec-stepper .sss-input{width:38px;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;text-align:center;padding:3px 2px;outline:none;-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield;}
+.step-sec-stepper .sss-input::-webkit-inner-spin-button,.step-sec-stepper .sss-input::-webkit-outer-spin-button{-webkit-appearance:none;}
+.step-sec-stepper .sss-input:focus{border-color:var(--accent);}
+.step-sec-stepper .sss-lbl{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);}
+/* 메모 행 레이아웃 */
+.note-row-wrap{display:flex;align-items:flex-start;gap:6px;width:100%;}
+.note-row-wrap textarea{flex:1;}
+.note-row-stepper{flex-shrink:0;align-self:flex-start;margin-top:4px;}
 .sec-lbl{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0;}
 /* 단계 토글 버튼 공통 */
 .step-toggle-btn{
@@ -1266,10 +1285,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <div class="setting-row">
         <div class="setting-head">
           <div><div class="setting-label">레시피 목록 스크롤 감도</div><div class="setting-sub">낮을수록 천천히 스크롤</div></div>
-          <span class="slider-val" id="scrollSensVal">3</span>
+          <span class="slider-val" id="scrollSensVal">0.3</span>
         </div>
         <div style="margin-top:8px;">
-          <input type="range" id="scrollSensSlider" min="1" max="10" step="1" value="3">
+          <input type="range" id="scrollSensSlider" min="0.0" max="1.0" step="0.1" value="0.3">
           <div style="display:flex;justify-content:space-between;margin-top:3px;">
             <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">느리게</span>
             <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">빠르게</span>
@@ -1513,7 +1532,7 @@ var startBtnSizeTimer     = parseFloat(localStorage.getItem("start_btn_size_time
 var pauseFlex    = parseInt(localStorage.getItem("pause_flex")||"2");
 var pauseFlexLandscape = parseInt(localStorage.getItem("pause_flex_landscape")||"2");
 var pauseBtnSizeLandscape = parseFloat(localStorage.getItem("pause_btn_size_landscape")||"1.0");
-var scrollSens   = parseInt(localStorage.getItem("scroll_sens")||"3");
+var scrollSens   = parseFloat(localStorage.getItem("scroll_sens")||"0.3");
 var draftParams  = JSON.parse(JSON.stringify(voiceParams));
 var draftVoice   = elVoice;
 var draftKey     = elKey;
@@ -1807,26 +1826,35 @@ document.getElementById("pauseFlexHead").addEventListener("click",function(){
 });
 
 function applyScrollSens(v){
-  scrollSens=parseInt(v);
+  scrollSens=parseFloat(v);
   localStorage.setItem("scroll_sens",scrollSens);
   var sl=document.getElementById("scrollSensSlider");
   var vl=document.getElementById("scrollSensVal");
   if(sl)sl.value=scrollSens;
-  if(vl)vl.textContent=scrollSens;
+  if(vl)vl.textContent=Number(scrollSens).toFixed(1);
 }
 document.getElementById("scrollSensSlider").addEventListener("input",function(){
-  applyScrollSens(parseInt(this.value));
+  applyScrollSens(parseFloat(this.value));
   markPending();
 });
 
 function applyRecipeDropdown(visible){
   recipeDropdownVisible=visible;
   localStorage.setItem("recipe_dropdown_visible",visible);
-  var el=document.getElementById("recipeSelect");
-  if(el)el.style.display=visible?"":"none";
+  // 가로 소형 모드 감지 (폰 가로모드: max-height:500px && landscape)
+  var isLandscapeMobile=window.matchMedia("(max-height:500px) and (orientation:landscape)").matches;
+  // 가로 소형이면 항상 드롭다운 표시
+  var useDropdown = visible || isLandscapeMobile;
+  var dropEl=document.getElementById("recipeSelect");
+  var listEl=document.getElementById("recipeOrderList");
+  if(dropEl) dropEl.style.display=useDropdown?"":"none";
+  if(listEl) listEl.style.display=useDropdown?"none":"";
   var tog=document.getElementById("recipeDropdownToggle");
   if(tog)tog.checked=visible;
 }
+// 화면 회전 시 드롭다운/목록 재적용
+window.addEventListener("orientationchange",function(){setTimeout(function(){applyRecipeDropdown(recipeDropdownVisible);},200);});
+window.addEventListener("resize",function(){applyRecipeDropdown(recipeDropdownVisible);});
 function applyLandscapeReverse(v){
   landscapeReverse=v;
   localStorage.setItem("landscape_reverse",v);
@@ -2347,7 +2375,14 @@ function renderEditor(){
 
     var idx=document.createElement("span");idx.className="step-idx";idx.textContent=i+1;
     var ni=document.createElement("input");ni.className="step-name-input";ni.type="text";ni.placeholder="단계 이름";ni.value=s.name||"";
-    var si=document.createElement("input");si.className="step-sec-input";si.type="number";si.min="0";si.max="999";si.value=s.sec||0;
+    var si=document.createElement("input");si.className="step-sec-input";si.type="number";si.min="0";si.max="999";si.value=s.sec||0;si.style.display="none";
+    // -s+ 스테퍼 위젯
+    var siStepper=document.createElement("div");siStepper.className="step-sec-stepper";
+    var siBtnM=document.createElement("button");siBtnM.className="sss-btn";siBtnM.type="button";siBtnM.textContent="-";siBtnM.title="3초 감소";
+    var siInp=document.createElement("input");siInp.className="sss-input";siInp.type="number";siInp.min="0";siInp.max="999";siInp.value=s.sec||0;
+    var siBtnP=document.createElement("button");siBtnP.className="sss-btn";siBtnP.type="button";siBtnP.textContent="+";siBtnP.title="3초 증가";
+    var siLbl=document.createElement("span");siLbl.className="sss-lbl";siLbl.textContent="s";
+    siStepper.appendChild(siBtnM);siStepper.appendChild(siInp);siStepper.appendChild(siLbl);siStepper.appendChild(siBtnP);
     // D(설명) 버튼 — 설명 단계: 총 추출 시간 제외
     var descBtn=document.createElement("button");
     descBtn.className="step-toggle-btn"+(s.desc?" on":"");
@@ -2370,15 +2405,30 @@ function renderEditor(){
     // 메모 패널 (인라인)
     var notePanel=document.createElement("div");
     notePanel.style.cssText="display:none;padding:6px 8px;background:var(--bg);border-top:1px solid var(--border);";
+    // 메모 래퍼: 텍스트 + -s+ 스테퍼
+    var noteRowWrap=document.createElement("div");noteRowWrap.className="note-row-wrap";
     var noteTa=document.createElement("textarea");
-    noteTa.style.cssText="width:100%;min-height:52px;resize:vertical;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:12px;padding:5px 7px;box-sizing:border-box;font-family:inherit;";
+    noteTa.style.cssText="flex:1;min-height:52px;resize:vertical;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:12px;padding:5px 7px;box-sizing:border-box;font-family:inherit;";
     noteTa.placeholder="재생 시 읽어줄 설명을 입력하세요";
     noteTa.value=s.note||"";
     noteTa.addEventListener("input",function(){
       steps[i].note=noteTa.value;
       noteBtn.classList.toggle("on",!!noteTa.value);
     });
-    notePanel.appendChild(noteTa);
+    // 메모 -s+ 스테퍼
+    var noteStepWrap=document.createElement("div");noteStepWrap.className="step-sec-stepper note-row-stepper";
+    var noteBtnM=document.createElement("button");noteBtnM.className="sss-btn";noteBtnM.type="button";noteBtnM.textContent="-";noteBtnM.title="3초 감소";
+    var noteSecInp=document.createElement("input");noteSecInp.className="sss-input";noteSecInp.type="number";noteSecInp.min="0";noteSecInp.max="999";noteSecInp.value=s.sec||0;
+    var noteSecLbl=document.createElement("span");noteSecLbl.className="sss-lbl";noteSecLbl.textContent="s";
+    var noteBtnP=document.createElement("button");noteBtnP.className="sss-btn";noteBtnP.type="button";noteBtnP.textContent="+";noteBtnP.title="3초 증가";
+    noteStepWrap.appendChild(noteBtnM);noteStepWrap.appendChild(noteSecInp);noteStepWrap.appendChild(noteSecLbl);noteStepWrap.appendChild(noteBtnP);
+    (function(idx2){
+      noteBtnM.addEventListener("click",function(){var v=Math.max(0,(parseInt(noteSecInp.value)||0)-1);steps[idx2].sec=v;si.value=v;siInp.value=v;noteSecInp.value=v;updateTotalPreview();});
+      noteBtnP.addEventListener("click",function(){var v=Math.min(999,(parseInt(noteSecInp.value)||0)+1);steps[idx2].sec=v;si.value=v;siInp.value=v;noteSecInp.value=v;updateTotalPreview();});
+      noteSecInp.addEventListener("input",function(){var v=Math.max(0,parseInt(noteSecInp.value)||0);steps[idx2].sec=v;si.value=v;siInp.value=v;updateTotalPreview();});
+    })(i);
+    noteRowWrap.appendChild(noteTa);noteRowWrap.appendChild(noteStepWrap);
+    notePanel.appendChild(noteRowWrap);
 
     noteBtn.addEventListener("click",function(){
       var open=notePanel.style.display==="block";
@@ -2401,7 +2451,12 @@ function renderEditor(){
     });
     ni.addEventListener("focus",function(){showFullnameBar(ni,i);});
     ni.addEventListener("blur",function(){hideFullnameBar(ni,i);});
-    si.addEventListener("input",function(){steps[i].sec=Math.max(0,parseInt(si.value)||0);updateTotalPreview();});
+    si.addEventListener("input",function(){steps[i].sec=Math.max(0,parseInt(si.value)||0);siInp.value=steps[i].sec;updateTotalPreview();});
+    siInp.addEventListener("input",function(){steps[i].sec=Math.max(0,parseInt(siInp.value)||0);si.value=steps[i].sec;updateTotalPreview();});
+    (function(idx2,inp,stepperInp){
+      siBtnM.addEventListener("click",function(){var v=Math.max(0,(parseInt(stepperInp.value)||0)-1);steps[idx2].sec=v;inp.value=v;stepperInp.value=v;updateTotalPreview();});
+      siBtnP.addEventListener("click",function(){var v=Math.min(999,(parseInt(stepperInp.value)||0)+1);steps[idx2].sec=v;inp.value=v;stepperInp.value=v;updateTotalPreview();});
+    })(i,si,siInp);
     db.addEventListener("click",function(){
       if(steps.length>1){
         steps.splice(i,1);
@@ -2409,37 +2464,73 @@ function renderEditor(){
       }
     });
 
-    // 드래그 (공통)
+    // 드래그 (공통) — 실제 이동 시에만 재정렬 저장, 클릭은 무시
     var placeholder=null;
-    handle.addEventListener("mousedown",function(e){
-      e.preventDefault();
-      var startY=e.clientY,rect=row.getBoundingClientRect(),itemH=row.offsetHeight+6,dragging=false;
+    function startRowDrag(startY, rect, isMouse){
+      var itemH=row.offsetHeight+6, dragging=false;
+      var _origNext=row.nextSibling; // 원래 위치 기억
       placeholder=document.createElement("div");
       placeholder.style.cssText="height:"+itemH+"px;border:1.5px dashed var(--accent);border-radius:var(--radius);margin-bottom:6px;opacity:.5;flex-shrink:0;box-sizing:border-box;";
-      row.parentNode.insertBefore(placeholder,row.nextSibling);
-      var overlay=document.getElementById("recipeModal");overlay.appendChild(row);
-      row.style.cssText="position:fixed;top:"+rect.top+"px;left:"+rect.left+"px;width:"+rect.width+"px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.45);opacity:.93;pointer-events:none;margin:0;";
-      row.classList.add("dragging");
-      function onMove(e){var dy=e.clientY-startY;row.style.top=(rect.top+dy)+"px";if(!dragging&&Math.abs(dy)>4)dragging=true;if(!dragging)return;var rows=Array.from(stepsEditor.querySelectorAll(".step-row")).filter(function(r){return r!==row;});var newTop=rect.top+dy,inserted=false;for(var k=0;k<rows.length;k++){var br=rows[k].getBoundingClientRect();if(newTop<br.top+br.height/2){stepsEditor.insertBefore(placeholder,rows[k]);inserted=true;break;}}if(!inserted)stepsEditor.insertBefore(placeholder,stepsEditor.querySelector(".step-fullname-bar")||null);}
-      function onUp(){document.removeEventListener("mousemove",onMove);document.removeEventListener("mouseup",onUp);row.style.cssText="";row.classList.remove("dragging");if(placeholder&&placeholder.parentNode){stepsEditor.insertBefore(row,placeholder);placeholder.parentNode.removeChild(placeholder);}else{stepsEditor.appendChild(row);}placeholder=null;saveEditorOrder();}
-      document.addEventListener("mousemove",onMove);document.addEventListener("mouseup",onUp);
+      function onMove(clientY){
+        var dy=clientY-startY;
+        if(!dragging&&Math.abs(dy)>5){
+          // 실제 드래그 시작 — 여기서만 fixed 처리 + 열린 패널 닫기
+          dragging=true;
+          // 모든 열린 seqPanel 닫기
+          Array.from(stepsEditor.querySelectorAll(".step-seq-panel")).forEach(function(p){p.style.display="none";});
+          row.parentNode.insertBefore(placeholder,_origNext);
+          var overlay=document.getElementById("recipeModal");overlay.appendChild(row);
+          row.style.cssText="position:fixed;top:"+rect.top+"px;left:"+rect.left+"px;width:"+rect.width+"px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.45);opacity:.93;pointer-events:none;margin:0;will-change:top;";
+          row.classList.add("dragging");
+        }
+        if(!dragging) return;
+        row.style.top=(rect.top+dy)+"px";
+        var rows=Array.from(stepsEditor.querySelectorAll(".step-row")).filter(function(r){return r!==row;});
+        var newTop=rect.top+dy,inserted=false;
+        for(var k=0;k<rows.length;k++){var br=rows[k].getBoundingClientRect();if(newTop<br.top+br.height/2){stepsEditor.insertBefore(placeholder,rows[k]);inserted=true;break;}}
+        if(!inserted)stepsEditor.insertBefore(placeholder,stepsEditor.querySelector(".step-fullname-bar")||null);
+      }
+      function onUp(){
+        if(isMouse){document.removeEventListener("mousemove",onMoveM);document.removeEventListener("mouseup",onUpM);}
+        row.style.cssText="";row.classList.remove("dragging");
+        if(dragging){
+          if(placeholder&&placeholder.parentNode){stepsEditor.insertBefore(row,placeholder);placeholder.parentNode.removeChild(placeholder);}
+          else stepsEditor.appendChild(row);
+          placeholder=null;
+          // 순서가 실제로 바뀐 경우에만 저장
+          var rows2=Array.from(stepsEditor.querySelectorAll(".step-row"));
+          var changed=rows2.some(function(r,i){return parseInt(r.dataset.idx)!==i;});
+          if(changed) saveEditorOrder();
+        } else {
+          // 클릭만 했을 때 — placeholder가 있으면 원위치로 복원
+          if(placeholder&&placeholder.parentNode){placeholder.parentNode.removeChild(placeholder);}
+          placeholder=null;
+        }
+      }
+      function onMoveM(e){onMove(e.clientY);}
+      function onUpM(){onUp();}
+      if(isMouse){document.addEventListener("mousemove",onMoveM);document.addEventListener("mouseup",onUpM);}
+      return {onMove:onMove,onUp:onUp};
+    }
+    handle.addEventListener("mousedown",function(e){
+      e.preventDefault();
+      var rect=row.getBoundingClientRect();
+      startRowDrag(e.clientY, rect, true);
     });
     handle.addEventListener("touchstart",function(e){
-      e.stopPropagation();var touch=e.touches[0],startY=touch.clientY,rect=row.getBoundingClientRect(),itemH=row.offsetHeight+6,dragging=false;
-      placeholder=document.createElement("div");placeholder.style.cssText="height:"+itemH+"px;border:1.5px dashed var(--accent);border-radius:var(--radius);margin-bottom:6px;opacity:.5;flex-shrink:0;box-sizing:border-box;";
-      row.parentNode.insertBefore(placeholder,row.nextSibling);
-      var overlay=document.getElementById("recipeModal");overlay.appendChild(row);
-      row.style.cssText="position:fixed;top:"+rect.top+"px;left:"+rect.left+"px;width:"+rect.width+"px;z-index:9999;box-shadow:0 8px 28px rgba(0,0,0,.45);opacity:.93;pointer-events:none;margin:0;";
-      row.classList.add("dragging");
-      function onMove(e){e.preventDefault();var dy=e.touches[0].clientY-startY;row.style.top=(rect.top+dy)+"px";if(!dragging&&Math.abs(dy)>6)dragging=true;if(!dragging)return;var rows=Array.from(stepsEditor.querySelectorAll(".step-row")).filter(function(r){return r!==row;});var newTop=rect.top+dy,inserted=false;for(var k=0;k<rows.length;k++){var br=rows[k].getBoundingClientRect();if(newTop<br.top+br.height/2){stepsEditor.insertBefore(placeholder,rows[k]);inserted=true;break;}}if(!inserted)stepsEditor.insertBefore(placeholder,stepsEditor.querySelector(".step-fullname-bar")||null);}
-      function onEnd(){row.removeEventListener("touchmove",onMove);row.removeEventListener("touchend",onEnd);row.style.cssText="";row.classList.remove("dragging");if(placeholder&&placeholder.parentNode){stepsEditor.insertBefore(row,placeholder);placeholder.parentNode.removeChild(placeholder);}else{stepsEditor.appendChild(row);}placeholder=null;saveEditorOrder();}
-      row.addEventListener("touchmove",onMove,{passive:false});row.addEventListener("touchend",onEnd);
+      e.stopPropagation();
+      var touch=e.touches[0], rect=row.getBoundingClientRect();
+      var drag=startRowDrag(touch.clientY, rect, false);
+      function onMove(e){e.preventDefault();drag.onMove(e.touches[0].clientY);}
+      function onEnd(){row.removeEventListener("touchmove",onMove);row.removeEventListener("touchend",onEnd);drag.onUp();}
+      row.addEventListener("touchmove",onMove,{passive:false});
+      row.addEventListener("touchend",onEnd);
     },{passive:true});
 
     var top=document.createElement("div");top.className="step-row-top";
     var bottom=document.createElement("div");bottom.className="step-row-bottom";
     top.appendChild(handle);top.appendChild(idx);top.appendChild(ni);
-    bottom.appendChild(si);bottom.appendChild(descBtn);bottom.appendChild(editSeqBtn);bottom.appendChild(db);
+    bottom.appendChild(siStepper);bottom.appendChild(descBtn);bottom.appendChild(editSeqBtn);bottom.appendChild(db);
 
     // 인라인 시퀀스 패널
     var seqPanel=document.createElement("div");
@@ -2451,6 +2542,7 @@ function renderEditor(){
 
     // 편집 버튼 — 패널 토글 + 타임라인 UI
     (function(stepIdx, panel, btn){
+      var lane=null; // buildPanel에서 설정, rebuildLane에서 참조
 
       // sequence를 at 기반으로 정규화
       function normalizeSeq(){
@@ -2510,6 +2602,115 @@ function renderEditor(){
         if(sq.type==="next") return "hue-rotate("+(((stepIdx+1)*67)%360)+"deg)";
         if(sq.type==="count") return "hue-rotate(200deg)";
         return "";
+      }
+
+      // ── 블록 선택 정보바 (클로저 레벨) ──
+      var blockInfoBar=document.createElement("div");
+      blockInfoBar.style.cssText="display:none;align-items:center;gap:6px;padding:4px 8px;background:var(--surface2);border:1px solid var(--accent);border-radius:5px;margin-top:2px;margin-bottom:4px;flex-wrap:wrap;";
+      var blockInfoLbl=document.createElement("span");
+      blockInfoLbl.style.cssText="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;";
+      var blockDurWrap=document.createElement("div");
+      blockDurWrap.style.cssText="display:none;align-items:center;gap:3px;flex-shrink:0;";
+      var blockDurBtnM=document.createElement("button");
+      blockDurBtnM.textContent="-";
+      blockDurBtnM.style.cssText="width:22px;height:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:4px;font-size:13px;cursor:pointer;line-height:1;font-family:'DM Mono',monospace;";
+      var blockDurInp=document.createElement("input");
+      blockDurInp.type="number";blockDurInp.min="1";blockDurInp.max="999";
+      blockDurInp.style.cssText="width:36px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;text-align:center;padding:2px;-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield;";
+      var blockDurLblEl=document.createElement("span");
+      blockDurLblEl.textContent="s";
+      blockDurLblEl.style.cssText="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);";
+      var blockDurBtnP=document.createElement("button");
+      blockDurBtnP.textContent="+";
+      blockDurBtnP.style.cssText="width:22px;height:20px;border:1px solid var(--border);background:var(--surface);color:var(--muted);border-radius:4px;font-size:13px;cursor:pointer;line-height:1;font-family:'DM Mono',monospace;";
+      blockDurWrap.appendChild(blockDurBtnM);
+      blockDurWrap.appendChild(blockDurInp);
+      blockDurWrap.appendChild(blockDurLblEl);
+      blockDurWrap.appendChild(blockDurBtnP);
+      blockInfoBar.appendChild(blockInfoLbl);
+      blockInfoBar.appendChild(blockDurWrap);
+
+      var _selectedSq=null;
+
+      function showBlockInfo(sq2,label2){
+        _selectedSq=sq2;
+        var canResize=(sq2.type==="wait"||sq2.type==="count"||sq2.type==="self"||sq2.type==="next"||sq2.type==="step"||sq2.type==="note");
+        var dispAt=(sq2.type==="count")?(sq2.at||0)-getBlockDur(sq2):(sq2.at||0);
+        blockInfoLbl.textContent=label2+" — 시작: "+dispAt+"s";
+        var curDur=(sq2.type==="wait"||sq2.type==="count")?(sq2.sec||3):(sq2.dur!==undefined?sq2.dur:3);
+        blockDurInp.value=curDur;
+        blockDurWrap.style.display=canResize?"flex":"none";
+        blockInfoBar.style.display="flex";
+      }
+      function hideBlockInfo(){blockInfoBar.style.display="none";_selectedSq=null;}
+      function refreshBlockInfoLbl(){
+        if(!_selectedSq) return;
+        var dispAt=(_selectedSq.type==="count")?(_selectedSq.at||0)-getBlockDur(_selectedSq):(_selectedSq.at||0);
+        blockInfoLbl.textContent=getBlockLabel(_selectedSq)+" — 시작: "+dispAt+"s";
+        blockDurInp.value=(_selectedSq.type==="wait"||_selectedSq.type==="count")?(_selectedSq.sec||3):(_selectedSq.dur!==undefined?_selectedSq.dur:3);
+      }
+
+      blockDurBtnM.addEventListener("pointerdown",function(e){
+        e.preventDefault();e.stopPropagation();
+        if(!_selectedSq) return;
+        var v=Math.max(1,(parseInt(blockDurInp.value)||1)-1);
+        if(_selectedSq.type==="wait"||_selectedSq.type==="count") _selectedSq.sec=v; else _selectedSq.dur=v;
+        blockDurInp.value=v;
+        rebuildLane();refreshBlockInfoLbl();
+      });
+      blockDurBtnP.addEventListener("pointerdown",function(e){
+        e.preventDefault();e.stopPropagation();
+        if(!_selectedSq) return;
+        var v=Math.min(999,(parseInt(blockDurInp.value)||1)+1);
+        if(_selectedSq.type==="wait"||_selectedSq.type==="count") _selectedSq.sec=v; else _selectedSq.dur=v;
+        blockDurInp.value=v;
+        rebuildLane();refreshBlockInfoLbl();
+      });
+      blockDurInp.addEventListener("input",function(){
+        if(!_selectedSq) return;
+        var v=Math.max(1,parseInt(blockDurInp.value)||1);
+        if(_selectedSq.type==="wait"||_selectedSq.type==="count") _selectedSq.sec=v; else _selectedSq.dur=v;
+        rebuildLane();refreshBlockInfoLbl();
+      });
+      blockDurInp.addEventListener("pointerdown",function(e){e.stopPropagation();});
+
+      // ── 경량 스타일 업데이트 (기존 .blockEl DOM은 그대로, 위치/크기/강조만 갱신) ──
+      function rebuildLane(){
+        if(!lane) return;
+        // 타임라인 범위 재계산 (buildPanel과 동일 로직)
+        var seq2=steps[stepIdx].sequence||[];
+        var stepSec2=steps[stepIdx].sec||0;
+        var blockMin2=seq2.length?seq2.reduce(function(mn,sq){var d=getBlockDur(sq);var da=(sq.type==="count")?(sq.at||0)-d:(sq.at||0);return Math.min(mn,da);},0):0;
+        var defaultMin2=stepSec2>0?-Math.round(stepSec2/2):0;
+        var tlMin2=Math.min(defaultMin2,blockMin2-1);
+        var blockMax2=seq2.reduce(function(mx,sq){var d=getBlockDur(sq);var da=(sq.type==="count")?(sq.at||0)-d:(sq.at||0);return Math.max(mx,da+d);},0);
+        var tlMax2=Math.max(stepSec2,blockMax2,tlMin2+10);
+        var tlSpan2=Math.max(tlMax2-tlMin2,1);
+        function toPct2(at){return ((at-tlMin2)/tlSpan2)*100;}
+        // 기존 .blockEl 요소 목록 — buildPanel이 만든 것들, 순서가 seq와 일치
+        var blockEls=Array.from(lane.querySelectorAll(".blockEl"));
+        seq2.forEach(function(sq,qi){
+          var el=blockEls[qi];
+          if(!el) return;
+          var dur=getBlockDur(sq);
+          var isMarker=sq.type==="timer-start";
+          var dispAt=(sq.type==="count")?(sq.at||0)-dur:(sq.at||0);
+          var leftPct=toPct2(dispAt);
+          var widthPct=(dur/tlSpan2)*100;
+          var color=getBlockColor(sq);
+          if(isMarker){
+            el.style.left="calc("+leftPct+"% - 1px)";
+          } else {
+            el.style.left=leftPct+"%";
+            el.style.width=Math.max(widthPct,2)+"%";
+            el.style.background="color-mix(in srgb, "+color+" 25%, var(--surface2))";
+            el.style.border="1.5px solid "+color;
+            el.style.boxShadow=(_selectedSq&&_selectedSq===sq)?"0 0 0 2px "+color:"";
+            // 라벨 텍스트도 갱신 (길이 변경 시 s 표시 변경 등)
+            var lblEl=el.querySelector("span");
+            if(lblEl) lblEl.textContent=getBlockLabel(sq);
+          }
+        });
       }
 
       function buildPanel(){
@@ -2580,8 +2781,8 @@ function renderEditor(){
         tlWrap.appendChild(delBar);
 
         // 레인
-        var lane=document.createElement("div");
-        lane.style.cssText="position:relative;height:40px;background:var(--surface2);border-radius:4px;border:1px solid var(--border);overflow:visible;transition:border-color .15s;margin-bottom:24px;";
+        lane=document.createElement("div");
+        lane.style.cssText="position:relative;height:40px;background:var(--surface2);border-radius:4px;border:1px solid var(--border);overflow:visible;transition:border-color .15s;margin-bottom:30px;";
 
         // 드롭 커서
         var dropCursor=document.createElement("div");
@@ -2627,12 +2828,14 @@ function renderEditor(){
 
         tlWrap.appendChild(lane);
 
+        tlWrap.appendChild(blockInfoBar);
+
         // ── 팔레트 ──
         function makePalBlock(type){
           if(type==="self") return {type:"self",at:0};
           if(type==="next") return {type:"next",at:0};
           if(type==="timer-start") return {type:"timer-start",at:0};
-          if(type==="count") return {type:"count",at:0,sec:5};
+          if(type==="count") return {type:"count",at:0,sec:3};
           if(type==="count-start") return {type:"count-start",at:0};
           if(type==="wait") return {type:"wait",at:0,sec:3};
           if(type==="note") return {type:"note",at:0,text:steps[stepIdx].note||""};
@@ -2729,6 +2932,7 @@ function renderEditor(){
           var label=getBlockLabel(sq);
 
           var block=document.createElement("div");
+          block.className="blockEl";
           block.style.cssText="position:absolute;top:4px;height:32px;border-radius:3px;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:9px;white-space:nowrap;overflow:hidden;cursor:grab;z-index:3;";
 
           if(isMarker){
@@ -2767,21 +2971,12 @@ function renderEditor(){
             if(f) block.style.filter=f;
             var lblEl=document.createElement("span");lblEl.textContent=label;lblEl.style.cssText="padding:0 5px;font-weight:600;font-size:9px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;width:100%;text-align:center;display:block;";
             block.appendChild(lblEl);
-            // wait, count, 음성 블록 모두 오른쪽 핸들로 길이 조절
+            // 블록에 얇은 우측 강조선만 (시각적 힌트, 클릭은 블록 전체로)
             var canResize=(sq.type==="wait"||sq.type==="count"||sq.type==="self"||sq.type==="next"||sq.type==="step"||sq.type==="note");
             if(canResize){
-              var rhColor="rgba(255,255,255,.3)";
               var rh=document.createElement("div");
-              rh.style.cssText="position:absolute;right:0;top:0;width:6px;height:100%;cursor:ew-resize;background:"+rhColor+";border-radius:0 3px 3px 0;";
+              rh.style.cssText="position:absolute;right:0;top:0;width:4px;height:100%;background:rgba(255,255,255,.2);border-radius:0 3px 3px 0;pointer-events:none;";
               block.appendChild(rh);
-              rh.addEventListener("pointerdown",function(e){
-                e.preventDefault();e.stopPropagation();
-                rh.setPointerCapture(e.pointerId);
-                var startX=e.clientX,laneW=lane.offsetWidth,startDur=getBlockDur(sq);
-                function onMv(e){var newDur=Math.max(1,startDur+Math.round((e.clientX-startX)/laneW*tlSpan));if(sq.type==="wait"||sq.type==="count")sq.sec=newDur;else sq.dur=newDur;block.style.width=Math.max((newDur/tlSpan)*100,2)+"%";}
-                function onUp(){rh.removeEventListener("pointermove",onMv);rh.removeEventListener("pointerup",onUp);buildPanel();}
-                rh.addEventListener("pointermove",onMv);rh.addEventListener("pointerup",onUp);
-              });
             }
           }
 
@@ -2848,6 +3043,8 @@ function renderEditor(){
                   var newDispAt=startDispAt+Math.round(dx/laneW*tlSpan);
                   sq2.at=(sq2.type==="count")?(newDispAt+dur2):newDispAt;
                   block.style.left=toLeftPct(newDispAt)+"%";
+                  // 드래그 중 인포바 시작점 실시간 업데이트
+                  if(blockInfoBar.style.display!=="none"&&_selectedSq===sq2){refreshBlockInfoLbl();}
                   var tr=trashBtn.getBoundingClientRect();
                   setTrashHover(e.clientX>=tr.left-12&&e.clientX<=tr.right+12&&e.clientY>=tr.top-12&&e.clientY<=tr.bottom+12);
                 }
@@ -2855,9 +3052,12 @@ function renderEditor(){
                   block.removeEventListener("pointermove",onMove);
                   block.removeEventListener("pointerup",onUp);
                   _draggingBlock=false;
-                  if(moved){if(_trashActive){setTrashHover(false);steps[stepIdx].sequence.splice(qi2,1);btn.classList.toggle("on",(steps[stepIdx].sequence||[]).length>0);buildPanel();}else{setTrashHover(false);buildPanel();}}
-                  else if(sq2.type==="note") showNoteEdit(sq2);
-                  else makeDelX(leftPct2+Math.max(widthPct2,2)/2, qi2);
+                  if(moved){if(_trashActive){setTrashHover(false);steps[stepIdx].sequence.splice(qi2,1);btn.classList.toggle("on",(steps[stepIdx].sequence||[]).length>0);buildPanel();}else{setTrashHover(false);buildPanel();hideBlockInfo();}}
+                  else {
+                    showBlockInfo(sq2, getBlockLabel(sq2));
+                    if(sq2.type==="note") showNoteEdit(sq2);
+                    else makeDelX(leftPct2+Math.max(widthPct2,2)/2, qi2);
+                  }
                 }
                 block.addEventListener("pointermove",onMove);
                 block.addEventListener("pointerup",onUp);
@@ -2879,8 +3079,8 @@ function renderEditor(){
                   block.removeEventListener("pointermove",onMove);
                   block.removeEventListener("pointerup",onUp);
                   _draggingBlock=false;
-                  if(moved){if(_trashActive){setTrashHover(false);steps[stepIdx].sequence.splice(qi2,1);btn.classList.toggle("on",(steps[stepIdx].sequence||[]).length>0);buildPanel();}else{setTrashHover(false);buildPanel();}}
-                  else makeDelX(leftPct2, qi2);
+                  if(moved){if(_trashActive){setTrashHover(false);steps[stepIdx].sequence.splice(qi2,1);btn.classList.toggle("on",(steps[stepIdx].sequence||[]).length>0);buildPanel();}else{setTrashHover(false);buildPanel();hideBlockInfo();}}
+                  else {showBlockInfo(sq2m, getBlockLabel(sq2m));makeDelX(leftPct2, qi2);}
                 }
                 block.addEventListener("pointermove",onMove);
                 block.addEventListener("pointerup",onUp);
@@ -2914,19 +3114,32 @@ function renderEditor(){
         tInfo.textContent="타이머 구간: "+timerTotal+"s / "+stepSec+"s"+(diff>0?" ⚠ +"+diff+"s 초과":diff<0?" (여유 "+Math.abs(diff)+"s)":hasTS?" ✓":"");
         panel.appendChild(tInfo);
 
-        // 메모 입력창 (타임라인 아래, note 블록 선택 시 표시)
+        // 메모 입력창 (타임라인 아래, note 블록 선택 시 표시) — 가로 레이아웃
         var noteEditArea=document.createElement("div");
-        noteEditArea.style.cssText="display:none;margin-bottom:6px;";
+        noteEditArea.style.cssText="display:none;margin-bottom:6px;align-items:flex-start;gap:6px;";
         var noteEditTa=document.createElement("textarea");
-        noteEditTa.style.cssText="width:100%;min-height:44px;resize:vertical;background:var(--surface2);border:1px solid var(--accent);border-radius:var(--radius);color:var(--text);font-size:12px;padding:5px 7px;box-sizing:border-box;font-family:inherit;";
+        noteEditTa.style.cssText="flex:1;min-height:44px;max-width:60%;resize:vertical;background:var(--surface2);border:1px solid var(--accent);border-radius:var(--radius);color:var(--text);font-size:12px;padding:5px 7px;box-sizing:border-box;font-family:inherit;";
         noteEditTa.placeholder="메모 내용 입력";
-        noteEditArea.appendChild(noteEditTa);
+        // 메모 블록 -3s+ 스테퍼 (우측)
+        var noteEditDurWrap=document.createElement("div");
+        noteEditDurWrap.style.cssText="display:flex;flex-direction:column;align-items:center;gap:3px;flex-shrink:0;padding-top:2px;";
+        var noteEditDurLbl=document.createElement("span");noteEditDurLbl.textContent="길이";noteEditDurLbl.style.cssText="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);";
+        var noteEditDurStepper=document.createElement("div");noteEditDurStepper.style.cssText="display:flex;align-items:center;gap:2px;";
+        var nedBtnM=document.createElement("button");nedBtnM.textContent="-";nedBtnM.style.cssText="width:22px;height:22px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:4px;font-size:13px;cursor:pointer;line-height:1;";
+        var nedInp=document.createElement("input");nedInp.type="number";nedInp.min="1";nedInp.max="999";nedInp.style.cssText="width:34px;background:var(--bg);border:1px solid var(--border);border-radius:4px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;text-align:center;padding:2px;-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield;";
+        var nedLbl=document.createElement("span");nedLbl.textContent="s";nedLbl.style.cssText="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);";
+        var nedBtnP=document.createElement("button");nedBtnP.textContent="+";nedBtnP.style.cssText="width:22px;height:22px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);border-radius:4px;font-size:13px;cursor:pointer;line-height:1;";
+        noteEditDurStepper.appendChild(nedBtnM);noteEditDurStepper.appendChild(nedInp);noteEditDurStepper.appendChild(nedLbl);noteEditDurStepper.appendChild(nedBtnP);
+        noteEditDurWrap.appendChild(noteEditDurLbl);noteEditDurWrap.appendChild(noteEditDurStepper);
+        noteEditArea.appendChild(noteEditTa);noteEditArea.appendChild(noteEditDurWrap);
         panel.appendChild(noteEditArea);
         var _activeNoteSq=null;
         function showNoteEdit(sq2){
           _activeNoteSq=sq2;
           noteEditTa.value=sq2.text||steps[stepIdx].note||"";
-          noteEditArea.style.display="block";
+          var curDur=sq2.dur!==undefined?sq2.dur:3;
+          nedInp.value=curDur;
+          noteEditArea.style.display="flex";
           setTimeout(function(){noteEditTa.focus();},30);
         }
         function hideNoteEdit(){
@@ -2936,6 +3149,26 @@ function renderEditor(){
         noteEditTa.addEventListener("input",function(){
           if(_activeNoteSq){_activeNoteSq.text=noteEditTa.value;steps[stepIdx].note=noteEditTa.value;}
         });
+        nedBtnM.addEventListener("pointerdown",function(e){
+          e.preventDefault();e.stopPropagation();
+          if(!_activeNoteSq)return;
+          var v=Math.max(1,(parseInt(nedInp.value)||1)-1);
+          _activeNoteSq.dur=v;nedInp.value=v;
+          rebuildLane();refreshBlockInfoLbl();
+        });
+        nedBtnP.addEventListener("pointerdown",function(e){
+          e.preventDefault();e.stopPropagation();
+          if(!_activeNoteSq)return;
+          var v=Math.min(999,(parseInt(nedInp.value)||1)+1);
+          _activeNoteSq.dur=v;nedInp.value=v;
+          rebuildLane();refreshBlockInfoLbl();
+        });
+        nedInp.addEventListener("input",function(){
+          if(!_activeNoteSq)return;
+          _activeNoteSq.dur=Math.max(1,parseInt(nedInp.value)||1);
+          rebuildLane();refreshBlockInfoLbl();
+        });
+        nedInp.addEventListener("pointerdown",function(e){e.stopPropagation();});
         // 메모 입력창 외 영역 탭 시 닫힘
         panel.addEventListener("pointerdown",function(e){
           if(noteEditArea.style.display==="block"&&!noteEditArea.contains(e.target)){
@@ -2992,7 +3225,13 @@ function saveEditorOrder(){
   }).filter(Boolean);
   if(newSteps.length>0){
     steps=newSteps;
-    renderEditor();
+    // DOM 재생성 없이 각 row의 dataset.idx와 번호 라벨만 갱신
+    rows.forEach(function(r,i){
+      r.dataset.idx=i;
+      var idxEl=r.querySelector(".step-idx");
+      if(idxEl) idxEl.textContent=i+1;
+    });
+    updateTotalPreview();
   }
 }
 function cleanSteps(arr){
@@ -3006,7 +3245,7 @@ function cleanSteps(arr){
 }
 function updateTotalPreview(){document.getElementById("totalPreview").textContent=fmtSec(totalSec());}
 document.getElementById("addBtn").addEventListener("click",function(){
-  steps.push({name:"새 단계",sec:30});
+  steps.push({name:"새 단계",sec:3});
   renderEditor();
 });
 
@@ -4623,6 +4862,23 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
     if(document.visibilityState==="visible"&&audioCtx&&audioCtx.state==="suspended"){
       audioCtx.resume();
     }
+  });
+
+  // Wake Lock — 5분 무동작 시 화면 어두워짐 방지
+  var _wakeLock=null;
+  async function requestWakeLock(){
+    if(!("wakeLock" in navigator))return;
+    try{
+      if(_wakeLock&&_wakeLock.released===false)return;
+      _wakeLock=await navigator.wakeLock.request("screen");
+      _wakeLock.addEventListener("release",function(){_wakeLock=null;});
+    }catch(e){}
+  }
+  // 페이지 로드 시 즉시 요청
+  requestWakeLock();
+  // 포그라운드 복귀 시 재요청
+  document.addEventListener("visibilitychange",function(){
+    if(document.visibilityState==="visible") requestWakeLock();
   });
 })();
 </script>
