@@ -759,6 +759,15 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
 .recipe-order-name{flex:1;font-size:13px;color:var(--text);}
 .recipe-order-default{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);flex-shrink:0;}
 .recipe-order-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);flex-shrink:0;}
+.recipe-list-resizer{
+  width:100%;height:8px;cursor:ns-resize;display:flex;align-items:center;justify-content:center;
+  margin-bottom:4px;flex-shrink:0;
+}
+.recipe-list-resizer::after{
+  content:"";display:block;width:32px;height:3px;border-radius:2px;
+  background:var(--border-hi);transition:background .15s;
+}
+.recipe-list-resizer:hover::after{background:var(--accent);}
 .add-step-btn{width:100%;border:1px dashed var(--border);background:none;color:var(--muted);font-family:'Noto Sans KR',sans-serif;font-size:13px;padding:8px;border-radius:var(--radius);cursor:pointer;transition:border-color .15s,color .15s;margin-top:2px;}
 .add-step-btn:hover{border-color:var(--accent);color:var(--accent);}
 
@@ -1052,7 +1061,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
         <div class="sync-bar" id="syncBar"><div class="dots"><span></span><span></span><span></span></div><span id="syncText">동기화 중...</span></div>
         <div class="section-lbl" style="margin-top:0;">레시피 선택</div>
         <select class="recipe-select" id="recipeSelect"><option value="">- 레시피 선택 -</option></select>
-        <div id="recipeOrderList" style="max-height:180px;overflow-y:auto;margin-bottom:4px;"></div>
+        <div id="recipeOrderList" style="max-height:180px;overflow-y:auto;margin-bottom:0px;"></div>
+        <div id="recipeListResizer" class="recipe-list-resizer" title="드래그하여 목록 높이 조절"></div>
       </div>
       <!-- 스크롤 영역 -->
       <div class="recipe-scroll-body">
@@ -1106,7 +1116,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
     <div class="modal-footer">
 
       <div class="btn-row">
-        <button class="btn-primary" id="recipeApplyBtn" style="flex:2;">적용하고 닫기</button>
+        <button class="btn-primary" id="recipeApplyBtn" style="flex:2;">닫기</button>
         <button class="btn-secondary" id="recipeCancelBtn" style="flex:1;">취소</button>
         <button class="btn-secondary" id="recipeResetBtn" style="flex:1;">기본값</button>
       </div>
@@ -1133,7 +1143,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
     <div class="modal-body" style="padding:20px 20px 16px;">
       <div style="font-size:14px;font-weight:500;color:var(--text);margin-bottom:12px;">저장하지 않은 변경사항</div>
       <div id="unsavedDesc" style="font-size:12px;color:var(--muted);line-height:1.8;background:var(--surface2);border-radius:6px;padding:10px 12px;margin-bottom:16px;"></div>
-      <div style="font-size:13px;color:var(--text);margin-bottom:16px;">그래도 이동하시겠습니까?</div>
+      <div id="unsavedQuestion" style="font-size:13px;color:var(--text);margin-bottom:16px;">그래도 이동하시겠습니까?</div>
       <div style="display:flex;gap:8px;align-items:stretch;">
         <button class="btn-primary" id="unsavedSaveBtn" style="flex:2;padding:11px;font-size:12px;white-space:nowrap;">저장 후 이동</button>
         <button class="btn-secondary" id="unsavedDiscardBtn" style="flex:2;padding:11px;font-size:12px;white-space:nowrap;">저장 안 함</button>
@@ -2677,7 +2687,9 @@ function renderEditor(){
         _selectedSq=sq2;
         var canResize=(sq2.type==="wait"||sq2.type==="count"||sq2.type==="self"||sq2.type==="next"||sq2.type==="step"||sq2.type==="note");
         var dispAt=(sq2.type==="count")?(sq2.at||0)-getBlockDur(sq2):(sq2.at||0);
-        blockInfoLbl.textContent=label2+" — 시작: "+dispAt+"s";
+        var dur=getBlockDur(sq2);
+        var dispEnd=dispAt+dur;
+        blockInfoLbl.textContent=label2+" — 시작: "+dispAt+"s ~ 끝: "+dispEnd+"s";
         var curDur=(sq2.type==="wait"||sq2.type==="count")?(sq2.sec||3):(sq2.dur!==undefined?sq2.dur:3);
         blockDurInp.value=curDur;
         blockDurWrap.style.display=canResize?"flex":"none";
@@ -2687,7 +2699,8 @@ function renderEditor(){
       function refreshBlockInfoLbl(){
         if(!_selectedSq) return;
         var dispAt=(_selectedSq.type==="count")?(_selectedSq.at||0)-getBlockDur(_selectedSq):(_selectedSq.at||0);
-        blockInfoLbl.textContent=getBlockLabel(_selectedSq)+" — 시작: "+dispAt+"s";
+        var dur=getBlockDur(_selectedSq);
+        blockInfoLbl.textContent=getBlockLabel(_selectedSq)+" — 시작: "+dispAt+"s ~ 끝: "+(dispAt+dur)+"s";
         blockDurInp.value=(_selectedSq.type==="wait"||_selectedSq.type==="count")?(_selectedSq.sec||3):(_selectedSq.dur!==undefined?_selectedSq.dur:3);
       }
 
@@ -3111,10 +3124,27 @@ function renderEditor(){
                   block.removeEventListener("pointermove",onMove);
                   block.removeEventListener("pointerup",onUp);
                   _draggingBlock=false;
-                  if(moved){if(_trashActive){setTrashHover(false);steps[stepIdx].sequence.splice(qi2,1);btn.classList.toggle("on",(steps[stepIdx].sequence||[]).length>0);buildPanel();}else{setTrashHover(false);buildPanel();hideBlockInfo();}}
-                  else {
-                    showBlockInfo(sq2, getBlockLabel(sq2));
-                    if(sq2.type==="note") showNoteEdit(sq2);
+                  if(moved){
+                    if(_trashActive){
+                      setTrashHover(false);
+                      steps[stepIdx].sequence.splice(qi2,1);
+                      btn.classList.toggle("on",(steps[stepIdx].sequence||[]).length>0);
+                      buildPanel();
+                    } else {
+                      setTrashHover(false);
+                      var _wasOpen=blockInfoBar.style.display!=="none";
+                      var _wasSq=_selectedSq;
+                      buildPanel();
+                      if(_wasOpen&&_wasSq){showBlockInfo(_wasSq,getBlockLabel(_wasSq));}
+                    }
+                  } else {
+                    // 클릭 토글: 이미 이 블록이 선택돼있으면 닫기, 아니면 열기
+                    if(_selectedSq===sq2&&blockInfoBar.style.display!=="none"){
+                      hideBlockInfo();
+                    } else {
+                      showBlockInfo(sq2, getBlockLabel(sq2));
+                      if(sq2.type==="note") showNoteEdit(sq2);
+                    }
                   }
                 }
                 block.addEventListener("pointermove",onMove);
@@ -3137,8 +3167,20 @@ function renderEditor(){
                   block.removeEventListener("pointermove",onMove);
                   block.removeEventListener("pointerup",onUp);
                   _draggingBlock=false;
-                  if(moved){if(_trashActive){setTrashHover(false);steps[stepIdx].sequence.splice(qi2,1);btn.classList.toggle("on",(steps[stepIdx].sequence||[]).length>0);buildPanel();}else{setTrashHover(false);buildPanel();hideBlockInfo();}}
-                  else {showBlockInfo(sq2m, getBlockLabel(sq2m));}
+                  if(moved){
+                    if(_trashActive){
+                      setTrashHover(false);steps[stepIdx].sequence.splice(qi2,1);btn.classList.toggle("on",(steps[stepIdx].sequence||[]).length>0);buildPanel();
+                    } else {
+                      setTrashHover(false);
+                      var _wasOpenM=blockInfoBar.style.display!=="none";
+                      var _wasSqM=_selectedSq;
+                      buildPanel();
+                      if(_wasOpenM&&_wasSqM){showBlockInfo(_wasSqM,getBlockLabel(_wasSqM));}
+                    }
+                  } else {
+                    if(_selectedSq===sq2m&&blockInfoBar.style.display!=="none"){hideBlockInfo();}
+                    else {showBlockInfo(sq2m, getBlockLabel(sq2m));}
+                  }
                 }
                 block.addEventListener("pointermove",onMove);
                 block.addEventListener("pointerup",onUp);
@@ -3256,12 +3298,10 @@ function renderEditor(){
             prvBtn.textContent="🔊 미리듣기";
             prvBtn.style.color="var(--accent)";
             prvBtn.style.borderColor="var(--accent)";
-          } else if(ph&&ph.style.display==="block"){
-            previewStepSeq(stepIdx,toLeftPct,tlSpan,tlMin,true);
-            prvBtn.textContent="■ 정지";
-            prvBtn.style.color="#f44336";
-            prvBtn.style.borderColor="#f44336";
           } else {
+            // 음성 없어도 타임라인 재생 가능하도록 체크 완화
+            var seq2=steps[stepIdx]&&steps[stepIdx].sequence||[];
+            if(seq2.length===0){showToast("실행 순서가 비어 있습니다");return;}
             previewStepSeq(stepIdx,toLeftPct,tlSpan,tlMin,false);
             prvBtn.textContent="■ 정지";
             prvBtn.style.color="#f44336";
@@ -3656,6 +3696,31 @@ function renderRecipeOrderList(recipes, selectedIdx){
   });
 }
 
+// 레시피 목록 높이 resizer
+(function(){
+  var resizer=document.getElementById("recipeListResizer");
+  var listEl=document.getElementById("recipeOrderList");
+  if(!resizer||!listEl) return;
+  var _resizerDragging=false;
+  var _startY=0,_startH=0;
+  resizer.addEventListener("pointerdown",function(e){
+    e.preventDefault();
+    _resizerDragging=true;
+    _startY=e.clientY;
+    _startH=listEl.offsetHeight;
+    resizer.setPointerCapture(e.pointerId);
+  });
+  resizer.addEventListener("pointermove",function(e){
+    if(!_resizerDragging) return;
+    var dy=e.clientY-_startY;
+    var newH=Math.max(40,Math.min(500,_startH+dy));
+    listEl.style.maxHeight=newH+"px";
+    listEl.style.height=newH+"px";
+  });
+  resizer.addEventListener("pointerup",function(){_resizerDragging=false;});
+  resizer.addEventListener("pointercancel",function(){_resizerDragging=false;});
+})();
+
 function updateDefaultBtn(){
   var name=recipeNameInput.value.trim();
   if(!name){recipeDefaultBtn.classList.remove("on");return;}
@@ -3944,6 +4009,15 @@ recipeBtn.addEventListener("click",function(){
 });
 document.getElementById("recipeClose").addEventListener("click",function(){
   stopPreview();
+  // 저장하지 않고 닫기 — savedSnapshot으로 복원해서 변경사항 폐기
+  if(savedSnapshot){
+    try{
+      var snap=JSON.parse(savedSnapshot);
+      steps=JSON.parse(JSON.stringify(snap.steps));
+      recipeNameInput.value=snap.name;
+      fillInfoFields(snap.info);
+    }catch(e){}
+  }
   recipeModal.classList.remove("open");
   renderHome();
 });
@@ -3960,25 +4034,39 @@ document.getElementById("recipeCancelBtn").addEventListener("click",function(){
   }
 });
 recipeApplyBtn.addEventListener("click",async function(){
-  var idx=parseInt(recipeSelect.value);
-  var name=recipeNameInput.value.trim();
-  if(idx>=0&&!isNaN(idx)&&name){
-    // 수정 저장
-    readInfoFields();
-    var arr=getLocalRecipes();
-    if(arr[idx]){
-      arr[idx]={name:name,steps:JSON.parse(JSON.stringify(steps)),info:JSON.parse(JSON.stringify(recipeInfo))};
-      if(defaultRecipeName===getLocalRecipes()[idx]?.name){
-        defaultRecipeName=name;localStorage.setItem("default_recipe",name);
+  stopPreview();
+  if(isDirty()){
+    // unsavedModal 문구를 "닫기" 맥락으로 설정
+    var q=document.getElementById("unsavedQuestion");
+    if(q) q.textContent="저장 후 닫을까요, 저장하지 않고 닫을까요?";
+    var result=await showUnsavedDialog();
+    if(q) q.textContent="그래도 이동하시겠습니까?"; // 원래대로 복원
+    if(result==="cancel") return; // 취소 → 모달 유지
+    if(result==="save"){
+      var idx=parseInt(recipeSelect.value);
+      var name=recipeNameInput.value.trim();
+      if(idx>=0&&!isNaN(idx)&&name){
+        readInfoFields();
+        var arr=getLocalRecipes();
+        if(arr[idx]){
+          arr[idx]={name:name,steps:cleanSteps(JSON.parse(JSON.stringify(steps))),info:JSON.parse(JSON.stringify(recipeInfo))};
+          if(defaultRecipeName===getLocalRecipes()[idx]){
+            defaultRecipeName=name;localStorage.setItem("default_recipe",name);
+          }
+          await persistAll(arr);
+          await renderRecipeSelect(arr);
+          recipeSelect.value=idx;
+          updateDefaultBtn();
+          showToast("'"+name+"' 저장됨");
+          markSaved();
+        } else {
+          showToast("저장할 레시피를 먼저 선택해주세요");return;
+        }
+      } else {
+        showToast("저장할 레시피를 먼저 선택해주세요");return;
       }
-      await persistAll(arr);
-      await renderRecipeSelect(arr);
-      recipeSelect.value=idx;
-      updateDefaultBtn();
-      showToast("'"+name+"' 저장됨");
     }
-  } else {
-    readInfoFields();
+    // "discard" → 저장 없이 닫기
   }
   recipeModal.classList.remove("open");
   renderHome();
