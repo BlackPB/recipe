@@ -628,7 +628,7 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
 .total-preview .val{font-family:'DM Mono',monospace;font-size:13px;color:var(--accent);}
 .step-row{display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:7px 8px;margin-bottom:6px;transition:border-color .15s, opacity .15s, transform .15s;user-select:none;flex-wrap:wrap;}
 .step-row:hover{border-color:var(--border-hi);}
-.step-row-top{display:flex;align-items:center;gap:4px;flex:1;min-width:0;}
+.step-row-top{display:flex;align-items:flex-start;gap:4px;flex:1;min-width:0;}
 .step-row-bottom{display:flex;align-items:center;gap:3px;flex-shrink:0;margin-left:auto;}
 .step-row.dragging{opacity:.85;transition:none !important;}
 .drag-handle{
@@ -640,22 +640,16 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
 .drag-handle:active{cursor:grabbing;}
 .drag-handle span{display:block;width:12px;height:1.5px;background:currentColor;border-radius:2px;}
 .step-idx{font-family:'DM Mono',monospace;font-size:11px;color:var(--accent);width:16px;text-align:right;flex-shrink:0;}
-.step-name-input{flex:1;min-width:0;background:transparent;border:none;color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:300;outline:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.step-name-input{
+  flex:1;min-width:0;background:transparent;border:none;border-bottom:1px solid transparent;
+  color:var(--text);font-family:'Noto Sans KR',sans-serif;font-size:13px;font-weight:300;
+  outline:none;resize:none;overflow:hidden;white-space:normal;word-break:break-all;
+  line-height:1.4;padding:1px 0;min-height:20px;
+  display:block;width:100%;box-sizing:border-box;
+}
+.step-name-input:focus{border-bottom-color:var(--accent);}
 .step-name-input::placeholder{color:#3a3a3a;}
-/* 단계 이름 전체 편집 바 */
-.step-fullname-bar{
-  display:none;position:sticky;bottom:0;left:0;right:0;
-  background:var(--surface);border-top:1px solid var(--accent);
-  padding:8px 12px;z-index:10;align-items:center;gap:8px;
-}
-.step-fullname-bar.on{display:flex;}
-.step-fullname-input{
-  flex:1;background:var(--surface2);border:1px solid var(--accent);
-  border-radius:var(--radius);color:var(--text);
-  font-family:'Noto Sans KR',sans-serif;font-size:13px;
-  padding:8px 10px;outline:none;
-}
-.step-fullname-label{font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);white-space:nowrap;letter-spacing:.06em;}
+/* step-fullname-bar 제거됨 */
 .step-sec-input{width:38px;background:var(--bg);border:1px solid var(--border);border-radius:5px;color:var(--text);font-family:'DM Mono',monospace;font-size:11px;text-align:center;padding:3px 3px;outline:none;-webkit-appearance:textfield;-moz-appearance:textfield;appearance:textfield;}
 .step-sec-input::-webkit-inner-spin-button,.step-sec-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .step-sec-input:focus{border-color:var(--accent);}
@@ -1135,11 +1129,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
         </div>
         <div class="total-preview"><span class="lbl">총 추출 시간</span><span class="val" id="totalPreview">-</span></div>
         <div id="stepsEditor"></div>
-        <!-- 단계 이름 전체 편집 바 -->
-        <div class="step-fullname-bar" id="stepFullnameBar">
-          <span class="step-fullname-label" id="stepFullnameLabel">1단계</span>
-          <input class="step-fullname-input" type="text" id="stepFullnameInput" placeholder="단계 이름 전체 편집">
-        </div>
+
         <div style="margin-top:4px;">
           <button class="add-step-btn" id="addBtn">+ 단계 추가</button>
         </div>
@@ -2369,55 +2359,10 @@ function renderHome(){
   document.getElementById("homeTotalTime").textContent=fmtSec(totalSec());
 }
 
-// --- 단계 이름 전체 편집 바 ---
-var _fullnameActiveInput=null;
-var _fullnameActiveIdx=-1;
-function showFullnameBar(ni, idx){
-  var bar=document.getElementById("stepFullnameBar");
-  var fullInput=document.getElementById("stepFullnameInput");
-  var label=document.getElementById("stepFullnameLabel");
-  _fullnameActiveInput=ni;
-  _fullnameActiveIdx=idx;
-  label.textContent=(idx+1)+"단계";
-  fullInput.value=ni.value;
-  bar.classList.add("on");
-  // 풀네임 입력 → 원래 입력칸과 steps 동기화
-  fullInput.oninput=function(){
-    ni.value=fullInput.value;
-    steps[idx].name=fullInput.value;
-    updateTotalPreview();
-  };
-}
-function syncFullnameBar(ni, idx){
-  if(_fullnameActiveIdx===idx){
-    document.getElementById("stepFullnameInput").value=ni.value;
-  }
-}
-function hideFullnameBar(ni, idx){
-  // fullname 바의 input으로 포커스 이동 시에는 닫지 않음
-  setTimeout(function(){
-    var focused=document.activeElement;
-    var fullInput=document.getElementById("stepFullnameInput");
-    if(focused===fullInput) return;
-    document.getElementById("stepFullnameBar").classList.remove("on");
-    _fullnameActiveInput=null;
-    _fullnameActiveIdx=-1;
-  },100);
-}
-// fullname 입력창에서 blur 시 바 닫기
-document.addEventListener("DOMContentLoaded",function(){
-  var fullInput=document.getElementById("stepFullnameInput");
-  if(fullInput){
-    fullInput.addEventListener("blur",function(){
-      setTimeout(function(){
-        var focused=document.activeElement;
-        if(focused&&focused.classList.contains("step-name-input")) return;
-        document.getElementById("stepFullnameBar").classList.remove("on");
-        _fullnameActiveInput=null;_fullnameActiveIdx=-1;
-      },100);
-    });
-  }
-});
+// --- 단계 이름 편집 (step-fullname-bar 제거됨 — textarea 인라인 편집으로 대체) ---
+function showFullnameBar(){}
+function syncFullnameBar(){}
+function hideFullnameBar(){}
 
 // --- 레시피 편집기 ---
 function renderEditor(){
@@ -2475,10 +2420,10 @@ function renderEditor(){
     noteTa.style.cssText="flex:1;min-height:52px;resize:vertical;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-size:12px;padding:5px 7px;box-sizing:border-box;font-family:inherit;";
     noteTa.placeholder="재생 시 읽어줄 설명을 입력하세요";
     noteTa.value=s.note||"";
-    noteTa.addEventListener("input",function(){
-      steps[i].note=noteTa.value;
-      noteBtn.classList.toggle("on",!!noteTa.value);
-    });
+    function syncNote(){steps[i].note=noteTa.value;noteBtn.classList.toggle("on",!!noteTa.value);}
+    noteTa.addEventListener("input",syncNote);
+    noteTa.addEventListener("change",syncNote);
+    noteTa.addEventListener("blur",syncNote);
     // 메모 -s+ 스테퍼
     var noteStepWrap=document.createElement("div");noteStepWrap.className="step-sec-stepper note-row-stepper";
     var noteBtnM=document.createElement("button");noteBtnM.className="sss-btn";noteBtnM.type="button";noteBtnM.textContent="-";noteBtnM.title="3초 감소";
@@ -2515,14 +2460,16 @@ function renderEditor(){
     editSeqBtn.type="button";
     var db=document.createElement("button");db.className="del-btn";db.textContent="x";
 
+    function autoResizeNi(){ni.style.height="auto";ni.style.height=ni.scrollHeight+"px";}
     ni.addEventListener("input",function(){
       steps[i].name=ni.value;steps[i]._placeholder=false;
       row.classList.remove("is-placeholder");
-      updateTotalPreview();syncFullnameBar(ni,i);
-      renderSeqPalette(); // 팔레트 버튼 이름 갱신
+      updateTotalPreview();
+      renderSeqPalette();
+      autoResizeNi();
     });
-    ni.addEventListener("focus",function(){showFullnameBar(ni,i);});
-    ni.addEventListener("blur",function(){hideFullnameBar(ni,i);});
+    ni.addEventListener("focus",function(){autoResizeNi();});
+    setTimeout(function(){autoResizeNi();},0); // 초기 높이 설정
     si.addEventListener("input",function(){steps[i].sec=Math.max(0,parseInt(si.value)||0);siInp.value=steps[i].sec;updateTotalPreview();});
     siInp.addEventListener("input",function(){
       if(siInp.value===""||siInp.value==="-") return;
