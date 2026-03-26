@@ -1129,7 +1129,10 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
           <span class="info-label">코멘트</span>
           <textarea class="info-textarea" id="infoComment" placeholder="원두 특징, 맛 노트, 특이사항 등..."></textarea>
         </div>
-        <div class="section-lbl">단계 설정</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0;">
+          <div class="section-lbl" style="margin-bottom:0;">단계 설정</div>
+          <button id="seqExpandAllBtn" class="btn-sm btn-sm-muted" type="button" style="font-size:10px;padding:3px 8px;">전체 펼치기</button>
+        </div>
         <div class="total-preview"><span class="lbl">총 추출 시간</span><span class="val" id="totalPreview">-</span></div>
         <div id="stepsEditor"></div>
         <!-- 단계 이름 전체 편집 바 -->
@@ -3387,6 +3390,38 @@ document.getElementById("addBtn").addEventListener("click",function(){
   steps.push({name:"새 단계",sec:3});
   renderEditor();
 });
+
+// 전체 펼치기 / 전체 접기
+(function(){
+  var btn=document.getElementById("seqExpandAllBtn");
+  if(!btn) return;
+  var _allOpen=false;
+  btn.addEventListener("click",function(){
+    _allOpen=!_allOpen;
+    btn.textContent=_allOpen?"전체 접기":"전체 펼치기";
+    var panels=Array.from(stepsEditor.querySelectorAll(".step-seq-panel"));
+    panels.forEach(function(panel){
+      if(_allOpen){
+        if(panel.style.display!=="block"){
+          panel.style.display="block";
+          // 패널 내용이 비어있으면 buildPanel 호출 필요
+          // editSeqBtn은 panel의 이전 형제 row에 있음
+          var row=panel.parentElement;
+          if(row&&panel.innerHTML===""){
+            // 편집 버튼 찾아서 클릭으로 buildPanel 트리거
+            var editBtn=row.querySelector(".step-toggle-btn");
+            // step-toggle-btn 중 "편집" 텍스트인 것
+            var editBtns=Array.from(row.querySelectorAll(".step-toggle-btn"));
+            var eb=editBtns.find(function(b){return b.textContent==="편집";});
+            if(eb) eb.click();
+          }
+        }
+      } else {
+        panel.style.display="none";
+      }
+    });
+  });
+})();
 
 // 단계별 시퀀스 미리듣기
 function stopPreview(){
