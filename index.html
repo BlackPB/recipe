@@ -4969,7 +4969,7 @@ function stopTimer(){
   _prepTimers.forEach(function(t){clearTimeout(t);});_prepTimers=[];
   clearInterval(stepTimer);clearInterval(seqTimer);clearInterval(timer);
   stopAudio();clearAudioCache();
-  stopWakeLock(); // 화면 꺼짐 방지 해제
+  if(typeof window.stopWakeLock==="function") window.stopWakeLock(); // 화면 꺼짐 방지 해제
   timerPanel.classList.remove("active");homePanel.style.display="";
   isPaused=false;currentStep=0;remaining=0;totalElapsed=0;descElapsed=0;
   seqIdx=0;_lastMiniStep=-1;
@@ -5006,7 +5006,7 @@ document.getElementById("startBtn").addEventListener("click",function(){
     audioCtx.resume();
   }catch{}
   unlockAudio();
-  startWakeLock(); // 화면 꺼짐 방지 활성화 (사용자 제스처 안에서 호출)
+  if(typeof window.startWakeLock==="function") window.startWakeLock(); // 화면 꺼짐 방지 활성화
   homePanel.style.display="none";timerPanel.classList.add("active");
   recipeBtn.disabled=true;recipeBtn.style.opacity="0.35";recipeBtn.style.pointerEvents="none";
   headerRecipeBtn.disabled=true;headerRecipeBtn.style.opacity="0.35";headerRecipeBtn.style.pointerEvents="none";
@@ -5229,17 +5229,17 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
     }catch(e){ return false; }
   }
 
-  // 타이머 시작 버튼에서 호출 (사용자 제스처 컨텍스트 안)
-  function startWakeLock(){
+  // 타이머 시작 버튼에서 호출 (사용자 제스처 컨텍스트 안) — 전역 노출
+  window.startWakeLock = function(){
     if(_wlActive) return;
     _wlActive = true;
     _startWakeLockAPI().then(function(ok){
       if(!ok) _startVideoWakeLock(); // iOS: Wake Lock API 없으면 동영상 방식
     });
-  }
+  };
 
-  // 타이머 종료/중단 시 호출
-  function stopWakeLock(){
+  // 타이머 종료/중단 시 호출 — 전역 노출
+  window.stopWakeLock = function(){
     _wlActive = false;
     if(_wakeLock && !_wakeLock.released){
       try{ _wakeLock.release(); }catch(e){}
@@ -5250,7 +5250,7 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
       if(_wlVideo.parentNode) _wlVideo.parentNode.removeChild(_wlVideo);
       _wlVideo = null;
     }
-  }
+  };
 
   // 포그라운드 복귀 시 재활성화 (타이머 진행 중인 경우)
   document.addEventListener("visibilitychange", function(){
