@@ -3496,6 +3496,23 @@ function readInfoFields(){
   recipeInfo.water = document.getElementById("infoWater").value.trim();
   recipeInfo.comment = document.getElementById("infoComment").value.trim();
 }
+
+// 기본정보 입력창 — 값 변경 즉시 recipeInfo에 동기화
+(function(){
+  var fields={
+    infoBean:"bean",infoTemp:"temp",
+    infoGrind:"grind",infoWater:"water",infoComment:"comment"
+  };
+  Object.keys(fields).forEach(function(id){
+    var key=fields[id];
+    var el=document.getElementById(id);
+    if(!el) return;
+    function sync(){recipeInfo[key]=el.value.trim();}
+    el.addEventListener("input",sync);
+    el.addEventListener("change",sync);
+    el.addEventListener("blur",sync);
+  });
+})();
 function fillInfoFields(info){
   var ri = info || {bean:"",temp:"",grind:"",water:"",comment:""};
   document.getElementById("infoBean").value  = ri.bean  || "";
