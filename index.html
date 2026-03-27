@@ -4718,11 +4718,11 @@ function updateUI(){
   document.getElementById("stepFill").style.width=((stepEl/Math.max(s.sec||1,1))*100)+"%";
   document.getElementById("totalFill").style.width=((totalElapsed/Math.max(total,1))*100)+"%";
   document.getElementById("totalTimeVal").textContent=totalElapsed+" / "+total+"초";
-  document.getElementById("totalElapsedDisp").textContent=totalElapsed+"s";
+  document.getElementById("totalElapsedDisp").textContent=fmtSec(totalElapsed);
   document.getElementById("totalTimeDisp").textContent=fmtSec(total);
   var elL=document.getElementById("totalElapsedDispL");
   var ttL=document.getElementById("totalTimeDispL");
-  if(elL)elL.textContent=totalElapsed+"s";
+  if(elL)elL.textContent=fmtSec(totalElapsed);
   if(ttL)ttL.textContent=fmtSec(total);
   var next=steps[currentStep+1];
   var nextName=next?((next.name||"").replace(/\(.*?\)/g,"").trim()):"없음";
