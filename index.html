@@ -1556,6 +1556,12 @@ var elKey        = localStorage.getItem("el_key") || "";
 var elKey2       = localStorage.getItem("el_key2") || "";
 var elKey3       = localStorage.getItem("el_key3") || "";
 var activeKeySlot= parseInt(localStorage.getItem("active_key_slot")||"1"); // 레거시 호환 — 실제 키 선택은 getKeyList() 순서로 처리
+// 키 우선순위 배열: [0,1,2] 인덱스 순서로 시도. 소진된 키는 뒤로 밀림. localStorage에 영구 저장
+var keyPriority = (function(){
+  try{ var p=JSON.parse(localStorage.getItem("key_priority")||"null"); if(Array.isArray(p))return p; }catch(e){}
+  return [0,1,2];
+})();
+function saveKeyPriority(){ localStorage.setItem("key_priority", JSON.stringify(keyPriority)); }
 var elVoice      = localStorage.getItem("el_voice") || "nPczCjzI2devNBz1zQrb";
 var voiceParams  = JSON.parse(localStorage.getItem("voice_params")||"null") || {stability:.75,similarity:.75,speed:.95,style:.10};
 var voiceEnabled = localStorage.getItem("voice_enabled") !== "false";
@@ -2058,10 +2064,11 @@ async function fetchAudio(text){
     audioCache.set(text,url);
     return url;
   }
-  // 3. API — KEY 1→2→3 순서로 시도, 소진 시 자동 전환
+  // 3. API — 우선순위 순서로 시도, 소진 시 해당 키를 후순위로 밀고 다음 키로 전환
   var allKeys=getKeyList();
   var lastErr=null;
-  for(var ki=0;ki<allKeys.length;ki++){
+  var ki=0;
+  while(ki<allKeys.length){
     var key=allKeys[ki];
     try{
       var r=await fetchAudioWithKey(text,key);
@@ -2073,27 +2080,40 @@ async function fetchAudio(text){
     }catch(err){
       lastErr=err;
       if(err&&err.exhausted){
-        var keyLabel="KEY "+(ki+1);
-        var nextKey=allKeys[ki+1];
+        // 소진된 키를 우선순위 맨 뒤로 영구 이동
+        demoteKey(ki);
+        // allKeys 배열도 동기화 (뒤로 민 키를 제거하고 뒤에 추가)
+        allKeys.splice(ki,1);
+        allKeys.push(key);
+        var nextKey=allKeys[ki]; // ki는 그대로, 다음 키가 당겨져 옴
         if(nextKey){
-          showToastLong("⚠ "+keyLabel+" 사용량 소진 → KEY "+(ki+2)+"로 전환");
+          showToastLong("⚠ 사용량 소진 → 다음 키로 자동 전환");
         } else {
-          showToastLong("⚠ "+keyLabel+" 사용량 소진 · 남은 키 없음");
+          showToastLong("⚠ 모든 키 사용량 소진 · 남은 키 없음");
         }
+        // ki는 증가시키지 않음 — 같은 위치에 다음 키가 당겨져 있음
         continue;
       }
       throw err;
     }
+    ki++;
   }
   throw lastErr||new Error("all keys failed");
 }
 
-// 사용 가능한 키 배열 반환 (순서대로)
+// 사용 가능한 키 배열 반환 (우선순위 순서대로)
 function getKeyList(){
-  return [elKey,elKey2,elKey3].filter(Boolean);
+  var slots=[elKey,elKey2,elKey3];
+  return keyPriority.map(function(i){return slots[i];}).filter(Boolean);
 }
 function getActiveKey(){
   return getKeyList()[0]||"";
+}
+// 소진된 키를 우선순위 맨 뒤로 밀기 (priorityPos: keyPriority 배열 내 위치)
+function demoteKey(priorityPos){
+  var idx=keyPriority.splice(priorityPos,1)[0];
+  keyPriority.push(idx);
+  saveKeyPriority();
 }
 
 async function fetchAudioWithKey(text, key){
