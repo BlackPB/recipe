@@ -1174,34 +1174,46 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
     <div style="overflow:auto;padding:14px 16px 16px;max-height:70vh;">
       <style>
         #grindTable{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--font-mono,'DM Mono',monospace);}
-        #grindTable thead tr:first-child th{background:var(--surface2);color:var(--accent);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:8px 6px;text-align:center;border-bottom:2px solid var(--border-hi);}
-        #grindTable thead tr:nth-child(2) th{background:var(--surface2);color:var(--muted);font-size:9px;letter-spacing:.05em;padding:5px 6px;text-align:center;border-bottom:1px solid var(--border);}
+        #grindTable thead tr:first-child th{color:var(--text);font-size:10px;letter-spacing:.05em;font-weight:600;padding:8px 6px;text-align:center;border-bottom:1px solid var(--border);}
+        #grindTable thead tr:nth-child(2) th{font-size:9px;font-weight:500;padding:5px 6px;text-align:center;border-bottom:2px solid var(--border-hi);color:var(--text);opacity:.7;}
         #grindTable tbody tr{border-bottom:1px solid var(--border);}
-        #grindTable tbody tr:hover{background:var(--surface2);}
+        #grindTable tbody tr:last-child{border-bottom:none;}
         #grindTable tbody td{padding:7px 6px;text-align:center;color:var(--text);white-space:nowrap;}
-        #grindTable tbody td:first-child{text-align:left;font-family:var(--font-body);font-size:11px;font-weight:500;color:var(--text);min-width:110px;padding-right:10px;}
-        .gcol-fine{color:var(--accent);}
-        .gcol-medium-fine{color:#7eb8a0;}
-        .gcol-medium{color:var(--text);}
-        .gcol-coarse{color:var(--muted);}
-        .grind-section-label{font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:2px 4px;border-radius:3px;}
+        #grindTable tbody td:first-child{text-align:left;font-family:var(--font-body);font-size:11px;font-weight:500;color:var(--text);min-width:120px;padding-right:12px;background:var(--surface)!important;}
+        .gbg-fine{background:rgba(180,140,80,.07);}
+        .gbg-mediumfine{background:rgba(80,160,130,.07);}
+        .gbg-medium{background:rgba(100,130,180,.06);}
+        .gbg-coarse{background:rgba(140,100,170,.06);}
+        .gbg-vcoarse{background:rgba(160,100,100,.06);}
+        .ghead-fine{background:rgba(180,140,80,.13);}
+        .ghead-mediumfine{background:rgba(80,160,130,.13);}
+        .ghead-medium{background:rgba(100,130,180,.11);}
+        .ghead-coarse{background:rgba(140,100,170,.11);}
+        .ghead-vcoarse{background:rgba(160,100,100,.11);}
       </style>
       <table id="grindTable">
         <thead>
           <tr>
-            <th rowspan="2" style="text-align:left;">그라인더</th>
-            <th colspan="4" style="border-left:1px solid var(--border-hi);">고운 분쇄 (에스프레소·모카포트)</th>
-            <th colspan="4" style="border-left:1px solid var(--border-hi);">중고운 (핸드드립·에어로프레스)</th>
-            <th colspan="4" style="border-left:1px solid var(--border-hi);">중간 (일반드립·클레버·사이폰)</th>
-            <th colspan="5" style="border-left:1px solid var(--border-hi);">중굵은 (프렌치프레스·케멕스)</th>
-            <th colspan="4" style="border-left:1px solid var(--border-hi);">굵은 (콜드브루)</th>
+            <th rowspan="3" style="text-align:left;vertical-align:middle;background:var(--surface);">그라인더</th>
+            <th colspan="4" class="ghead-fine">고운 분쇄</th>
+            <th colspan="4" class="ghead-mediumfine">중고운 분쇄</th>
+            <th colspan="4" class="ghead-medium">중간 분쇄</th>
+            <th colspan="5" class="ghead-coarse">중굵은 분쇄</th>
+            <th colspan="4" class="ghead-vcoarse">굵은 분쇄</th>
           </tr>
           <tr>
-            <th style="border-left:1px solid var(--border);">–</th><th>–</th><th>–</th><th>–</th>
-            <th style="border-left:1px solid var(--border);">–</th><th>–</th><th>–</th><th>–</th>
-            <th style="border-left:1px solid var(--border);">–</th><th>–</th><th>–</th><th>–</th>
-            <th style="border-left:1px solid var(--border);">–</th><th>–</th><th>–</th><th>–</th><th>–</th>
-            <th style="border-left:1px solid var(--border);">–</th><th>–</th><th>–</th><th>–</th>
+            <th colspan="4" class="ghead-fine" style="font-size:9px;opacity:.75;font-weight:400;">에스프레소 · 모카포트</th>
+            <th colspan="4" class="ghead-mediumfine" style="font-size:9px;opacity:.75;font-weight:400;">핸드드립 · 에어로프레스</th>
+            <th colspan="4" class="ghead-medium" style="font-size:9px;opacity:.75;font-weight:400;">일반드립 · 클레버 · 사이폰</th>
+            <th colspan="5" class="ghead-coarse" style="font-size:9px;opacity:.75;font-weight:400;">프렌치프레스 · 케멕스</th>
+            <th colspan="4" class="ghead-vcoarse" style="font-size:9px;opacity:.75;font-weight:400;">콜드브루</th>
+          </tr>
+          <tr>
+            <th colspan="4" class="ghead-fine" style="font-size:9px;font-weight:400;color:var(--muted);padding:3px 6px;letter-spacing:.04em;">382 – 405 µm</th>
+            <th colspan="4" class="ghead-mediumfine" style="font-size:9px;font-weight:400;color:var(--muted);padding:3px 6px;letter-spacing:.04em;">428 – 450 µm</th>
+            <th colspan="4" class="ghead-medium" style="font-size:9px;font-weight:400;color:var(--muted);padding:3px 6px;letter-spacing:.04em;">472 – 518 µm</th>
+            <th colspan="5" class="ghead-coarse" style="font-size:9px;font-weight:400;color:var(--muted);padding:3px 6px;letter-spacing:.04em;">518 – 562 µm</th>
+            <th colspan="4" class="ghead-vcoarse" style="font-size:9px;font-weight:400;color:var(--muted);padding:3px 6px;letter-spacing:.04em;">585 – 630 µm</th>
           </tr>
         </thead>
         <tbody id="grindTableBody"></tbody>
@@ -5139,10 +5151,8 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
     {name:"TIMEMORE S3",           cols:[2.6,2.8,3.1,3.3, 3.6,3.8,4.1,4.3, 4.8,5.1,5.3,5.6, 5.8,6.1,6.3,6.6,6.8, 7.1,7.3,7.6,7.8]},
     {name:"Epeios Essence Go",     cols:[34,35,37,38, 39,41,42,44, 46,48,49,51, 52,53,55,56,58, 59,60,62,63]},
   ];
-  // 색상 구간: 0-3=fine, 4-7=med-fine, 8-11=medium, 12-16=coarse, 17-20=very-coarse
-  var colColors=["gcol-fine","gcol-fine","gcol-fine","gcol-fine","gcol-medium-fine","gcol-medium-fine","gcol-medium-fine","gcol-medium-fine","gcol-medium","gcol-medium","gcol-medium","gcol-medium","gcol-coarse","gcol-coarse","gcol-coarse","gcol-coarse","gcol-coarse","gcol-coarse","gcol-coarse","gcol-coarse","gcol-coarse"];
-  // 구간 구분선 위치 (열 인덱스)
-  var sectionBreaks=[4,8,12,17];
+  // 열 인덱스 → 배경 클래스 (0-3 고운, 4-7 중고운, 8-11 중간, 12-16 중굵은, 17-20 굵은)
+  var colBg=["gbg-fine","gbg-fine","gbg-fine","gbg-fine","gbg-mediumfine","gbg-mediumfine","gbg-mediumfine","gbg-mediumfine","gbg-medium","gbg-medium","gbg-medium","gbg-medium","gbg-coarse","gbg-coarse","gbg-coarse","gbg-coarse","gbg-coarse","gbg-vcoarse","gbg-vcoarse","gbg-vcoarse","gbg-vcoarse"];
 
   function buildTable(){
     var tbody=document.getElementById("grindTableBody");
@@ -5155,8 +5165,7 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
       row.cols.forEach(function(val,ci){
         var td=document.createElement("td");
         td.textContent=val;
-        td.className=colColors[ci]||"";
-        if(sectionBreaks.indexOf(ci)!==-1) td.style.borderLeft="1px solid var(--border-hi)";
+        td.className=colBg[ci]||"";
         tr.appendChild(td);
       });
       tbody.appendChild(tr);
