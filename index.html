@@ -904,9 +904,9 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 
 /* --- API 사용량 바 --- */
 .api-usage-wrap{display:flex;flex-direction:column;gap:3px;}
-.api-usage-bar-track{height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
+.api-usage-bar-track{height:5px;background:var(--border);border-radius:4px;overflow:hidden;display:flex;justify-content:flex-end;}
 .api-usage-bar-fill{height:100%;border-radius:4px;transition:width .4s ease,background .4s;}
-.api-usage-label{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.04em;}
+.api-usage-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.04em;margin-top:2px;}
 
 /* --- Pull-to-refresh --- */
 #pullRefreshIndicator{
@@ -1653,11 +1653,11 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
             <div class="setting-label">당겨서 새로고침 민감도</div>
             <div class="setting-sub">값이 낮을수록 조금만 당겨도 새로고침됩니다</div>
           </div>
-          <span id="ptrThresholdVal" style="font-family:var(--font-mono);font-size:13px;color:var(--accent);min-width:36px;text-align:right;">65px</span>
+          <span id="ptrThresholdVal" style="font-family:var(--font-mono);font-size:13px;color:var(--accent);min-width:42px;text-align:right;">120px</span>
         </div>
         <div style="display:flex;align-items:center;gap:10px;">
           <span style="font-size:10px;color:var(--muted);">민감</span>
-          <input type="range" id="ptrThresholdSlider" min="40" max="600" step="5" value="65"
+          <input type="range" id="ptrThresholdSlider" min="40" max="300" step="10" value="65"
             style="flex:1;accent-color:var(--accent);cursor:pointer;">
           <span style="font-size:10px;color:var(--muted);">둔감</span>
         </div>
@@ -4672,17 +4672,40 @@ async function fetchAndShowUsage(key, wrapId, barId, labelId, statusEl, statusTe
     var limit=sub.character_limit||0;
     if(!limit){wrap.style.display="none";return;}
     var remaining=Math.max(0,limit-used);
-    var pct=Math.min(100,Math.round(used/limit*100));
-    // 바 색상: 80% 이상 경고, 95% 이상 위험
-    var color=pct>=95?"var(--danger)":pct>=80?"#e0a840":"var(--success)";
+    var remainPct=Math.min(100,Math.round(remaining/limit*100));
+    function fmt(n){return n>=1000?(n/1000).toFixed(1)+"k":String(n);}
+
+    // 5단계 — CSS 변수 기반으로 테마 자동 적용
+    // 100~61% : --success (초록 계열)
+    // 60~41%  : --success 50% + --accent 50% 혼합 → CSS mix 미지원이라 opacity로 처리
+    // 40~21%  : --accent (테마 강조색)
+    // 20~6%   : --danger (위험색)
+    // 5~0%    : --border (회색, 소진)
+    var barColor, textColor;
+    if(remaining===0){
+      barColor="var(--border)";      textColor="var(--muted)";
+    } else if(remainPct<=5){
+      barColor="var(--danger)";      textColor="var(--danger)";
+    } else if(remainPct<=20){
+      barColor="var(--danger)";      textColor="var(--danger)";
+    } else if(remainPct<=40){
+      barColor="var(--accent)";      textColor="var(--accent)";
+    } else if(remainPct<=60){
+      barColor="var(--accent2)";     textColor="var(--accent2)";
+    } else {
+      barColor="var(--success)";     textColor="var(--success)";
+    }
+
     wrap.style.display="block";
-    bar.style.width=pct+"%";
-    bar.style.background=color;
-    // 숫자 포맷
-    function fmt(n){return n>=1000?(n/1000).toFixed(1)+"k":n;}
-    label.textContent="잔여 "+fmt(remaining)+" / "+fmt(limit)+"자  ("+pct+"% 사용)";
-    label.style.color=pct>=95?"var(--danger)":pct>=80?"#e0a840":"var(--muted)";
-    // 상태 텍스트에도 간략히 표시
+    bar.style.width=remainPct+"%";
+    bar.style.background=barColor;
+
+    // 라벨: 잔여량을 오른쪽 정렬로
+    label.style.cssText="display:flex;justify-content:flex-end;align-items:baseline;gap:4px;";
+    label.innerHTML=
+      "<span style=\"color:var(--muted);font-size:9px;\">"+fmt(limit)+"자 중</span>"
+      +"<span style=\"color:"+textColor+";font-weight:400;font-size:10px;\">"+fmt(remaining)+"자 ("+remainPct+"%) 남음</span>";
+
     if(statusTextEl) statusTextEl.textContent="연결됨 · 잔여 "+fmt(remaining)+"자";
   }catch{
     wrap.style.display="none";
@@ -5478,7 +5501,7 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
     var label=document.getElementById("ptrThresholdVal");
     if(!slider) return;
     // 저장된 값 복원
-    var saved=parseInt(localStorage.getItem("ptr_threshold")||"65");
+    var saved=parseInt(localStorage.getItem("ptr_threshold")||"120");
     slider.value=saved;
     label.textContent=saved+"px";
     slider.addEventListener("input",function(){
@@ -5493,7 +5516,7 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
   (function(){
     var indicator=document.getElementById("pullRefreshIndicator");
     var ptrText=document.getElementById("pullRefreshText");
-    var THRESHOLD=parseInt(localStorage.getItem("ptr_threshold")||"65");
+    var THRESHOLD=parseInt(localStorage.getItem("ptr_threshold")||"120");
     var startY=0, currentY=0, pulling=false, canPull=false;
 
     function getScrollTop(){
