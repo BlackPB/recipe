@@ -1419,6 +1419,62 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
               <span class="theme-btn-info"><span class="theme-btn-name">미드나이트</span><span class="theme-btn-desc">퓨어 블랙 · 골드</span></span>
             </button>
           </div>
+
+          <!-- 커스텀 테마 -->
+          <div id="customThemePanel" style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);">
+            <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;">커스텀 테마</div>
+
+            <!-- 배경색 + 포인트색 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
+              <div>
+                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:6px;">배경색</div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input type="color" id="customBgColor" value="#1a1a2e"
+                    style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:var(--surface);border:1px solid var(--border);">
+                  <input type="text" id="customBgHex" value="#1a1a2e" maxlength="7"
+                    style="flex:1;font-family:'DM Mono',monospace;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+                </div>
+              </div>
+              <div>
+                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:6px;">포인트색</div>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <input type="color" id="customAccentColor" value="#e94560"
+                    style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:var(--surface);border:1px solid var(--border);">
+                  <input type="text" id="customAccentHex" value="#e94560" maxlength="7"
+                    style="flex:1;font-family:'DM Mono',monospace;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+                </div>
+              </div>
+            </div>
+
+            <!-- 미리보기 -->
+            <div id="customThemePreview" style="border-radius:10px;overflow:hidden;margin-bottom:12px;border:1px solid var(--border);">
+              <div id="ctp-header" style="padding:8px 12px;display:flex;align-items:center;justify-content:space-between;">
+                <span id="ctp-title" style="font-family:'DM Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.05em;">HAND DRIP</span>
+                <span id="ctp-time" style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;">2:30</span>
+              </div>
+              <div id="ctp-body" style="padding:10px 12px;">
+                <div id="ctp-label" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;margin-bottom:5px;opacity:.6;">전체 진행</div>
+                <div id="ctp-total-track" style="height:4px;border-radius:4px;margin-bottom:8px;overflow:hidden;">
+                  <div id="ctp-total-fill" style="width:55%;height:100%;border-radius:4px;"></div>
+                </div>
+                <div id="ctp-label2" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;margin-bottom:5px;opacity:.6;">단계 진행</div>
+                <div id="ctp-step-track" style="height:6px;border-radius:4px;overflow:hidden;">
+                  <div id="ctp-step-fill" style="width:35%;height:100%;border-radius:4px;"></div>
+                </div>
+                <div style="display:flex;gap:8px;margin-top:10px;">
+                  <div id="ctp-btn" style="flex:1;padding:8px;border-radius:8px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;cursor:default;">시작</div>
+                  <div id="ctp-surface" style="flex:1;padding:8px;border-radius:8px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;cursor:default;opacity:.7;">단계</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 적용 버튼 -->
+            <button id="applyCustomThemeBtn"
+              style="width:100%;padding:10px;border-radius:var(--btn-radius);border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.05em;background:var(--accent);color:#fff;transition:opacity .15s;">
+              커스텀 테마 적용
+            </button>
+            <div id="customThemeStatus" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:center;margin-top:8px;min-height:14px;"></div>
+          </div>
         </div>
       </div>
 
@@ -2011,10 +2067,17 @@ function clearPending(){ pendingBadge.classList.remove("on"); }
 var THEME_NAMES={
   "dark":"골드 다크","modern":"모던","minimal":"미니멀","vivid":"비비드",
   "calm":"캄","noir":"누아르","latte":"라떼","ocean":"오션","paper":"페이퍼",
-  "light":"라이트 블루","mocha":"모카 다크","slate":"슬레이트","ivory":"아이보리","midnight":"미드나이트"
+  "light":"라이트 블루","mocha":"모카 다크","slate":"슬레이트","ivory":"아이보리","midnight":"미드나이트","custom":"커스텀"
 };
 function applyTheme(t){
   currentTheme=t;
+  // 커스텀 테마에서 다른 테마로 전환 시 인라인 CSS 변수 초기화
+  if(t!=='custom'){
+    var customVars=['--bg','--surface','--surface2','--border','--border-hi','--text','--muted',
+      '--accent','--accent2','--danger','--success','--header-bg','--card-shadow',
+      '--step-bar-1','--step-bar-2','--step-bar-3','--step-bar-4'];
+    customVars.forEach(function(v){ document.documentElement.style.removeProperty(v); });
+  }
   document.documentElement.setAttribute("data-theme", t==="dark"?"":t);
   localStorage.setItem("theme",t);
   document.querySelectorAll(".theme-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.theme===t); });
@@ -5881,6 +5944,269 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
     }
   });
 })();
+
+// ── 커스텀 테마 ──────────────────────────────────────────────
+(function(){
+  // ── 색상 유틸 ──
+  function hexToRgb(hex){
+    var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    return [r,g,b];
+  }
+  function rgbToHex(r,g,b){
+    return '#'+[r,g,b].map(function(v){return Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0');}).join('');
+  }
+  function rgbToHsl(r,g,b){
+    r/=255;g/=255;b/=255;
+    var max=Math.max(r,g,b),min=Math.min(r,g,b),h,s,l=(max+min)/2;
+    if(max===min){h=s=0;}
+    else{var d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);
+      switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}
+      h/=6;}
+    return [h*360,s*100,l*100];
+  }
+  function hslToRgb(h,s,l){
+    h/=360;s/=100;l/=100;
+    var r,g,b;
+    if(s===0){r=g=b=l;}
+    else{
+      function hue2rgb(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;}
+      var q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;
+      r=hue2rgb(p,q,h+1/3);g=hue2rgb(p,q,h);b=hue2rgb(p,q,h-1/3);
+    }
+    return [r*255,g*255,b*255];
+  }
+  function lighten(hex,amt){var [r,g,b]=hexToRgb(hex);var [h,s,l]=rgbToHsl(r,g,b);l=Math.min(100,l+amt);var [nr,ng,nb]=hslToRgb(h,s,l);return rgbToHex(nr,ng,nb);}
+  function darken(hex,amt){return lighten(hex,-amt);}
+  function saturate(hex,amt){var [r,g,b]=hexToRgb(hex);var [h,s,l]=rgbToHsl(r,g,b);s=Math.min(100,Math.max(0,s+amt));var [nr,ng,nb]=hslToRgb(h,s,l);return rgbToHex(nr,ng,nb);}
+  function isLight(hex){var [r,g,b]=hexToRgb(hex);return (r*299+g*587+b*114)/1000>128;}
+  function mixHex(a,b,t){
+    var [ar,ag,ab]=hexToRgb(a),[br,bg,bb]=hexToRgb(b);
+    return rgbToHex(ar+(br-ar)*t,ag+(bg-ag)*t,ab+(bb-ab)*t);
+  }
+  function hexAlpha(hex,a){var [r,g,b]=hexToRgb(hex);return 'rgba('+r+','+g+','+b+','+a+')';}
+
+  // ── 테마 변수 파생 ──
+  function deriveTheme(bgHex, accentHex){
+    var dark=!isLight(bgHex);
+    var [h,s,l]=rgbToHsl(...hexToRgb(bgHex));
+
+    var bg, surface, surface2, border, borderHi, text, muted;
+    if(dark){
+      bg      = bgHex;
+      surface = lighten(bgHex, 5);
+      surface2= lighten(bgHex, 9);
+      border  = lighten(bgHex, 14);
+      borderHi= lighten(bgHex, 22);
+      text    = isLight(lighten(bgHex,60)) ? lighten(bgHex,70) : '#f0f0f0';
+      muted   = lighten(bgHex, 35);
+    } else {
+      bg      = bgHex;
+      surface = lighten(bgHex, 4);
+      surface2= darken(bgHex, 4);
+      border  = darken(bgHex, 10);
+      borderHi= darken(bgHex, 20);
+      text    = darken(bgHex, 65);
+      muted   = darken(bgHex, 30);
+    }
+
+    var accent  = accentHex;
+    var accent2 = lighten(accentHex, 12);
+    var danger  = saturate(mixHex(accentHex,'#ff3030',0.6), 20);
+    var success = '#2ecc71';
+
+    // step-bar 4색: accent에서 색상환 파생
+    var [ah,as,al]=rgbToHsl(...hexToRgb(accentHex));
+    var sb1=accentHex;
+    var sb2=rgbToHex(...hslToRgb((ah+40)%360,as,al));
+    var sb3=rgbToHex(...hslToRgb((ah+160)%360,as,al));
+    var sb4=rgbToHex(...hslToRgb((ah+220)%360,as,al));
+
+    return {bg,surface,surface2,border,borderHi,text,muted,accent,accent2,danger,success,sb1,sb2,sb3,sb4,dark};
+  }
+
+  // ── CSS 변수 적용 ──
+  function applyCustomVars(t){
+    var el=document.documentElement;
+    el.style.setProperty('--bg',t.bg);
+    el.style.setProperty('--surface',t.surface);
+    el.style.setProperty('--surface2',t.surface2);
+    el.style.setProperty('--border',t.border);
+    el.style.setProperty('--border-hi',t.borderHi);
+    el.style.setProperty('--text',t.text);
+    el.style.setProperty('--muted',t.muted);
+    el.style.setProperty('--accent',t.accent);
+    el.style.setProperty('--accent2',t.accent2);
+    el.style.setProperty('--danger',t.danger);
+    el.style.setProperty('--success',t.success);
+    el.style.setProperty('--step-bar-1',t.sb1);
+    el.style.setProperty('--step-bar-2',t.sb2);
+    el.style.setProperty('--step-bar-3',t.sb3);
+    el.style.setProperty('--step-bar-4',t.sb4);
+    el.style.setProperty('--header-bg',t.surface);
+    el.style.setProperty('--card-shadow','0 2px 16px '+hexAlpha(t.accent,0.12));
+  }
+
+  // ── 미리보기 업데이트 ──
+  function updatePreview(bgHex, accentHex){
+    var t=deriveTheme(bgHex,accentHex);
+    var p=document.getElementById('customThemePreview');
+    if(!p) return;
+    p.style.background=t.bg;
+    document.getElementById('ctp-header').style.background=t.surface;
+    document.getElementById('ctp-title').style.color=t.muted;
+    document.getElementById('ctp-time').style.color=t.text;
+    document.getElementById('ctp-body').style.background=t.bg;
+    document.getElementById('ctp-label').style.color=t.muted;
+    document.getElementById('ctp-label2').style.color=t.muted;
+    document.getElementById('ctp-total-track').style.background=t.border;
+    document.getElementById('ctp-total-fill').style.background=t.accent;
+    document.getElementById('ctp-step-track').style.background=t.border;
+    document.getElementById('ctp-step-fill').style.background=
+      'linear-gradient(90deg,'+t.sb1+' 0%,'+t.sb2+' 40%,'+t.sb3+' 75%,'+t.sb4+' 100%)';
+    document.getElementById('ctp-btn').style.background=t.accent;
+    document.getElementById('ctp-btn').style.color=isLight(t.accent)?'#111':'#fff';
+    document.getElementById('ctp-surface').style.background=t.surface2;
+    document.getElementById('ctp-surface').style.color=t.muted;
+    document.getElementById('ctp-surface').style.border='1px solid '+t.border;
+  }
+
+  // ── hex 입력 유효성 ──
+  function validHex(s){return /^#[0-9a-fA-F]{6}$/.test(s);}
+
+  // ── 저장/불러오기 ──
+  function saveCustomTheme(bg,accent){
+    localStorage.setItem('custom_theme_bg',bg);
+    localStorage.setItem('custom_theme_accent',accent);
+    localStorage.setItem('custom_theme_active','1');
+  }
+  function loadCustomTheme(){
+    return {
+      bg:localStorage.getItem('custom_theme_bg')||'#1a1a2e',
+      accent:localStorage.getItem('custom_theme_accent')||'#e94560',
+      active:localStorage.getItem('custom_theme_active')==='1'
+    };
+  }
+  function clearCustomThemeActive(){
+    localStorage.removeItem('custom_theme_active');
+  }
+
+  // ── DOM 준비 후 초기화 ──
+  function init(){
+    var bgColorPicker  = document.getElementById('customBgColor');
+    var bgHexInput     = document.getElementById('customBgHex');
+    var acColorPicker  = document.getElementById('customAccentColor');
+    var acHexInput     = document.getElementById('customAccentHex');
+    var applyBtn       = document.getElementById('applyCustomThemeBtn');
+    var statusEl       = document.getElementById('customThemeStatus');
+    if(!bgColorPicker) return;
+
+    // 저장된 커스텀 값 복원
+    var saved=loadCustomTheme();
+    bgColorPicker.value=saved.bg;
+    bgHexInput.value=saved.bg;
+    acColorPicker.value=saved.accent;
+    acHexInput.value=saved.accent;
+    updatePreview(saved.bg,saved.accent);
+
+    // 커스텀 테마가 활성화 상태였으면 재적용
+    if(saved.active && localStorage.getItem('theme')==='custom'){
+      applyCustomVars(deriveTheme(saved.bg,saved.accent));
+    }
+
+    function syncBg(hex){
+      if(!validHex(hex)) return;
+      bgColorPicker.value=hex;
+      bgHexInput.value=hex;
+      updatePreview(hex,acColorPicker.value);
+    }
+    function syncAccent(hex){
+      if(!validHex(hex)) return;
+      acColorPicker.value=hex;
+      acHexInput.value=hex;
+      updatePreview(bgColorPicker.value,hex);
+    }
+
+    bgColorPicker.addEventListener('input',function(){ syncBg(this.value); });
+    bgHexInput.addEventListener('input',function(){
+      var v=this.value.trim();
+      if(!v.startsWith('#')) v='#'+v;
+      if(validHex(v)) syncBg(v);
+    });
+    bgHexInput.addEventListener('blur',function(){
+      var v=this.value.trim();
+      if(!v.startsWith('#')) v='#'+v;
+      if(validHex(v)){syncBg(v);}
+      else{this.value=bgColorPicker.value;}
+    });
+
+    acColorPicker.addEventListener('input',function(){ syncAccent(this.value); });
+    acHexInput.addEventListener('input',function(){
+      var v=this.value.trim();
+      if(!v.startsWith('#')) v='#'+v;
+      if(validHex(v)) syncAccent(v);
+    });
+    acHexInput.addEventListener('blur',function(){
+      var v=this.value.trim();
+      if(!v.startsWith('#')) v='#'+v;
+      if(validHex(v)){syncAccent(v);}
+      else{this.value=acColorPicker.value;}
+    });
+
+    applyBtn.addEventListener('click',function(){
+      var bg=bgColorPicker.value;
+      var accent=acColorPicker.value;
+      if(!validHex(bg)||!validHex(accent)){
+        statusEl.style.color='var(--danger)';
+        statusEl.textContent='유효한 색상을 입력해주세요.';
+        return;
+      }
+      // 기존 테마 속성 제거 후 커스텀 적용
+      document.documentElement.setAttribute('data-theme','custom');
+      applyCustomVars(deriveTheme(bg,accent));
+      saveCustomTheme(bg,accent);
+      localStorage.setItem('theme','custom');
+
+      // 테마 버튼 active 해제
+      document.querySelectorAll('.theme-btn').forEach(function(b){ b.classList.remove('active'); });
+
+      // 상태 레이블 업데이트
+      var lbl=document.getElementById('themeCurrentLabel');
+      if(lbl) lbl.textContent='현재: 커스텀';
+
+      statusEl.style.color='var(--success,#2ecc71)';
+      statusEl.textContent='✓ 커스텀 테마가 적용됐어요!';
+      setTimeout(function(){statusEl.textContent='';},2500);
+    });
+  }
+
+  // 설정 모달 열릴 때마다 미리보기 갱신
+  var origOpen=window.openSettings;
+  if(typeof origOpen==='function'){
+    window.openSettings=function(){
+      origOpen.apply(this,arguments);
+      setTimeout(function(){
+        var s=loadCustomTheme();
+        var bg=document.getElementById('customBgColor');
+        var ac=document.getElementById('customAccentColor');
+        if(bg&&ac) updatePreview(bg.value,ac.value);
+      },50);
+    };
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',init);
+  } else { init(); }
+
+  // 커스텀 테마는 applyTheme 호출 시 초기화
+  var _origApplyTheme=window.applyTheme;
+  if(typeof _origApplyTheme==='function'){
+    window.applyTheme=function(t){
+      _origApplyTheme(t);
+      if(t!=='custom') clearCustomThemeActive();
+    };
+  }
+})();
+// ── 커스텀 테마 끝 ────────────────────────────────────────────
 </script>
 </body>
 </html>
