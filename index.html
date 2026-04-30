@@ -5992,40 +5992,37 @@ function makeHsl(h,s,l){var rgb=hslToRgb(h,s,l);return rgbToHex(rgb[0],rgb[1],rg
    - 같은 색이 두 슬롯에 중복되지 않도록 섞음
    - 잠긴 슬롯은 건드리지 않음 */
 function shuffleLocked(currentPalette, lockedArr){
-  // 잠금 해제 슬롯 인덱스 수집
+  // 잠금 해제 슬롯 인덱스만 수집
   var freeIdx = [];
   lockedArr.forEach(function(lk,i){ if(!lk) freeIdx.push(i); });
-  if(freeIdx.length < 2) return currentPalette.slice(); // 1개 이하면 의미 없음
+  if(freeIdx.length < 2) return currentPalette.slice();
 
-  // 현재 팔레트 전체 색상을 후보로 (중복 제거)
-  var candidates = [];
-  currentPalette.forEach(function(c){
-    if(candidates.indexOf(c)<0) candidates.push(c);
-  });
-  // 후보가 부족하면 전체 포함
-  if(candidates.length < freeIdx.length) candidates = currentPalette.slice();
+  // ★ 잠기지 않은 슬롯의 색상만 풀로 사용 (잠긴 색은 포함 안 함)
+  var pool = freeIdx.map(function(i){ return currentPalette[i]; });
 
-  // Fisher-Yates 셔플
-  function shuffle(arr){
+  // Fisher-Yates 셔플 (현재 배치와 달라질 때까지 최대 10회)
+  function fy(arr){
     var a=arr.slice();
-    for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+    for(var i=a.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
     return a;
   }
 
-  var result = currentPalette.slice();
-  // 후보 섞기 (최소 2번 시도해서 현재와 다른 배치 찾기)
-  var pool = shuffle(candidates);
-  // 후보 수가 슬롯 수보다 적으면 반복해서 채움
-  while(pool.length < freeIdx.length) pool = pool.concat(shuffle(candidates));
-
-  // 잠금 해제 슬롯에 배치 (현재 배치와 최대한 달라지게)
+  var shuffled = pool.slice();
   var attempt = 0;
   do {
-    pool = shuffle(pool);
+    shuffled = fy(pool);
     attempt++;
-  } while(attempt < 8 && freeIdx.every(function(si,j){ return pool[j]===currentPalette[si]; }));
+  } while(
+    attempt < 10 &&
+    freeIdx.every(function(si, j){ return shuffled[j] === currentPalette[si]; })
+  );
 
-  freeIdx.forEach(function(si,j){ result[si]=pool[j]; });
+  // 잠금 해제 슬롯에만 셔플된 색 배치
+  var result = currentPalette.slice();
+  freeIdx.forEach(function(si, j){ result[si] = shuffled[j]; });
   return result;
 }
 
@@ -6117,14 +6114,18 @@ function renderPaletteSlots(){
 
     /* 잠금 버튼 — z-index:2 로 picker 위에 */
     var lockBtn=document.createElement('button');
+    /* 잠긴 상태: 밝게 강조 / 열린 상태: 흐리게 */
+    var isLocked=locked[idx];
     lockBtn.style.cssText='position:absolute;top:6px;right:6px;z-index:2;'
       +'width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;'
       +'display:flex;align-items:center;justify-content:center;font-size:13px;'
-      +'background:'+(locked[idx]?'rgba(255,255,255,.92)':'rgba(0,0,0,.38)')+';'
-      +'color:'+(locked[idx]?'#222':'#fff')+';'
-      +'box-shadow:0 1px 4px rgba(0,0,0,.25);transition:all .15s;pointer-events:auto;';
-    lockBtn.innerHTML=locked[idx]?'🔒':'🔓';
-    lockBtn.title=locked[idx]?'잠금 해제 (클릭)':'잠금 (클릭)';
+      +'background:'+(isLocked?'rgba(255,255,255,.95)':'rgba(0,0,0,.18)')+';'
+      +'color:'+(isLocked?'#111':'rgba(255,255,255,.45)')+';'
+      +'opacity:'+(isLocked?'1':'.55')+';'
+      +'box-shadow:'+(isLocked?'0 1px 6px rgba(0,0,0,.35)':'none')+';'
+      +'transition:all .15s;pointer-events:auto;';
+    lockBtn.innerHTML=isLocked?'🔒':'🔓';
+    lockBtn.title=isLocked?'잠금 해제 (클릭)':'잠금 (클릭)';
     (function(slotIdx){
       lockBtn.addEventListener('click',function(e){
         e.preventDefault(); e.stopPropagation();
@@ -6485,8 +6486,9 @@ function init(){
     icon.style.transform='rotate(180deg) scaleX(-1)';
     setTimeout(function(){icon.style.transition='none';icon.style.transform='';},380);
     // 2색 모드면 슬롯 0,2만 셔플 대상
-    var shuffleMask = [false,false,false,false];
-    activeIdx.forEach(function(i){ shuffleMask[i]=!locked[i]; });
+    // shuffleMask: true=잠김(건드리지 않음), false=해제(셔플 대상)
+    var shuffleMask = [true,true,true,true]; // 기본 모두 잠금(비활성)
+    activeIdx.forEach(function(i){ shuffleMask[i]=locked[i]; }); // 실제 잠금 상태 반영
     palette=shuffleLocked(palette, shuffleMask);
     savePaletteState();
     renderPaletteSlots(); updateShuffleBtn(); refreshPreview();
