@@ -1361,89 +1361,42 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
           <span class="collapse-arrow" id="themeArrow">+</span>
         </div>
         <div id="themeBody" style="display:none;margin-top:12px;">
-          <div class="theme-grid">
-            <button class="theme-btn theme-btn-wide" data-theme="dark">
-              <span class="theme-swatch" style="background:#0e0e0e;border-color:#c8a96e;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">골드 다크</span><span class="theme-btn-desc">기본 · 골드 포인트</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="modern">
-              <span class="theme-swatch" style="background:#f8f9fc;border-color:#00c896;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">모던</span><span class="theme-btn-desc">화이트 · 민트 포인트</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="minimal">
-              <span class="theme-swatch" style="background:#fafaf8;border-color:#1a1a1a;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">미니멀</span><span class="theme-btn-desc">종이 · 세리프 타이포</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="vivid">
-              <span class="theme-swatch" style="background:#0a0010;border-color:#ff3cac;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">비비드</span><span class="theme-btn-desc">딥 퍼플 · 네온 핑크</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="calm">
-              <span class="theme-swatch" style="background:#0f1a14;border-color:#8fbc6a;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">캄</span><span class="theme-btn-desc">포레스트 · 세이지</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="noir">
-              <span class="theme-swatch" style="background:#000;border-color:#e8e8e8;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">누아르</span><span class="theme-btn-desc">퓨어 블랙 · 모노</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="latte">
-              <span class="theme-swatch" style="background:#f7f2ec;border-color:#6b4226;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">라떼</span><span class="theme-btn-desc">크림 · 에스프레소</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="ocean">
-              <span class="theme-swatch" style="background:#04101e;border-color:#00d4ff;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">오션</span><span class="theme-btn-desc">딥 네이비 · 시안</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="paper">
-              <span class="theme-swatch" style="background:#f2ece0;border-color:#2c4a7c;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">페이퍼</span><span class="theme-btn-desc">크림 · 잉크 블루</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="light">
-              <span class="theme-swatch" style="background:#EFF6FF;border-color:#10367D;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">라이트 블루</span><span class="theme-btn-desc">화이트 · 딥 네이비</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="mocha">
-              <span class="theme-swatch" style="background:#12100e;border-color:#e8a060;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">모카 다크</span><span class="theme-btn-desc">딥 브라운 · 앰버</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="slate">
-              <span class="theme-swatch" style="background:#0a0f1a;border-color:#60a8f0;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">슬레이트</span><span class="theme-btn-desc">딥 네이비 · 아이스 블루</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="ivory">
-              <span class="theme-swatch" style="background:#faf6ef;border-color:#5a3e28;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">아이보리</span><span class="theme-btn-desc">크림 · 다크 브라운</span></span>
-            </button>
-            <button class="theme-btn theme-btn-wide" data-theme="midnight">
-              <span class="theme-swatch" style="background:#05060e;border-color:#c8a060;"></span>
-              <span class="theme-btn-info"><span class="theme-btn-name">미드나이트</span><span class="theme-btn-desc">퓨어 블랙 · 골드</span></span>
-            </button>
-          </div>
+          <!-- 테마 그리드 (JS로 렌더링) -->
+          <div id="themeGrid" class="theme-grid"></div>
 
-          <!-- 커스텀 테마 -->
+          <!-- 커스텀 테마 편집기 -->
           <div id="customThemePanel" style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);">
-            <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;">커스텀 테마</div>
 
-            <!-- 배경색 + 포인트색 -->
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
-              <div>
-                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:6px;">배경색</div>
-                <div style="display:flex;align-items:center;gap:6px;">
-                  <input type="color" id="customBgColor" value="#1a1a2e"
-                    style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:var(--surface);border:1px solid var(--border);">
-                  <input type="text" id="customBgHex" value="#1a1a2e" maxlength="7"
-                    style="flex:1;font-family:'DM Mono',monospace;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
-                </div>
+            <!-- 헤더 + 2색/4색 모드 토글 -->
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;">커스텀 테마 만들기</span>
+              <div style="display:flex;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--surface);">
+                <button id="mode2Btn" data-mode="2"
+                  style="padding:4px 12px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;transition:all .15s;border-radius:20px 0 0 20px;">
+                  2색
+                </button>
+                <button id="mode4Btn" data-mode="4"
+                  style="padding:4px 12px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;transition:all .15s;border-radius:0 20px 20px 0;">
+                  4색
+                </button>
               </div>
-              <div>
-                <div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);margin-bottom:6px;">포인트색</div>
-                <div style="display:flex;align-items:center;gap:6px;">
-                  <input type="color" id="customAccentColor" value="#e94560"
-                    style="width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:var(--surface);border:1px solid var(--border);">
-                  <input type="text" id="customAccentHex" value="#e94560" maxlength="7"
-                    style="flex:1;font-family:'DM Mono',monospace;font-size:12px;padding:6px 8px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
-                </div>
-              </div>
+            </div>
+
+            <!-- 팔레트 슬롯 (JS 렌더) -->
+            <div id="paletteSlots" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;"></div>
+
+            <!-- 랜덤 버튼 2종 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">
+              <button id="paletteShuffleBtn" title="입력한 색상들 사이에서 잠금 해제 슬롯을 랜덤 배치"
+                style="display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;border-radius:var(--btn-radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .15s;">
+                <span id="shuffleIcon" style="font-size:14px;display:inline-block;">⇌</span>
+                <span>입력값 셔플</span>
+              </button>
+              <button id="paletteRandomBtn" title="잠긴 슬롯 기준으로 완전히 새로운 조화 팔레트 생성"
+                style="display:flex;align-items:center;justify-content:center;gap:5px;padding:8px;border-radius:var(--btn-radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all .15s;">
+                <span id="randomIcon" style="font-size:14px;display:inline-block;">✦</span>
+                <span>전체 랜덤</span>
+              </button>
             </div>
 
             <!-- 미리보기 -->
@@ -1453,26 +1406,39 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
                 <span id="ctp-time" style="font-family:'DM Mono',monospace;font-size:18px;font-weight:700;">2:30</span>
               </div>
               <div id="ctp-body" style="padding:10px 12px;">
-                <div id="ctp-label" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;margin-bottom:5px;opacity:.6;">전체 진행</div>
+                <div id="ctp-label" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;margin-bottom:5px;opacity:.7;">전체 진행</div>
                 <div id="ctp-total-track" style="height:4px;border-radius:4px;margin-bottom:8px;overflow:hidden;">
                   <div id="ctp-total-fill" style="width:55%;height:100%;border-radius:4px;"></div>
                 </div>
-                <div id="ctp-label2" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;margin-bottom:5px;opacity:.6;">단계 진행</div>
+                <div id="ctp-label2" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;margin-bottom:5px;opacity:.7;">단계 진행</div>
                 <div id="ctp-step-track" style="height:6px;border-radius:4px;overflow:hidden;">
                   <div id="ctp-step-fill" style="width:35%;height:100%;border-radius:4px;"></div>
                 </div>
                 <div style="display:flex;gap:8px;margin-top:10px;">
                   <div id="ctp-btn" style="flex:1;padding:8px;border-radius:8px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;font-weight:600;cursor:default;">시작</div>
-                  <div id="ctp-surface" style="flex:1;padding:8px;border-radius:8px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;cursor:default;opacity:.7;">단계</div>
+                  <div id="ctp-surface" style="flex:1;padding:8px;border-radius:8px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;cursor:default;">단계</div>
+                  <div id="ctp-accent2" style="flex:1;padding:8px;border-radius:8px;text-align:center;font-family:'DM Mono',monospace;font-size:10px;cursor:default;">강조</div>
                 </div>
               </div>
             </div>
 
-            <!-- 적용 버튼 -->
-            <button id="applyCustomThemeBtn"
-              style="width:100%;padding:10px;border-radius:var(--btn-radius);border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.05em;background:var(--accent);color:#fff;transition:opacity .15s;">
-              커스텀 테마 적용
-            </button>
+            <!-- 테마 이름 -->
+            <div style="margin-bottom:10px;">
+              <input type="text" id="customThemeName" value="나의 테마" maxlength="20" placeholder="테마 이름"
+                style="width:100%;box-sizing:border-box;font-family:'DM Mono',monospace;font-size:12px;padding:7px 10px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text);">
+            </div>
+
+            <!-- 저장 / 적용 -->
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <button id="saveCustomThemeBtn"
+                style="padding:10px;border-radius:var(--btn-radius);border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.04em;background:var(--accent);color:#fff;">
+                목록에 저장
+              </button>
+              <button id="applyCustomThemeBtn"
+                style="padding:10px;border-radius:var(--btn-radius);border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.04em;background:var(--surface);color:var(--text);border:1px solid var(--border);">
+                바로 적용
+              </button>
+            </div>
             <div id="customThemeStatus" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:center;margin-top:8px;min-height:14px;"></div>
           </div>
         </div>
@@ -2080,7 +2046,7 @@ function applyTheme(t){
   }
   document.documentElement.setAttribute("data-theme", t==="dark"?"":t);
   localStorage.setItem("theme",t);
-  document.querySelectorAll(".theme-btn").forEach(function(b){ b.classList.toggle("active", b.dataset.theme===t); });
+  // active 상태는 renderThemeGrid()가 처리
   // 섹션 서브 레이블에 현재 테마명 표시
   var lbl=document.getElementById("themeCurrentLabel");
   if(lbl) lbl.textContent="현재: "+(THEME_NAMES[t]||t);
@@ -2097,9 +2063,7 @@ document.getElementById("themeHead").addEventListener("click",function(){
   body.style.display=open?"block":"none";
   arrow.textContent=open?"-":"+";
 });
-document.querySelectorAll(".theme-btn").forEach(function(b){
-  b.addEventListener("click", function(){ applyTheme(b.dataset.theme); markPending(); });
-});
+// theme-btn 이벤트는 renderThemeGrid()에서 동적으로 등록
 
 function applyStartBtnSize(v){
   startBtnSize=v;
@@ -5945,268 +5909,674 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
   });
 })();
 
-// ── 커스텀 테마 ──────────────────────────────────────────────
+
+
+// ── 테마 관리자 ──────────────────────────────────────────────
 (function(){
-  // ── 색상 유틸 ──
-  function hexToRgb(hex){
-    var r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-    return [r,g,b];
+'use strict';
+
+/* ════════════════════════════════════════
+   색상 유틸리티
+════════════════════════════════════════ */
+function hexToRgb(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+function rgbToHex(r,g,b){return'#'+[r,g,b].map(function(v){return Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0');}).join('');}
+function rgbToHsl(r,g,b){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),h,s,l=(mx+mn)/2;if(mx===mn){h=s=0;}else{var d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;default:h=(r-g)/d+4;}h/=6;}return[h*360,s*100,l*100];}
+function hslToRgb(h,s,l){h/=360;s/=100;l/=100;var r,g,b;if(!s){r=g=b=l;}else{function q2(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<.5)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;}var q=l<.5?l*(1+s):l+s-l*s,p=2*l-q;r=q2(p,q,h+1/3);g=q2(p,q,h);b=q2(p,q,h-1/3);}return[r*255,g*255,b*255];}
+function lighten(hex,a){var rgb=hexToRgb(hex),hsl=rgbToHsl(rgb[0],rgb[1],rgb[2]);hsl[2]=Math.min(100,Math.max(0,hsl[2]+a));var r2=hslToRgb(hsl[0],hsl[1],hsl[2]);return rgbToHex(r2[0],r2[1],r2[2]);}
+function isLight(hex){var c=hexToRgb(hex);return(c[0]*299+c[1]*587+c[2]*114)/1000>128;}
+function hexAlpha(hex,a){var c=hexToRgb(hex);return'rgba('+c[0]+','+c[1]+','+c[2]+','+a+')';}
+function validHex(s){return/^#[0-9a-fA-F]{6}$/.test(s);}
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+/* ════════════════════════════════════════
+   4색 팔레트 → CSS 변수 파생
+   [0]=bg  [1]=surface  [2]=accent  [3]=accent2
+════════════════════════════════════════ */
+function deriveFromPalette(p){
+  var bg=p[0], surf=p[1], acc=p[2], acc2=p[3];
+  var dark=!isLight(bg);
+  var border   = dark ? lighten(bg,14) : lighten(bg,-10);
+  var borderHi = dark ? lighten(bg,22) : lighten(bg,-20);
+  var text     = dark ? lighten(bg,72) : lighten(bg,-68);
+  var muted    = dark ? lighten(bg,38) : lighten(bg,-32);
+  var hsl=rgbToHsl(...hexToRgb(acc));
+  var sb1=acc, sb2=acc2,
+      sb3=rgbToHex(...hslToRgb((hsl[0]+120)%360,hsl[1],hsl[2])),
+      sb4=rgbToHex(...hslToRgb((hsl[0]+200)%360,hsl[1],hsl[2]));
+  return{bg,surface:surf,surface2:lighten(surf,dark?4:-4),border,borderHi,text,muted,
+    accent:acc,accent2:acc2,danger:rgbToHex(...hslToRgb((hsl[0]+180)%360,hsl[1],Math.max(30,hsl[2]-10))),
+    success:'#2ecc71',sb1,sb2,sb3,sb4,dark};
+}
+
+function applyCustomVars(t){
+  var el=document.documentElement;
+  [['--bg',t.bg],['--surface',t.surface],['--surface2',t.surface2],
+   ['--border',t.border],['--border-hi',t.borderHi],['--text',t.text],['--muted',t.muted],
+   ['--accent',t.accent],['--accent2',t.accent2],['--danger',t.danger],['--success',t.success],
+   ['--header-bg',t.surface],['--card-shadow','0 2px 16px '+hexAlpha(t.accent,.12)],
+   ['--step-bar-1',t.sb1],['--step-bar-2',t.sb2],['--step-bar-3',t.sb3],['--step-bar-4',t.sb4]
+  ].forEach(function(x){el.style.setProperty(x[0],x[1]);});
+}
+
+/* ════════════════════════════════════════
+   팔레트 상태 (4슬롯 + 잠금)
+════════════════════════════════════════ */
+var palette = ['#1a1a2e','#16213e','#e94560','#f5a623'];
+var locked  = [false, false, false, false];
+var paletteMode = 4; // 2 or 4
+var ROLE_LABELS_4 = ['배경','서피스','포인트','강조'];
+var ROLE_LABELS_2 = ['배경','포인트'];
+var ROLE_LABELS   = ROLE_LABELS_4;
+var ROLE_ICONS  = ['■','▪','●','◆'];
+
+function savePaletteState(){
+  localStorage.setItem('palette4_v1', JSON.stringify(palette));
+  localStorage.setItem('palette4_locked', JSON.stringify(locked));
+  localStorage.setItem('palette4_mode', String(paletteMode));
+}
+function loadPaletteState(){
+  try{var p=JSON.parse(localStorage.getItem('palette4_v1'));if(p&&p.length===4)palette=p;}catch(e){}
+  try{var l=JSON.parse(localStorage.getItem('palette4_locked'));if(l&&l.length===4)locked=l;}catch(e){}
+  var m=parseInt(localStorage.getItem('palette4_mode')||'4');
+  paletteMode=(m===2)?2:4;
+}
+
+/* ════════════════════════════════════════
+   랜덤 색상 생성 (조화로운 팔레트)
+════════════════════════════════════════ */
+/* ── 랜덤 유틸 ── */
+function randR(a,b){return a+Math.random()*(b-a);}
+function makeHsl(h,s,l){var rgb=hslToRgb(h,s,l);return rgbToHex(rgb[0],rgb[1],rgb[2]);}
+
+/* 팔레트 셔플: 입력한 색상들(잠금 포함 전체) 중에서 잠금 해제 슬롯에 랜덤 배치
+   - 같은 색이 두 슬롯에 중복되지 않도록 섞음
+   - 잠긴 슬롯은 건드리지 않음 */
+function shuffleLocked(currentPalette, lockedArr){
+  // 잠금 해제 슬롯 인덱스 수집
+  var freeIdx = [];
+  lockedArr.forEach(function(lk,i){ if(!lk) freeIdx.push(i); });
+  if(freeIdx.length < 2) return currentPalette.slice(); // 1개 이하면 의미 없음
+
+  // 현재 팔레트 전체 색상을 후보로 (중복 제거)
+  var candidates = [];
+  currentPalette.forEach(function(c){
+    if(candidates.indexOf(c)<0) candidates.push(c);
+  });
+  // 후보가 부족하면 전체 포함
+  if(candidates.length < freeIdx.length) candidates = currentPalette.slice();
+
+  // Fisher-Yates 셔플
+  function shuffle(arr){
+    var a=arr.slice();
+    for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+    return a;
   }
-  function rgbToHex(r,g,b){
-    return '#'+[r,g,b].map(function(v){return Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0');}).join('');
-  }
-  function rgbToHsl(r,g,b){
-    r/=255;g/=255;b/=255;
-    var max=Math.max(r,g,b),min=Math.min(r,g,b),h,s,l=(max+min)/2;
-    if(max===min){h=s=0;}
-    else{var d=max-min;s=l>0.5?d/(2-max-min):d/(max+min);
-      switch(max){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;case b:h=(r-g)/d+4;break;}
-      h/=6;}
-    return [h*360,s*100,l*100];
-  }
-  function hslToRgb(h,s,l){
-    h/=360;s/=100;l/=100;
-    var r,g,b;
-    if(s===0){r=g=b=l;}
-    else{
-      function hue2rgb(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<1/2)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;}
-      var q=l<0.5?l*(1+s):l+s-l*s,p=2*l-q;
-      r=hue2rgb(p,q,h+1/3);g=hue2rgb(p,q,h);b=hue2rgb(p,q,h-1/3);
+
+  var result = currentPalette.slice();
+  // 후보 섞기 (최소 2번 시도해서 현재와 다른 배치 찾기)
+  var pool = shuffle(candidates);
+  // 후보 수가 슬롯 수보다 적으면 반복해서 채움
+  while(pool.length < freeIdx.length) pool = pool.concat(shuffle(candidates));
+
+  // 잠금 해제 슬롯에 배치 (현재 배치와 최대한 달라지게)
+  var attempt = 0;
+  do {
+    pool = shuffle(pool);
+    attempt++;
+  } while(attempt < 8 && freeIdx.every(function(si,j){ return pool[j]===currentPalette[si]; }));
+
+  freeIdx.forEach(function(si,j){ result[si]=pool[j]; });
+  return result;
+}
+
+/* 2색 → 4색 자동 파생 (배경 + 포인트만 입력받아 나머지 2개 생성) */
+function derive4From2(bg, accent){
+  var dark = !isLight(bg);
+  var surface = dark ? lighten(bg,8) : lighten(bg,-6);
+  var hsl = rgbToHsl(hexToRgb(accent)[0],hexToRgb(accent)[1],hexToRgb(accent)[2]);
+  var accent2 = makeHsl((hsl[0]+30)%360, Math.min(100,hsl[1]+5), Math.min(90,hsl[2]+12));
+  return [bg, surface, accent, accent2];
+}
+
+/* 전체 랜덤: 조화로운 새 팔레트 (잠긴 슬롯 hue 기준) */
+var HARMONY_MODES=['analogous','complementary','triadic','split','tetradic'];
+function fullRandom(currentPalette, lockedArr){
+  var baseHue=null, baseDark=null;
+  lockedArr.forEach(function(lk,i){
+    if(lk){
+      var c=hexToRgb(currentPalette[i]);
+      var hsl=rgbToHsl(c[0],c[1],c[2]);
+      if(baseHue===null) baseHue=hsl[0];
+      if(baseDark===null) baseDark=!isLight(currentPalette[i]);
     }
-    return [r*255,g*255,b*255];
-  }
-  function lighten(hex,amt){var [r,g,b]=hexToRgb(hex);var [h,s,l]=rgbToHsl(r,g,b);l=Math.min(100,l+amt);var [nr,ng,nb]=hslToRgb(h,s,l);return rgbToHex(nr,ng,nb);}
-  function darken(hex,amt){return lighten(hex,-amt);}
-  function saturate(hex,amt){var [r,g,b]=hexToRgb(hex);var [h,s,l]=rgbToHsl(r,g,b);s=Math.min(100,Math.max(0,s+amt));var [nr,ng,nb]=hslToRgb(h,s,l);return rgbToHex(nr,ng,nb);}
-  function isLight(hex){var [r,g,b]=hexToRgb(hex);return (r*299+g*587+b*114)/1000>128;}
-  function mixHex(a,b,t){
-    var [ar,ag,ab]=hexToRgb(a),[br,bg,bb]=hexToRgb(b);
-    return rgbToHex(ar+(br-ar)*t,ag+(bg-ag)*t,ab+(bb-ab)*t);
-  }
-  function hexAlpha(hex,a){var [r,g,b]=hexToRgb(hex);return 'rgba('+r+','+g+','+b+','+a+')';}
+  });
+  if(baseHue===null) baseHue=Math.random()*360;
+  if(baseDark===null) baseDark=Math.random()>.45;
+  var mode=HARMONY_MODES[Math.floor(Math.random()*HARMONY_MODES.length)];
+  var hues;
+  if(mode==='analogous')          hues=[baseHue,(baseHue+28)%360,(baseHue+55)%360,(baseHue+18)%360];
+  else if(mode==='complementary') hues=[baseHue,(baseHue+12)%360,(baseHue+180)%360,(baseHue+192)%360];
+  else if(mode==='triadic')       hues=[baseHue,(baseHue+120)%360,(baseHue+240)%360,(baseHue+60)%360];
+  else if(mode==='split')         hues=[baseHue,(baseHue+18)%360,(baseHue+150)%360,(baseHue+210)%360];
+  else                             hues=[baseHue,(baseHue+90)%360,(baseHue+180)%360,(baseHue+270)%360];
+  var rules=baseDark
+    ?[[hues[0],30,65,4,14],[hues[1],25,55,11,22],[hues[2],55,92,44,72],[hues[3],50,88,52,78]]
+    :[[hues[0],8,28,88,97],[hues[1],8,24,80,91],[hues[2],48,88,32,56],[hues[3],52,88,44,66]];
+  var result=currentPalette.slice();
+  lockedArr.forEach(function(lk,i){
+    if(!lk) result[i]=makeHsl(rules[i][0],randR(rules[i][1],rules[i][2]),randR(rules[i][3],rules[i][4]));
+  });
+  return result;
+}
 
-  // ── 테마 변수 파생 ──
-  function deriveTheme(bgHex, accentHex){
-    var dark=!isLight(bgHex);
-    var [h,s,l]=rgbToHsl(...hexToRgb(bgHex));
+/* ════════════════════════════════════════
+   팔레트 슬롯 UI 렌더링
+════════════════════════════════════════ */
+/* ── 슬롯 렌더 (잠금 버튼을 picker 위에 z-index로 배치) ── */
+function renderPaletteSlots(){
+  var container=document.getElementById('paletteSlots');
+  if(!container) return;
+  container.innerHTML='';
 
-    var bg, surface, surface2, border, borderHi, text, muted;
-    if(dark){
-      bg      = bgHex;
-      surface = lighten(bgHex, 5);
-      surface2= lighten(bgHex, 9);
-      border  = lighten(bgHex, 14);
-      borderHi= lighten(bgHex, 22);
-      text    = isLight(lighten(bgHex,60)) ? lighten(bgHex,70) : '#f0f0f0';
-      muted   = lighten(bgHex, 35);
+  // 2색 모드면 슬롯 0,2만 표시 (배경, 포인트)
+  var slotIndices = paletteMode===2 ? [0,2] : [0,1,2,3];
+  ROLE_LABELS = paletteMode===2 ? ROLE_LABELS_2 : ROLE_LABELS_4;
+
+  // 2색 모드: palette[1], palette[3]을 자동 파생으로 채움
+  if(paletteMode===2){
+    var derived = derive4From2(palette[0], palette[2]);
+    palette[1] = derived[1];
+    palette[3] = derived[3];
+  }
+
+  slotIndices.forEach(function(idx, slotPos){
+    var color = palette[idx];
+    /* 슬롯 래퍼 */
+    var slot=document.createElement('div');
+    slot.style.cssText='border-radius:10px;overflow:hidden;border:2px solid '
+      +(locked[idx]?'var(--accent)':'var(--border)')+';transition:border-color .2s;position:relative;';
+
+    /* 색상 블록 (picker trigger) */
+    var bar=document.createElement('div');
+    bar.style.cssText='height:56px;background:'+color+';position:relative;';
+
+    /* color picker — 블록 전체 영역, 잠금 버튼 아래까지 */
+    var picker=document.createElement('input');
+    picker.type='color';
+    picker.value=color;
+    /* picker는 bar 안에 깔되, 잠금 버튼 영역(우상단 34px)은 pointer-events:none 처리 */
+    picker.style.cssText='position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;border:none;padding:0;z-index:1;';
+    (function(slotIdx, barEl, hexInpRef){
+      picker.addEventListener('input',function(){
+        palette[slotIdx]=this.value;
+        barEl.style.background=this.value;
+        if(hexInpRef[0]) hexInpRef[0].value=this.value;
+        savePaletteState(); refreshPreview();
+      });
+    })(idx, bar, [null]); // hexInpRef는 footer 생성 후 채움
+
+    /* 잠금 버튼 — z-index:2 로 picker 위에 */
+    var lockBtn=document.createElement('button');
+    lockBtn.style.cssText='position:absolute;top:6px;right:6px;z-index:2;'
+      +'width:26px;height:26px;border-radius:50%;border:none;cursor:pointer;'
+      +'display:flex;align-items:center;justify-content:center;font-size:13px;'
+      +'background:'+(locked[idx]?'rgba(255,255,255,.92)':'rgba(0,0,0,.38)')+';'
+      +'color:'+(locked[idx]?'#222':'#fff')+';'
+      +'box-shadow:0 1px 4px rgba(0,0,0,.25);transition:all .15s;pointer-events:auto;';
+    lockBtn.innerHTML=locked[idx]?'🔒':'🔓';
+    lockBtn.title=locked[idx]?'잠금 해제 (클릭)':'잠금 (클릭)';
+    (function(slotIdx){
+      lockBtn.addEventListener('click',function(e){
+        e.preventDefault(); e.stopPropagation();
+        locked[slotIdx]=!locked[slotIdx];
+        savePaletteState();
+        renderPaletteSlots();
+        updateShuffleBtn();
+      });
+    })(idx);
+
+    bar.appendChild(picker);
+    bar.appendChild(lockBtn);
+
+    /* Footer: 역할 라벨 + hex 입력 */
+    var footer=document.createElement('div');
+    footer.style.cssText='background:var(--surface);padding:5px 8px;display:flex;align-items:center;gap:5px;';
+
+    var roleLabel=document.createElement('span');
+    roleLabel.style.cssText='font-family:"DM Mono",monospace;font-size:9px;color:var(--muted);flex-shrink:0;white-space:nowrap;';
+    roleLabel.textContent=ROLE_LABELS[slotPos];
+
+    var hexInput=document.createElement('input');
+    hexInput.type='text';
+    hexInput.value=color;
+    hexInput.maxLength=7;
+    hexInput.style.cssText='flex:1;font-family:"DM Mono",monospace;font-size:10px;'
+      +'padding:2px 4px;border-radius:4px;border:1px solid var(--border);'
+      +'background:transparent;color:var(--text);width:0;min-width:0;';
+
+    /* picker의 hexInpRef 채우기 */
+    var pickerInputEvents=picker._hexRef=hexInput;
+    picker.addEventListener('input',function(){
+      hexInput.value=this.value;
+    });
+
+    (function(slotIdx, barEl, pickerEl){
+      hexInput.addEventListener('input',function(){
+        var v=this.value.trim();
+        if(!v.startsWith('#')) v='#'+v;
+        if(validHex(v)){
+          palette[slotIdx]=v;
+          barEl.style.background=v;
+          pickerEl.value=v;
+          savePaletteState(); refreshPreview();
+        }
+      });
+      hexInput.addEventListener('blur',function(){
+        var v=this.value.trim();
+        if(!v.startsWith('#')) v='#'+v;
+        this.value=validHex(v)?v:palette[slotIdx];
+      });
+    })(idx, bar, picker);
+
+    footer.appendChild(roleLabel);
+    footer.appendChild(hexInput);
+    slot.appendChild(bar);
+    slot.appendChild(footer);
+    container.appendChild(slot);
+  });
+}
+
+function updateShuffleBtn(){
+  var btn=document.getElementById('paletteShuffleBtn');
+  if(!btn) return;
+  var activeIdx = paletteMode===2 ? [0,2] : [0,1,2,3];
+  var unlocked=activeIdx.filter(function(i){return!locked[i];}).length;
+  btn.style.opacity=unlocked<2?'0.38':'1';
+  btn.title=unlocked<2?'섞을 수 있는 슬롯이 2개 이상 필요해요':'입력한 색상들 사이에서 셔플';
+}
+
+/* ════════════════════════════════════════
+   미리보기 업데이트
+════════════════════════════════════════ */
+function refreshPreview(){
+  var t=deriveFromPalette(palette);
+  var p=document.getElementById('customThemePreview'); if(!p) return;
+  p.style.background=t.bg; p.style.borderColor=t.border;
+  var h=document.getElementById('ctp-header'); if(h) h.style.background=t.surface;
+  var ti=document.getElementById('ctp-title'); if(ti){ti.style.color=t.muted;}
+  var tm=document.getElementById('ctp-time');  if(tm){tm.style.color=t.text;}
+  var bo=document.getElementById('ctp-body');  if(bo) bo.style.background=t.bg;
+  var l1=document.getElementById('ctp-label'); if(l1) l1.style.color=t.muted;
+  var l2=document.getElementById('ctp-label2');if(l2) l2.style.color=t.muted;
+  var tt=document.getElementById('ctp-total-track'); if(tt) tt.style.background=t.border;
+  var tf=document.getElementById('ctp-total-fill');  if(tf) tf.style.background=t.accent;
+  var st=document.getElementById('ctp-step-track');  if(st) st.style.background=t.border;
+  var sf=document.getElementById('ctp-step-fill');   if(sf) sf.style.background='linear-gradient(90deg,'+t.sb1+' 0%,'+t.sb2+' 40%,'+t.sb3+' 75%,'+t.sb4+' 100%)';
+  var btn=document.getElementById('ctp-btn');
+  if(btn){btn.style.background=t.accent;btn.style.color=isLight(t.accent)?'#111':'#fff';}
+  var sv=document.getElementById('ctp-surface');
+  if(sv){sv.style.background=t.surface2;sv.style.color=t.muted;sv.style.border='1px solid '+t.border;}
+  var av=document.getElementById('ctp-accent2');
+  if(av){av.style.background=t.accent2;av.style.color=isLight(t.accent2)?'#111':'#fff';}
+}
+
+/* ════════════════════════════════════════
+   내장 / 커스텀 테마 저장소
+════════════════════════════════════════ */
+var BUILTIN_THEMES=[
+  {id:'dark',   name:'골드 다크',   bg:'#0e0e0e', accent:'#c8a96e', desc:'기본 · 골드 포인트'},
+  {id:'modern', name:'모던',       bg:'#f8f9fc', accent:'#00c896', desc:'화이트 · 민트 포인트'},
+  {id:'minimal',name:'미니멀',     bg:'#fafaf8', accent:'#1a1a1a', desc:'종이 · 세리프 타이포'},
+  {id:'vivid',  name:'비비드',     bg:'#0a0010', accent:'#ff3cac', desc:'딥 퍼플 · 네온 핑크'},
+  {id:'calm',   name:'캄',         bg:'#0f1a14', accent:'#8fbc6a', desc:'포레스트 · 세이지'},
+  {id:'noir',   name:'누아르',     bg:'#000000', accent:'#e8e8e8', desc:'퓨어 블랙 · 모노'},
+  {id:'latte',  name:'라떼',       bg:'#f7f2ec', accent:'#6b4226', desc:'크림 · 에스프레소'},
+  {id:'ocean',  name:'오션',       bg:'#04101e', accent:'#00d4ff', desc:'딥 네이비 · 시안'},
+  {id:'paper',  name:'페이퍼',     bg:'#f2ece0', accent:'#2c4a7c', desc:'크림 · 잉크 블루'},
+  {id:'light',  name:'라이트 블루', bg:'#EFF6FF', accent:'#10367D', desc:'화이트 · 딥 네이비'},
+  {id:'mocha',  name:'모카 다크',  bg:'#12100e', accent:'#e8a060', desc:'딥 브라운 · 앰버'},
+  {id:'slate',  name:'슬레이트',   bg:'#0a0f1a', accent:'#60a8f0', desc:'딥 네이비 · 아이스 블루'},
+  {id:'ivory',  name:'아이보리',   bg:'#faf6ef', accent:'#5a3e28', desc:'크림 · 다크 브라운'},
+  {id:'midnight',name:'미드나이트',bg:'#05060e', accent:'#c8a060', desc:'퓨어 블랙 · 골드'}
+];
+
+var CUSTOM_KEY='user_themes_v2';
+var HIDDEN_KEY='hidden_builtin_themes';
+var ACTIVE_CID='active_custom_theme_id';
+
+function loadUserThemes(){try{return JSON.parse(localStorage.getItem(CUSTOM_KEY)||'[]');}catch(e){return[];}}
+function saveUserThemes(a){localStorage.setItem(CUSTOM_KEY,JSON.stringify(a));}
+function loadHiddenBuiltins(){try{return JSON.parse(localStorage.getItem(HIDDEN_KEY)||'[]');}catch(e){return[];}}
+function saveHiddenBuiltins(a){localStorage.setItem(HIDDEN_KEY,JSON.stringify(a));}
+function getActiveCustomId(){return localStorage.getItem(ACTIVE_CID)||'';}
+function setActiveCustomId(id){id?localStorage.setItem(ACTIVE_CID,id):localStorage.removeItem(ACTIVE_CID);}
+
+/* ════════════════════════════════════════
+   테마 그리드 렌더링
+════════════════════════════════════════ */
+function renderThemeGrid(){
+  var grid=document.getElementById('themeGrid'); if(!grid) return;
+  grid.innerHTML='';
+  var hidden=loadHiddenBuiltins();
+  var userThemes=loadUserThemes();
+  var cur=localStorage.getItem('theme')||'dark';
+  var aid=getActiveCustomId();
+
+  BUILTIN_THEMES.forEach(function(t){
+    if(hidden.indexOf(t.id)>=0) return;
+    grid.appendChild(buildBuiltinBtn(t, cur===t.id && cur!=='custom'));
+  });
+
+  if(userThemes.length>0){
+    var sep=document.createElement('div');
+    sep.style.cssText='width:100%;height:1px;background:var(--border);margin:4px 0;';
+    grid.appendChild(sep);
+    userThemes.forEach(function(t){
+      grid.appendChild(buildCustomBtn(t, cur==='custom' && aid===t.id));
+    });
+  }
+}
+
+function buildBuiltinBtn(t, active){
+  var wrap=document.createElement('div');
+  wrap.style.cssText='width:calc(50% - 4px);position:relative;';
+  var btn=document.createElement('button');
+  btn.className='theme-btn theme-btn-wide'+(active?' active':'');
+  btn.style.cssText='width:100%;padding-right:30px;';
+  btn.innerHTML='<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;border:2px solid '+t.accent+';background:'+t.bg+';display:inline-block;"></span>'
+    +'<span class="theme-btn-info"><span class="theme-btn-name">'+t.name+'</span><span class="theme-btn-desc">'+t.desc+'</span></span>';
+  btn.addEventListener('click',function(){setActiveCustomId('');applyTheme(t.id);markPending&&markPending();});
+  var x=document.createElement('button');
+  x.style.cssText='position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px;border-radius:4px;opacity:0;transition:opacity .15s;';
+  x.textContent='×';
+  x.title='목록에서 숨기기';
+  x.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(!confirm('"'+t.name+'" 테마를 숨길까요?')) return;
+    var h=loadHiddenBuiltins(); if(h.indexOf(t.id)<0) h.push(t.id); saveHiddenBuiltins(h);
+    if(localStorage.getItem('theme')===t.id){setActiveCustomId('');applyTheme('dark');}
+    renderThemeGrid(); renderHiddenList();
+  });
+  wrap.addEventListener('mouseenter',function(){x.style.opacity='1';});
+  wrap.addEventListener('mouseleave',function(){x.style.opacity='0';});
+  wrap.appendChild(btn); wrap.appendChild(x);
+  return wrap;
+}
+
+function buildCustomBtn(t, active){
+  var wrap=document.createElement('div');
+  wrap.style.cssText='width:calc(50% - 4px);position:relative;';
+  var btn=document.createElement('button');
+  btn.className='theme-btn theme-btn-wide'+(active?' active':'');
+  btn.style.cssText='width:100%;padding-right:46px;';
+
+  // 4색 도트 또는 기존 2색 swatch
+  var colors = t.palette || [t.bg, t.surface||lighten(t.bg,8), t.accent, t.accent2||lighten(t.accent,15)];
+  var swatchHtml='<span style="flex-shrink:0;display:flex;gap:2px;align-items:center;">'
+    +colors.map(function(c){return '<span style="width:10px;height:22px;border-radius:3px;background:'+c+';display:inline-block;"></span>';}).join('')
+    +'</span>';
+
+  btn.innerHTML=swatchHtml+'<span class="theme-btn-info"><span class="theme-btn-name">'+escHtml(t.name)+'</span>'
+    +'<span class="theme-btn-desc">'+colors[0]+' · '+colors[2]+'</span></span>';
+  btn.addEventListener('click',function(){
+    setActiveCustomId(t.id);
+    localStorage.setItem('theme','custom');
+    document.documentElement.setAttribute('data-theme','custom');
+    var p=t.palette||[t.bg,t.surface||lighten(t.bg,8),t.accent,t.accent2||lighten(t.accent,15)];
+    applyCustomVars(deriveFromPalette(p));
+    var lbl=document.getElementById('themeCurrentLabel');
+    if(lbl) lbl.textContent='현재: '+t.name;
+    markPending&&markPending();
+    renderThemeGrid();
+  });
+
+  // 편집
+  var edit=document.createElement('button');
+  edit.title='편집';
+  edit.style.cssText='position:absolute;right:22px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:4px;border-radius:4px;opacity:0;transition:opacity .15s;';
+  edit.textContent='✎';
+  edit.addEventListener('click',function(e){e.stopPropagation();loadIntoEditor(t);});
+
+  // 삭제
+  var del=document.createElement('button');
+  del.title='삭제';
+  del.style.cssText='position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px;border-radius:4px;opacity:0;transition:opacity .15s;';
+  del.textContent='×';
+  del.addEventListener('click',function(e){
+    e.stopPropagation();
+    if(!confirm('"'+t.name+'" 테마를 삭제할까요?')) return;
+    saveUserThemes(loadUserThemes().filter(function(u){return u.id!==t.id;}));
+    if(getActiveCustomId()===t.id){setActiveCustomId('');applyTheme('dark');}
+    renderThemeGrid();
+  });
+
+  wrap.addEventListener('mouseenter',function(){edit.style.opacity='1';del.style.opacity='1';});
+  wrap.addEventListener('mouseleave',function(){edit.style.opacity='0';del.style.opacity='0';});
+  wrap.appendChild(btn); wrap.appendChild(edit); wrap.appendChild(del);
+  return wrap;
+}
+
+/* ════════════════════════════════════════
+   숨긴 테마 복원 패널
+════════════════════════════════════════ */
+function renderHiddenList(){
+  var panel=document.getElementById('hiddenThemesList'); if(!panel) return;
+  var hidden=loadHiddenBuiltins();
+  if(!hidden.length){panel.innerHTML='<span style="font-family:\'DM Mono\',monospace;font-size:10px;color:var(--muted);">숨긴 테마 없음</span>';return;}
+  panel.innerHTML='';
+  hidden.forEach(function(id){
+    var t=BUILTIN_THEMES.find(function(b){return b.id===id;}); if(!t) return;
+    var row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);';
+    row.innerHTML='<div style="display:flex;align-items:center;gap:8px;"><span style="width:14px;height:14px;border-radius:50%;border:2px solid '+t.accent+';background:'+t.bg+';display:inline-block;flex-shrink:0;"></span>'
+      +'<span style="font-family:\'DM Mono\',monospace;font-size:11px;color:var(--text);">'+t.name+'</span></div>';
+    var rb=document.createElement('button');
+    rb.textContent='복원';
+    rb.style.cssText='font-family:\'DM Mono\',monospace;font-size:10px;padding:3px 10px;border-radius:6px;border:1px solid var(--accent);background:none;color:var(--accent);cursor:pointer;';
+    rb.addEventListener('click',function(){
+      saveHiddenBuiltins(loadHiddenBuiltins().filter(function(x){return x!==id;}));
+      renderThemeGrid(); renderHiddenList();
+    });
+    row.appendChild(rb); panel.appendChild(row);
+  });
+}
+
+/* ════════════════════════════════════════
+   에디터에 테마 불러오기 (편집 모드)
+════════════════════════════════════════ */
+var editingId=null;
+function loadIntoEditor(t){
+  editingId=t.id;
+  var p=t.palette||[t.bg, t.surface||lighten(t.bg,8), t.accent, t.accent2||lighten(t.accent,15)];
+  palette=p.slice(); locked=[false,false,false,false];
+  savePaletteState();
+  renderPaletteSlots(); updateShuffleBtn(); refreshPreview();
+  var ni=document.getElementById('customThemeName'); if(ni) ni.value=t.name;
+  var sb=document.getElementById('saveCustomThemeBtn'); if(sb) sb.textContent='수정 저장';
+  showStatus('"'+t.name+'" 편집 중','var(--accent)');
+}
+function resetEditor(){
+  editingId=null;
+  var sb=document.getElementById('saveCustomThemeBtn'); if(sb) sb.textContent='목록에 저장';
+  var st=document.getElementById('customThemeStatus'); if(st) st.textContent='';
+  var ni=document.getElementById('customThemeName'); if(ni) ni.value='나의 테마';
+}
+
+function showStatus(msg,color){
+  var el=document.getElementById('customThemeStatus'); if(!el) return;
+  el.style.color=color||'var(--muted)'; el.textContent=msg;
+  if(msg.startsWith('✓')) setTimeout(function(){el.textContent='';},2500);
+}
+
+/* ════════════════════════════════════════
+   초기화
+════════════════════════════════════════ */
+function init(){
+  loadPaletteState();
+
+  // 숨긴 테마 복원 패널 삽입
+  var customPanel=document.getElementById('customThemePanel');
+  if(customPanel && !document.getElementById('hiddenThemesPanel')){
+    var hp=document.createElement('div');
+    hp.id='hiddenThemesPanel';
+    hp.style.cssText='margin-top:10px;padding:12px 14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);';
+    hp.innerHTML='<div style="font-family:\'DM Mono\',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">숨긴 기본 테마 복원</div>'
+      +'<div id="hiddenThemesList"></div>';
+    customPanel.parentNode.insertBefore(hp, customPanel.nextSibling);
+  }
+
+  renderThemeGrid();
+  renderHiddenList();
+
+  /* 모드 토글 버튼 초기화 */
+  function applyModeUI(){
+    var b2=document.getElementById('mode2Btn');
+    var b4=document.getElementById('mode4Btn');
+    if(!b2||!b4) return;
+    var activeStyle='background:var(--accent);color:'+(isLight?'#fff':'#fff')+';color:#fff;font-weight:600;';
+    var inactiveStyle='background:transparent;color:var(--muted);font-weight:400;';
+    b2.style.cssText=b2.style.cssText.replace(/background:[^;]+;color:[^;]+;font-weight:[^;]+;/,'');
+    b4.style.cssText=b4.style.cssText.replace(/background:[^;]+;color:[^;]+;font-weight:[^;]+;/,'');
+    if(paletteMode===2){
+      b2.style.background='var(--accent)'; b2.style.color='#fff'; b2.style.fontWeight='600';
+      b4.style.background='transparent'; b4.style.color='var(--muted)'; b4.style.fontWeight='400';
     } else {
-      bg      = bgHex;
-      surface = lighten(bgHex, 4);
-      surface2= darken(bgHex, 4);
-      border  = darken(bgHex, 10);
-      borderHi= darken(bgHex, 20);
-      text    = darken(bgHex, 65);
-      muted   = darken(bgHex, 30);
+      b4.style.background='var(--accent)'; b4.style.color='#fff'; b4.style.fontWeight='600';
+      b2.style.background='transparent'; b2.style.color='var(--muted)'; b2.style.fontWeight='400';
     }
-
-    var accent  = accentHex;
-    var accent2 = lighten(accentHex, 12);
-    var danger  = saturate(mixHex(accentHex,'#ff3030',0.6), 20);
-    var success = '#2ecc71';
-
-    // step-bar 4색: accent에서 색상환 파생
-    var [ah,as,al]=rgbToHsl(...hexToRgb(accentHex));
-    var sb1=accentHex;
-    var sb2=rgbToHex(...hslToRgb((ah+40)%360,as,al));
-    var sb3=rgbToHex(...hslToRgb((ah+160)%360,as,al));
-    var sb4=rgbToHex(...hslToRgb((ah+220)%360,as,al));
-
-    return {bg,surface,surface2,border,borderHi,text,muted,accent,accent2,danger,success,sb1,sb2,sb3,sb4,dark};
   }
-
-  // ── CSS 변수 적용 ──
-  function applyCustomVars(t){
-    var el=document.documentElement;
-    el.style.setProperty('--bg',t.bg);
-    el.style.setProperty('--surface',t.surface);
-    el.style.setProperty('--surface2',t.surface2);
-    el.style.setProperty('--border',t.border);
-    el.style.setProperty('--border-hi',t.borderHi);
-    el.style.setProperty('--text',t.text);
-    el.style.setProperty('--muted',t.muted);
-    el.style.setProperty('--accent',t.accent);
-    el.style.setProperty('--accent2',t.accent2);
-    el.style.setProperty('--danger',t.danger);
-    el.style.setProperty('--success',t.success);
-    el.style.setProperty('--step-bar-1',t.sb1);
-    el.style.setProperty('--step-bar-2',t.sb2);
-    el.style.setProperty('--step-bar-3',t.sb3);
-    el.style.setProperty('--step-bar-4',t.sb4);
-    el.style.setProperty('--header-bg',t.surface);
-    el.style.setProperty('--card-shadow','0 2px 16px '+hexAlpha(t.accent,0.12));
-  }
-
-  // ── 미리보기 업데이트 ──
-  function updatePreview(bgHex, accentHex){
-    var t=deriveTheme(bgHex,accentHex);
-    var p=document.getElementById('customThemePreview');
-    if(!p) return;
-    p.style.background=t.bg;
-    document.getElementById('ctp-header').style.background=t.surface;
-    document.getElementById('ctp-title').style.color=t.muted;
-    document.getElementById('ctp-time').style.color=t.text;
-    document.getElementById('ctp-body').style.background=t.bg;
-    document.getElementById('ctp-label').style.color=t.muted;
-    document.getElementById('ctp-label2').style.color=t.muted;
-    document.getElementById('ctp-total-track').style.background=t.border;
-    document.getElementById('ctp-total-fill').style.background=t.accent;
-    document.getElementById('ctp-step-track').style.background=t.border;
-    document.getElementById('ctp-step-fill').style.background=
-      'linear-gradient(90deg,'+t.sb1+' 0%,'+t.sb2+' 40%,'+t.sb3+' 75%,'+t.sb4+' 100%)';
-    document.getElementById('ctp-btn').style.background=t.accent;
-    document.getElementById('ctp-btn').style.color=isLight(t.accent)?'#111':'#fff';
-    document.getElementById('ctp-surface').style.background=t.surface2;
-    document.getElementById('ctp-surface').style.color=t.muted;
-    document.getElementById('ctp-surface').style.border='1px solid '+t.border;
-  }
-
-  // ── hex 입력 유효성 ──
-  function validHex(s){return /^#[0-9a-fA-F]{6}$/.test(s);}
-
-  // ── 저장/불러오기 ──
-  function saveCustomTheme(bg,accent){
-    localStorage.setItem('custom_theme_bg',bg);
-    localStorage.setItem('custom_theme_accent',accent);
-    localStorage.setItem('custom_theme_active','1');
-  }
-  function loadCustomTheme(){
-    return {
-      bg:localStorage.getItem('custom_theme_bg')||'#1a1a2e',
-      accent:localStorage.getItem('custom_theme_accent')||'#e94560',
-      active:localStorage.getItem('custom_theme_active')==='1'
-    };
-  }
-  function clearCustomThemeActive(){
-    localStorage.removeItem('custom_theme_active');
-  }
-
-  // ── DOM 준비 후 초기화 ──
-  function init(){
-    var bgColorPicker  = document.getElementById('customBgColor');
-    var bgHexInput     = document.getElementById('customBgHex');
-    var acColorPicker  = document.getElementById('customAccentColor');
-    var acHexInput     = document.getElementById('customAccentHex');
-    var applyBtn       = document.getElementById('applyCustomThemeBtn');
-    var statusEl       = document.getElementById('customThemeStatus');
-    if(!bgColorPicker) return;
-
-    // 저장된 커스텀 값 복원
-    var saved=loadCustomTheme();
-    bgColorPicker.value=saved.bg;
-    bgHexInput.value=saved.bg;
-    acColorPicker.value=saved.accent;
-    acHexInput.value=saved.accent;
-    updatePreview(saved.bg,saved.accent);
-
-    // 커스텀 테마가 활성화 상태였으면 재적용
-    if(saved.active && localStorage.getItem('theme')==='custom'){
-      applyCustomVars(deriveTheme(saved.bg,saved.accent));
-    }
-
-    function syncBg(hex){
-      if(!validHex(hex)) return;
-      bgColorPicker.value=hex;
-      bgHexInput.value=hex;
-      updatePreview(hex,acColorPicker.value);
-    }
-    function syncAccent(hex){
-      if(!validHex(hex)) return;
-      acColorPicker.value=hex;
-      acHexInput.value=hex;
-      updatePreview(bgColorPicker.value,hex);
-    }
-
-    bgColorPicker.addEventListener('input',function(){ syncBg(this.value); });
-    bgHexInput.addEventListener('input',function(){
-      var v=this.value.trim();
-      if(!v.startsWith('#')) v='#'+v;
-      if(validHex(v)) syncBg(v);
+  ['mode2Btn','mode4Btn'].forEach(function(id){
+    var btn=document.getElementById(id);
+    if(!btn) return;
+    btn.addEventListener('click',function(){
+      paletteMode=parseInt(this.dataset.mode);
+      locked=[false,false,false,false];
+      savePaletteState();
+      applyModeUI();
+      renderPaletteSlots();
+      updateShuffleBtn();
+      refreshPreview();
     });
-    bgHexInput.addEventListener('blur',function(){
-      var v=this.value.trim();
-      if(!v.startsWith('#')) v='#'+v;
-      if(validHex(v)){syncBg(v);}
-      else{this.value=bgColorPicker.value;}
-    });
+  });
+  applyModeUI();
 
-    acColorPicker.addEventListener('input',function(){ syncAccent(this.value); });
-    acHexInput.addEventListener('input',function(){
-      var v=this.value.trim();
-      if(!v.startsWith('#')) v='#'+v;
-      if(validHex(v)) syncAccent(v);
-    });
-    acHexInput.addEventListener('blur',function(){
-      var v=this.value.trim();
-      if(!v.startsWith('#')) v='#'+v;
-      if(validHex(v)){syncAccent(v);}
-      else{this.value=acColorPicker.value;}
-    });
+  renderPaletteSlots();
+  updateShuffleBtn();
+  refreshPreview();
 
-    applyBtn.addEventListener('click',function(){
-      var bg=bgColorPicker.value;
-      var accent=acColorPicker.value;
-      if(!validHex(bg)||!validHex(accent)){
-        statusEl.style.color='var(--danger)';
-        statusEl.textContent='유효한 색상을 입력해주세요.';
-        return;
-      }
-      // 기존 테마 속성 제거 후 커스텀 적용
+  // 저장된 커스텀 팔레트로 재적용
+  if(localStorage.getItem('theme')==='custom'){
+    var aid=getActiveCustomId();
+    var found=loadUserThemes().find(function(u){return u.id===aid;});
+    if(found){
+      var p=found.palette||[found.bg,found.surface||lighten(found.bg,8),found.accent,found.accent2||lighten(found.accent,15)];
       document.documentElement.setAttribute('data-theme','custom');
-      applyCustomVars(deriveTheme(bg,accent));
-      saveCustomTheme(bg,accent);
-      localStorage.setItem('theme','custom');
-
-      // 테마 버튼 active 해제
-      document.querySelectorAll('.theme-btn').forEach(function(b){ b.classList.remove('active'); });
-
-      // 상태 레이블 업데이트
-      var lbl=document.getElementById('themeCurrentLabel');
-      if(lbl) lbl.textContent='현재: 커스텀';
-
-      statusEl.style.color='var(--success,#2ecc71)';
-      statusEl.textContent='✓ 커스텀 테마가 적용됐어요!';
-      setTimeout(function(){statusEl.textContent='';},2500);
-    });
+      applyCustomVars(deriveFromPalette(p));
+    }
   }
 
-  // 설정 모달 열릴 때마다 미리보기 갱신
-  var origOpen=window.openSettings;
-  if(typeof origOpen==='function'){
-    window.openSettings=function(){
-      origOpen.apply(this,arguments);
-      setTimeout(function(){
-        var s=loadCustomTheme();
-        var bg=document.getElementById('customBgColor');
-        var ac=document.getElementById('customAccentColor');
-        if(bg&&ac) updatePreview(bg.value,ac.value);
-      },50);
+  /* 팔레트 셔플 버튼 — 입력한 색상 풀 안에서 잠금 해제 슬롯 재배치 */
+  document.getElementById('paletteShuffleBtn').addEventListener('click',function(){
+    var activeIdx = paletteMode===2 ? [0,2] : [0,1,2,3];
+    var unlocked = activeIdx.filter(function(i){return!locked[i];}).length;
+    if(unlocked < 2){showStatus('섞을 슬롯이 2개 이상 필요해요','var(--muted)');return;}
+    var icon=document.getElementById('shuffleIcon');
+    icon.style.transition='transform .35s ease';
+    icon.style.transform='rotate(180deg) scaleX(-1)';
+    setTimeout(function(){icon.style.transition='none';icon.style.transform='';},380);
+    // 2색 모드면 슬롯 0,2만 셔플 대상
+    var shuffleMask = [false,false,false,false];
+    activeIdx.forEach(function(i){ shuffleMask[i]=!locked[i]; });
+    palette=shuffleLocked(palette, shuffleMask);
+    savePaletteState();
+    renderPaletteSlots(); updateShuffleBtn(); refreshPreview();
+  });
+
+  /* 전체 랜덤 버튼 — 새로운 조화 팔레트 (잠긴 슬롯 보존) */
+  document.getElementById('paletteRandomBtn').addEventListener('click',function(){
+    var icon=document.getElementById('randomIcon');
+    icon.style.transition='transform .5s ease';
+    icon.style.transform='rotate(720deg)';
+    setTimeout(function(){icon.style.transition='none';icon.style.transform='';},520);
+    palette=fullRandom(palette,locked);
+    savePaletteState();
+    renderPaletteSlots(); updateShuffleBtn(); refreshPreview();
+  });
+
+  /* 목록에 저장 */
+  document.getElementById('saveCustomThemeBtn').addEventListener('click',function(){
+    var name=(document.getElementById('customThemeName').value||'').trim()||'나의 테마';
+    var arr=loadUserThemes();
+    var derived=deriveFromPalette(palette);
+    var entry={
+      id: editingId||('usr_'+Date.now()),
+      name:name,
+      bg:palette[0], surface:palette[1], accent:palette[2], accent2:palette[3],
+      palette:palette.slice()
     };
-  }
+    if(editingId){
+      var idx=arr.findIndex(function(u){return u.id===editingId;});
+      if(idx>=0) arr[idx]=entry; else arr.push(entry);
+      if(getActiveCustomId()===editingId && localStorage.getItem('theme')==='custom'){
+        applyCustomVars(derived);
+      }
+    } else {
+      if(arr.length>=20){showStatus('최대 20개까지 저장 가능해요','var(--danger)');return;}
+      arr.push(entry);
+    }
+    saveUserThemes(arr);
+    renderThemeGrid();
+    resetEditor();
+    showStatus('✓ 저장됐어요!','var(--success,#2ecc71)');
+  });
 
-  if(document.readyState==='loading'){
-    document.addEventListener('DOMContentLoaded',init);
-  } else { init(); }
+  /* 바로 적용 */
+  document.getElementById('applyCustomThemeBtn').addEventListener('click',function(){
+    setActiveCustomId('');
+    localStorage.setItem('theme','custom');
+    document.documentElement.setAttribute('data-theme','custom');
+    applyCustomVars(deriveFromPalette(palette));
+    var lbl=document.getElementById('themeCurrentLabel');
+    if(lbl) lbl.textContent='현재: 커스텀';
+    renderThemeGrid();
+    markPending&&markPending();
+    showStatus('✓ 적용됐어요!','var(--success,#2ecc71)');
+  });
 
-  // 커스텀 테마는 applyTheme 호출 시 초기화
-  var _origApplyTheme=window.applyTheme;
-  if(typeof _origApplyTheme==='function'){
+  // applyTheme 후크
+  var _ot=window.applyTheme;
+  if(typeof _ot==='function' && !_ot._hooked){
     window.applyTheme=function(t){
-      _origApplyTheme(t);
-      if(t!=='custom') clearCustomThemeActive();
+      if(t!=='custom'){
+        ['--bg','--surface','--surface2','--border','--border-hi','--text','--muted',
+         '--accent','--accent2','--danger','--success','--header-bg','--card-shadow',
+         '--step-bar-1','--step-bar-2','--step-bar-3','--step-bar-4']
+         .forEach(function(v){document.documentElement.style.removeProperty(v);});
+        setActiveCustomId('');
+      }
+      _ot(t);
+      renderThemeGrid();
     };
+    window.applyTheme._hooked=true;
   }
+
+  // openSettings 후크
+  var _os=window.openSettings;
+  if(typeof _os==='function' && !_os._hooked){
+    window.openSettings=function(){
+      _os.apply(this,arguments);
+      setTimeout(function(){renderThemeGrid();renderHiddenList();renderPaletteSlots();updateShuffleBtn();refreshPreview();},30);
+    };
+    window.openSettings._hooked=true;
+  }
+}
+
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}
+else{init();}
 })();
-// ── 커스텀 테마 끝 ────────────────────────────────────────────
+// ── 테마 관리자 끝 ────────────────────────────────────────────
+
+
 </script>
 </body>
 </html>
