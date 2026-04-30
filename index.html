@@ -2031,26 +2031,45 @@ function clearPending(){ pendingBadge.classList.remove("on"); }
 
 // --- 테마 ---
 var THEME_NAMES={
-  "dark":"골드 다크","modern":"모던","minimal":"미니멀","vivid":"비비드",
-  "calm":"캄","noir":"누아르","latte":"라떼","ocean":"오션","paper":"페이퍼",
-  "light":"라이트 블루","mocha":"모카 다크","slate":"슬레이트","ivory":"아이보리","midnight":"미드나이트","custom":"커스텀"
+  "dark":"골드 다크","modern":"모던","latte":"라떼",
+  "ocean":"오션","mocha":"모카 다크","midnight":"미드나이트","custom":"커스텀"
 };
 function applyTheme(t){
   currentTheme=t;
-  // 커스텀 테마에서 다른 테마로 전환 시 인라인 CSS 변수 초기화
-  if(t!=='custom'){
-    var customVars=['--bg','--surface','--surface2','--border','--border-hi','--text','--muted',
-      '--accent','--accent2','--danger','--success','--header-bg','--card-shadow',
-      '--step-bar-1','--step-bar-2','--step-bar-3','--step-bar-4'];
-    customVars.forEach(function(v){ document.documentElement.style.removeProperty(v); });
+  if(t==='custom'){
+    // 커스텀: localStorage에서 팔레트 복원 후 CSS 변수 적용
+    document.documentElement.setAttribute("data-theme","custom");
+    localStorage.setItem("theme","custom");
+    try{
+      var _themes=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');
+      var _aid=localStorage.getItem('active_custom_theme_id')||'';
+      var _t=_aid?_themes.find(function(u){return u.id===_aid;}):null;
+      var _p=null;
+      if(_t&&_t.palette)_p=_t.palette;
+      else if(_t)_p=[_t.bg,_t.surface||_t.bg,_t.accent,_t.accent2||_t.accent];
+      else{var _raw=JSON.parse(localStorage.getItem('palette4_v1')||'null');if(_raw&&_raw.length===4)_p=_raw;}
+      if(_p && typeof applyCustomVars==='function' && typeof deriveFromPalette==='function'){
+        applyCustomVars(deriveFromPalette(_p));
+      }
+    }catch(e){}
+    var lbl=document.getElementById("themeCurrentLabel");
+    if(lbl){
+      var _aid2=localStorage.getItem('active_custom_theme_id')||'';
+      var _themes2=[];try{_themes2=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');}catch(e){}
+      var _found=_aid2?_themes2.find(function(u){return u.id===_aid2;}):null;
+      lbl.textContent="현재: "+(_found?_found.name:'커스텀');
+    }
+    return;
   }
+  // 커스텀→일반 전환 시 인라인 CSS 변수 제거
+  var customVars=['--bg','--surface','--surface2','--border','--border-hi','--text','--muted',
+    '--accent','--accent2','--danger','--success','--header-bg','--card-shadow',
+    '--step-bar-1','--step-bar-2','--step-bar-3','--step-bar-4'];
+  customVars.forEach(function(v){ document.documentElement.style.removeProperty(v); });
   document.documentElement.setAttribute("data-theme", t==="dark"?"":t);
   localStorage.setItem("theme",t);
-  // active 상태는 renderThemeGrid()가 처리
-  // 섹션 서브 레이블에 현재 테마명 표시
   var lbl=document.getElementById("themeCurrentLabel");
   if(lbl) lbl.textContent="현재: "+(THEME_NAMES[t]||t);
-  // 테마별 폰트 변수를 body에 반영
   var style=getComputedStyle(document.documentElement);
   var fontBody=style.getPropertyValue("--font-body").trim();
   if(fontBody) document.body.style.fontFamily=fontBody;
@@ -2628,6 +2647,16 @@ async function loadRecipes(){
           if(s.elKey2){elKey2=s.elKey2;localStorage.setItem("el_key2",elKey2);apiKeyInput2.value=elKey2;setStatus(apiStatus2,apiStatusText2,"ok","연결됨");}
           if(s.elKey3){elKey3=s.elKey3;localStorage.setItem("el_key3",elKey3);apiKeyInput3.value=elKey3;setStatus(apiStatus3,apiStatusText3,"ok","연결됨");}
           if(s.activeKeySlot){activeKeySlot=s.activeKeySlot;localStorage.setItem("active_key_slot",activeKeySlot);}
+          // 커스텀 테마 동기화 복원
+          if(s.userThemes){localStorage.setItem("user_themes_v2",JSON.stringify(s.userThemes));}
+          if(s.activeTheme){localStorage.setItem("theme",s.activeTheme);}
+          if(s.activeCustomId){localStorage.setItem("active_custom_theme_id",s.activeCustomId);}
+          if(s.palette4){localStorage.setItem("palette4_v1",JSON.stringify(s.palette4));}
+          // 커스텀 테마면 즉시 재적용
+          if(s.activeTheme==='custom'){
+            currentTheme='custom';
+            applyTheme('custom');
+          }
         }
         return data.recipes;
       }
@@ -2639,7 +2668,23 @@ async function persistAll(recipes,defRecipe){
   setLocalRecipes(recipes);
   if(workerUrl){
     showSync("저장 중...");
-    try{await workerSave({recipes:recipes,defaultRecipe:defRecipe!==undefined?defRecipe:defaultRecipeName,settings:{voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,elKey3:elKey3}});hideSync();}
+    try{
+      var _ut=[];try{_ut=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');}catch(e){}
+      var _p4=null;try{_p4=JSON.parse(localStorage.getItem('palette4_v1')||'null');}catch(e){}
+      await workerSave({
+        recipes:recipes,
+        defaultRecipe:defRecipe!==undefined?defRecipe:defaultRecipeName,
+        settings:{
+          voiceParams:voiceParams,elVoice:elVoice,
+          elKey:elKey,elKey2:elKey2,elKey3:elKey3,
+          userThemes:_ut,
+          activeTheme:localStorage.getItem('theme')||'dark',
+          activeCustomId:localStorage.getItem('active_custom_theme_id')||'',
+          palette4:_p4
+        }
+      });
+      hideSync();
+    }
     catch{hideSync();showToast("동기화 실패 - 로컬에만 저장됨");}
   }
 }
@@ -4842,7 +4887,23 @@ async function applySettings(){
   if(url){workerUrl=url;localStorage.setItem("worker_url",workerUrl);}
   if(workerUrl){
     showSync("설정 동기화 중...");
-    try{await workerSave({recipes:getLocalRecipes(),defaultRecipe:defaultRecipeName,settings:{voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,elKey3:elKey3}});hideSync();}
+    try{
+      var _ut3=[];try{_ut3=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');}catch(e){}
+      var _p43=null;try{_p43=JSON.parse(localStorage.getItem('palette4_v1')||'null');}catch(e){}
+      await workerSave({
+        recipes:getLocalRecipes(),
+        defaultRecipe:defaultRecipeName,
+        settings:{
+          voiceParams:voiceParams,elVoice:elVoice,
+          elKey:elKey,elKey2:elKey2,elKey3:elKey3,
+          userThemes:_ut3,
+          activeTheme:localStorage.getItem('theme')||'dark',
+          activeCustomId:localStorage.getItem('active_custom_theme_id')||'',
+          palette4:_p43
+        }
+      });
+      hideSync();
+    }
     catch{hideSync();showToast("동기화 실패");}
   }
   clearPending();
@@ -5662,6 +5723,48 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
 })();
 
 // --- 초기화 ---
+// 커스텀 테마 조기 적용 (깜빡임 방지)
+(function(){
+  if(localStorage.getItem('theme')!=='custom') return;
+  try{
+    var themes=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');
+    var aid=localStorage.getItem('active_custom_theme_id')||'';
+    var t=aid ? themes.find(function(u){return u.id===aid;}) : null;
+    // aid 없으면 palette4_v1로 바로 적용
+    var p;
+    if(t && t.palette){ p=t.palette; }
+    else if(t){ p=[t.bg,t.surface||t.bg,t.accent,t.accent2||t.accent]; }
+    else{
+      var raw=JSON.parse(localStorage.getItem('palette4_v1')||'null');
+      if(raw && raw.length===4) p=raw;
+    }
+    if(!p) return;
+    // CSS 변수 즉시 적용 (deriveFromPalette는 IIFE 로드 후 사용 가능하지 않으므로 간단히 적용)
+    document.documentElement.setAttribute('data-theme','custom');
+    // 색상 유틸 인라인
+    function h2r(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+    function r2h(r,g,b){return'#'+[r,g,b].map(function(v){return Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0');}).join('');}
+    function lum(h){var c=h2r(h);return(c[0]*299+c[1]*587+c[2]*114)/1000;}
+    function ltn(h,a){var c=h2r(h);return r2h(c[0]+a*(255-c[0]),c[1]+a*(255-c[1]),c[2]+a*(255-c[2]));}
+    function drk(h,a){var c=h2r(h);return r2h(c[0]*(1-a),c[1]*(1-a),c[2]*(1-a));}
+    var bg=p[0],sf=p[1],ac=p[2],a2=p[3];
+    var dark=lum(bg)<128;
+    var el=document.documentElement;
+    el.style.setProperty('--bg',bg);
+    el.style.setProperty('--surface',sf);
+    el.style.setProperty('--surface2',dark?ltn(bg,.08):drk(bg,.04));
+    el.style.setProperty('--border',dark?ltn(bg,.14):drk(bg,.10));
+    el.style.setProperty('--border-hi',dark?ltn(bg,.22):drk(bg,.20));
+    el.style.setProperty('--text',dark?ltn(bg,.72):drk(bg,.68));
+    el.style.setProperty('--muted',dark?ltn(bg,.38):drk(bg,.32));
+    el.style.setProperty('--accent',ac);
+    el.style.setProperty('--accent2',a2);
+    el.style.setProperty('--header-bg',sf);
+    el.style.setProperty('--step-bar-1',ac);
+    el.style.setProperty('--step-bar-2',a2);
+  }catch(e){}
+})();
+
 (async function(){
   applyTheme(currentTheme);
   applyStartBtnSize(startBtnSize);
@@ -6225,19 +6328,11 @@ function refreshPreview(){
    내장 / 커스텀 테마 저장소
 ════════════════════════════════════════ */
 var BUILTIN_THEMES=[
-  {id:'dark',   name:'골드 다크',   bg:'#0e0e0e', accent:'#c8a96e', desc:'기본 · 골드 포인트'},
-  {id:'modern', name:'모던',       bg:'#f8f9fc', accent:'#00c896', desc:'화이트 · 민트 포인트'},
-  {id:'minimal',name:'미니멀',     bg:'#fafaf8', accent:'#1a1a1a', desc:'종이 · 세리프 타이포'},
-  {id:'vivid',  name:'비비드',     bg:'#0a0010', accent:'#ff3cac', desc:'딥 퍼플 · 네온 핑크'},
-  {id:'calm',   name:'캄',         bg:'#0f1a14', accent:'#8fbc6a', desc:'포레스트 · 세이지'},
-  {id:'noir',   name:'누아르',     bg:'#000000', accent:'#e8e8e8', desc:'퓨어 블랙 · 모노'},
-  {id:'latte',  name:'라떼',       bg:'#f7f2ec', accent:'#6b4226', desc:'크림 · 에스프레소'},
-  {id:'ocean',  name:'오션',       bg:'#04101e', accent:'#00d4ff', desc:'딥 네이비 · 시안'},
-  {id:'paper',  name:'페이퍼',     bg:'#f2ece0', accent:'#2c4a7c', desc:'크림 · 잉크 블루'},
-  {id:'light',  name:'라이트 블루', bg:'#EFF6FF', accent:'#10367D', desc:'화이트 · 딥 네이비'},
-  {id:'mocha',  name:'모카 다크',  bg:'#12100e', accent:'#e8a060', desc:'딥 브라운 · 앰버'},
-  {id:'slate',  name:'슬레이트',   bg:'#0a0f1a', accent:'#60a8f0', desc:'딥 네이비 · 아이스 블루'},
-  {id:'ivory',  name:'아이보리',   bg:'#faf6ef', accent:'#5a3e28', desc:'크림 · 다크 브라운'},
+  {id:'dark',    name:'골드 다크',  bg:'#0e0e0e', accent:'#c8a96e', desc:'기본 · 골드 포인트'},
+  {id:'modern',  name:'모던',      bg:'#f8f9fc', accent:'#00c896', desc:'화이트 · 민트 포인트'},
+  {id:'latte',   name:'라떼',      bg:'#f7f2ec', accent:'#6b4226', desc:'크림 · 에스프레소'},
+  {id:'ocean',   name:'오션',      bg:'#04101e', accent:'#00d4ff', desc:'딥 네이비 · 시안'},
+  {id:'mocha',   name:'모카 다크', bg:'#12100e', accent:'#e8a060', desc:'딥 브라운 · 앰버'},
   {id:'midnight',name:'미드나이트',bg:'#05060e', accent:'#c8a060', desc:'퓨어 블랙 · 골드'}
 ];
 
@@ -6327,6 +6422,7 @@ function buildCustomBtn(t, active){
     applyCustomVars(deriveFromPalette(p));
     var lbl=document.getElementById('themeCurrentLabel');
     if(lbl) lbl.textContent='현재: '+t.name;
+    if(typeof syncCustomThemesToWorker==='function') syncCustomThemesToWorker();
     markPending&&markPending();
     renderThemeGrid();
   });
@@ -6527,6 +6623,7 @@ function init(){
       arr.push(entry);
     }
     saveUserThemes(arr);
+    syncCustomThemesToWorker();
     renderThemeGrid();
     resetEditor();
     showStatus('✓ 저장됐어요!','var(--success,#2ecc71)');
@@ -6541,9 +6638,30 @@ function init(){
     var lbl=document.getElementById('themeCurrentLabel');
     if(lbl) lbl.textContent='현재: 커스텀';
     renderThemeGrid();
+    syncCustomThemesToWorker();
     markPending&&markPending();
     showStatus('✓ 적용됐어요!','var(--success,#2ecc71)');
   });
+
+  /* 커스텀 테마 → Worker 동기화 헬퍼 */
+  function syncCustomThemesToWorker(){
+    try{
+      if(typeof workerUrl==='undefined'||!workerUrl) return;
+      if(typeof workerSave!=='function') return;
+      var _ut=loadUserThemes();
+      var _p4=null;try{_p4=JSON.parse(localStorage.getItem('palette4_v1')||'null');}catch(e){}
+      workerSave({
+        recipes: typeof getLocalRecipes==='function'?getLocalRecipes():[],
+        defaultRecipe: typeof defaultRecipeName!=='undefined'?defaultRecipeName:'',
+        settings:{
+          userThemes:_ut,
+          activeTheme:localStorage.getItem('theme')||'dark',
+          activeCustomId:localStorage.getItem('active_custom_theme_id')||'',
+          palette4:_p4
+        }
+      }).catch(function(){});
+    }catch(e){}
+  }
 
   // applyTheme 후크
   var _ot=window.applyTheme;
