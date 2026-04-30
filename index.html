@@ -1833,13 +1833,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 // 커스텀 테마 CSS 변수 적용 — applyCustomVars/deriveFromPalette 로드 전에도 동작하는 독립 함수
 function _applyCustomFromStorage(){
   try{
-    var themes=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');
-    var aid=localStorage.getItem('active_custom_theme_id')||'';
-    var found=aid?themes.find(function(u){return u.id===aid;}):null;
+    // 1순위: active_custom_theme_id로 user_themes_v2에서 팔레트 찾기
     var p=null;
-    if(found&&found.palette) p=found.palette;
-    else if(found) p=[found.bg,found.surface||found.bg,found.accent,found.accent2||found.accent];
-    else{var raw=JSON.parse(localStorage.getItem('palette4_v1')||'null');if(raw&&raw.length===4)p=raw;}
+    var aid=localStorage.getItem('active_custom_theme_id')||'';
+    if(aid){
+      var themes=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');
+      var found=themes.find(function(u){return u.id===aid;});
+      if(found&&found.palette) p=found.palette;
+      else if(found) p=[found.bg,found.surface||found.bg,found.accent,found.accent2||found.accent];
+    }
+    // 2순위: palette4_v1 직접 (바로 적용 or aid 없는 경우)
+    if(!p||p.length<4){
+      var raw=JSON.parse(localStorage.getItem('palette4_v1')||'null');
+      if(raw&&raw.length===4) p=raw;
+    }
     if(!p||p.length<4) return;
     // applyCustomVars/deriveFromPalette가 이미 로드됐으면 사용, 아니면 인라인 처리
     if(typeof applyCustomVars==='function' && typeof deriveFromPalette==='function'){
@@ -6420,8 +6427,9 @@ function buildCustomBtn(t, active){
   btn.addEventListener('click',function(){
     setActiveCustomId(t.id);
     localStorage.setItem('theme','custom');
-    document.documentElement.setAttribute('data-theme','custom');
     var p=t.palette||[t.bg,t.surface||lighten(t.bg,8),t.accent,t.accent2||lighten(t.accent,15)];
+    localStorage.setItem('palette4_v1',JSON.stringify(p)); // 새로고침 후 복원용
+    document.documentElement.setAttribute('data-theme','custom');
     applyCustomVars(deriveFromPalette(p));
     var lbl=document.getElementById('themeCurrentLabel');
     if(lbl) lbl.textContent='현재: '+t.name;
@@ -6636,6 +6644,7 @@ function init(){
   document.getElementById('applyCustomThemeBtn').addEventListener('click',function(){
     setActiveCustomId('');
     localStorage.setItem('theme','custom');
+    localStorage.setItem('palette4_v1',JSON.stringify(palette)); // 새로고침 후 복원용
     document.documentElement.setAttribute('data-theme','custom');
     applyCustomVars(deriveFromPalette(palette));
     var lbl=document.getElementById('themeCurrentLabel');
