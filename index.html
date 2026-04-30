@@ -1829,6 +1829,55 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 <div class="toast" id="toast"></div>
 
 <script>
+
+// 커스텀 테마 CSS 변수 적용 — applyCustomVars/deriveFromPalette 로드 전에도 동작하는 독립 함수
+function _applyCustomFromStorage(){
+  try{
+    var themes=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');
+    var aid=localStorage.getItem('active_custom_theme_id')||'';
+    var found=aid?themes.find(function(u){return u.id===aid;}):null;
+    var p=null;
+    if(found&&found.palette) p=found.palette;
+    else if(found) p=[found.bg,found.surface||found.bg,found.accent,found.accent2||found.accent];
+    else{var raw=JSON.parse(localStorage.getItem('palette4_v1')||'null');if(raw&&raw.length===4)p=raw;}
+    if(!p||p.length<4) return;
+    // applyCustomVars/deriveFromPalette가 이미 로드됐으면 사용, 아니면 인라인 처리
+    if(typeof applyCustomVars==='function' && typeof deriveFromPalette==='function'){
+      applyCustomVars(deriveFromPalette(p));
+      return;
+    }
+    // 인라인 색상 유틸
+    function h2r(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+    function r2h(r,g,b){return'#'+[r,g,b].map(function(v){return Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0');}).join('');}
+    function lum(h){var c=h2r(h);return(c[0]*299+c[1]*587+c[2]*114)/1000;}
+    function ltn(h,a){var c=h2r(h);return r2h(c[0]+a*(255-c[0]),c[1]+a*(255-c[1]),c[2]+a*(255-c[2]));}
+    function drk(h,a){var c=h2r(h);return r2h(c[0]*(1-a),c[1]*(1-a),c[2]*(1-a));}
+    function hsl2rgb(h,s,l){h/=360;s/=100;l/=100;var r,g,b;if(!s){r=g=b=l;}else{function q2(p,q,t){if(t<0)t+=1;if(t>1)t-=1;if(t<1/6)return p+(q-p)*6*t;if(t<.5)return q;if(t<2/3)return p+(q-p)*(2/3-t)*6;return p;}var q=l<.5?l*(1+s):l+s-l*s,pp=2*l-q;r=q2(pp,q,h+1/3);g=q2(pp,q,h);b=q2(pp,q,h-1/3);}return[r*255,g*255,b*255];}
+    function rgb2hsl(r,g,b){r/=255;g/=255;b/=255;var mx=Math.max(r,g,b),mn=Math.min(r,g,b),h,s,l=(mx+mn)/2;if(mx===mn){h=s=0;}else{var d=mx-mn;s=l>.5?d/(2-mx-mn):d/(mx+mn);switch(mx){case r:h=(g-b)/d+(g<b?6:0);break;case g:h=(b-r)/d+2;break;default:h=(r-g)/d+4;}h/=6;}return[h*360,s*100,l*100];}
+    var bg=p[0],sf=p[1],ac=p[2],a2=p[3];
+    var dark=lum(bg)<128;
+    var el=document.documentElement;
+    // 파생 색상
+    var border=dark?ltn(bg,.14):drk(bg,.10);
+    var borderHi=dark?ltn(bg,.22):drk(bg,.20);
+    var text=dark?ltn(bg,.72):drk(bg,.68);
+    var muted=dark?ltn(bg,.38):drk(bg,.32);
+    var surf2=dark?ltn(sf,.04):drk(sf,.04);
+    var ac_rgb=h2r(ac); var ac_hsl=rgb2hsl(ac_rgb[0],ac_rgb[1],ac_rgb[2]);
+    var sb3_rgb=hsl2rgb((ac_hsl[0]+120)%360,ac_hsl[1],ac_hsl[2]);
+    var sb4_rgb=hsl2rgb((ac_hsl[0]+200)%360,ac_hsl[1],ac_hsl[2]);
+    var sb3=r2h(sb3_rgb[0],sb3_rgb[1],sb3_rgb[2]);
+    var sb4=r2h(sb4_rgb[0],sb4_rgb[1],sb4_rgb[2]);
+    [['--bg',bg],['--surface',sf],['--surface2',surf2],
+     ['--border',border],['--border-hi',borderHi],
+     ['--text',text],['--muted',muted],
+     ['--accent',ac],['--accent2',a2],
+     ['--header-bg',sf],
+     ['--step-bar-1',ac],['--step-bar-2',a2],['--step-bar-3',sb3],['--step-bar-4',sb4]
+    ].forEach(function(pair){el.style.setProperty(pair[0],pair[1]);});
+  }catch(e){}
+}
+
 // --- 데이터 ---
 var defaultSteps = [
   {name:"뜸들이기",   sec:30, _placeholder:true},
@@ -2037,21 +2086,10 @@ var THEME_NAMES={
 function applyTheme(t){
   currentTheme=t;
   if(t==='custom'){
-    // 커스텀: localStorage에서 팔레트 복원 후 CSS 변수 적용
     document.documentElement.setAttribute("data-theme","custom");
     localStorage.setItem("theme","custom");
-    try{
-      var _themes=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');
-      var _aid=localStorage.getItem('active_custom_theme_id')||'';
-      var _t=_aid?_themes.find(function(u){return u.id===_aid;}):null;
-      var _p=null;
-      if(_t&&_t.palette)_p=_t.palette;
-      else if(_t)_p=[_t.bg,_t.surface||_t.bg,_t.accent,_t.accent2||_t.accent];
-      else{var _raw=JSON.parse(localStorage.getItem('palette4_v1')||'null');if(_raw&&_raw.length===4)_p=_raw;}
-      if(_p && typeof applyCustomVars==='function' && typeof deriveFromPalette==='function'){
-        applyCustomVars(deriveFromPalette(_p));
-      }
-    }catch(e){}
+    // 팔레트 복원 + CSS 변수 인라인 적용 (applyCustomVars/deriveFromPalette 로드 여부 무관)
+    _applyCustomFromStorage();
     var lbl=document.getElementById("themeCurrentLabel");
     if(lbl){
       var _aid2=localStorage.getItem('active_custom_theme_id')||'';
@@ -2074,6 +2112,7 @@ function applyTheme(t){
   var fontBody=style.getPropertyValue("--font-body").trim();
   if(fontBody) document.body.style.fontFamily=fontBody;
 }
+
 // 테마 접기/펼치기
 document.getElementById("themeHead").addEventListener("click",function(){
   var body=document.getElementById("themeBody");
@@ -5723,47 +5762,11 @@ document.getElementById("stopBtn").addEventListener("click",stopTimer);
 })();
 
 // --- 초기화 ---
-// 커스텀 테마 조기 적용 (깜빡임 방지)
-(function(){
-  if(localStorage.getItem('theme')!=='custom') return;
-  try{
-    var themes=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');
-    var aid=localStorage.getItem('active_custom_theme_id')||'';
-    var t=aid ? themes.find(function(u){return u.id===aid;}) : null;
-    // aid 없으면 palette4_v1로 바로 적용
-    var p;
-    if(t && t.palette){ p=t.palette; }
-    else if(t){ p=[t.bg,t.surface||t.bg,t.accent,t.accent2||t.accent]; }
-    else{
-      var raw=JSON.parse(localStorage.getItem('palette4_v1')||'null');
-      if(raw && raw.length===4) p=raw;
-    }
-    if(!p) return;
-    // CSS 변수 즉시 적용 (deriveFromPalette는 IIFE 로드 후 사용 가능하지 않으므로 간단히 적용)
-    document.documentElement.setAttribute('data-theme','custom');
-    // 색상 유틸 인라인
-    function h2r(h){return[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
-    function r2h(r,g,b){return'#'+[r,g,b].map(function(v){return Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0');}).join('');}
-    function lum(h){var c=h2r(h);return(c[0]*299+c[1]*587+c[2]*114)/1000;}
-    function ltn(h,a){var c=h2r(h);return r2h(c[0]+a*(255-c[0]),c[1]+a*(255-c[1]),c[2]+a*(255-c[2]));}
-    function drk(h,a){var c=h2r(h);return r2h(c[0]*(1-a),c[1]*(1-a),c[2]*(1-a));}
-    var bg=p[0],sf=p[1],ac=p[2],a2=p[3];
-    var dark=lum(bg)<128;
-    var el=document.documentElement;
-    el.style.setProperty('--bg',bg);
-    el.style.setProperty('--surface',sf);
-    el.style.setProperty('--surface2',dark?ltn(bg,.08):drk(bg,.04));
-    el.style.setProperty('--border',dark?ltn(bg,.14):drk(bg,.10));
-    el.style.setProperty('--border-hi',dark?ltn(bg,.22):drk(bg,.20));
-    el.style.setProperty('--text',dark?ltn(bg,.72):drk(bg,.68));
-    el.style.setProperty('--muted',dark?ltn(bg,.38):drk(bg,.32));
-    el.style.setProperty('--accent',ac);
-    el.style.setProperty('--accent2',a2);
-    el.style.setProperty('--header-bg',sf);
-    el.style.setProperty('--step-bar-1',ac);
-    el.style.setProperty('--step-bar-2',a2);
-  }catch(e){}
-})();
+// 커스텀 테마 조기 적용 (깜빡임 방지 — _applyCustomFromStorage는 위에서 이미 정의됨)
+if(localStorage.getItem('theme')==='custom'){
+  document.documentElement.setAttribute('data-theme','custom');
+  _applyCustomFromStorage();
+}
 
 (async function(){
   applyTheme(currentTheme);
