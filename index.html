@@ -901,7 +901,7 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
 .theme-btn-wide .theme-swatch{width:22px;height:22px;flex-shrink:0;}
 .theme-btn-desc{font-family:var(--font-mono,'DM Mono',monospace);font-size:9px;color:var(--muted);letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .theme-btn-wide:hover .theme-btn-name,.theme-btn-wide.active .theme-btn-name{color:var(--accent);}
-.theme-btn-wide.active{border-color:var(--accent);background:rgba(128,128,128,.08);}
+.theme-btn-wide.active{border-color:var(--accent);background:rgba(128,128,128,.08);box-shadow:0 0 0 2px var(--accent);}
 .sync-bar{display:none;align-items:center;gap:6px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);margin-bottom:8px;}
 .sync-bar.on{display:flex;}
 .settings-footer{display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--border);margin-top:4px;}
@@ -1422,6 +1422,76 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
               </div>
             </div>
 
+
+            <!-- 폰트 색상 (커스텀 테마에 포함 저장) -->
+            <div style="margin-bottom:12px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
+              <div id="ctpFcHead" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;background:var(--surface);user-select:none;">
+                <div>
+                  <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text);font-weight:500;">폰트 색상</div>
+                  <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">글씨색 커스텀 · 테마에 함께 저장</div>
+                </div>
+                <span id="ctpFcArrow" style="font-family:'DM Mono',monospace;font-size:14px;color:var(--muted);">+</span>
+              </div>
+              <div id="ctpFcBody" style="display:none;padding:12px;background:var(--surface2);border-top:1px solid var(--border);">
+                <!-- 사용 토글 -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                  <span style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text);">폰트 색상 사용</span>
+                  <label class="toggle"><input type="checkbox" id="ctpFcEnabled"><span class="slider-sw"></span></label>
+                </div>
+                <div id="ctpFcControls" style="opacity:.4;pointer-events:none;transition:opacity .2s;">
+                  <!-- 색상 행 -->
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+                    <div>
+                      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">본문 글씨</div>
+                      <div style="display:flex;gap:5px;align-items:center;">
+                        <input type="color" id="ctpFcText" value="#0f1a2e" style="width:30px;height:30px;border-radius:5px;border:1px solid var(--border);padding:2px;cursor:pointer;background:var(--surface);">
+                        <input type="text"  id="ctpFcTextHex" value="#0f1a2e" maxlength="7" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">보조 글씨</div>
+                      <div style="display:flex;gap:5px;align-items:center;">
+                        <input type="color" id="ctpFcMuted" value="#6b80a0" style="width:30px;height:30px;border-radius:5px;border:1px solid var(--border);padding:2px;cursor:pointer;background:var(--surface);">
+                        <input type="text"  id="ctpFcMutedHex" value="#6b80a0" maxlength="7" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">타이머 숫자</div>
+                      <div style="display:flex;gap:5px;align-items:center;">
+                        <input type="color" id="ctpFcTimer" value="#0f1a2e" style="width:30px;height:30px;border-radius:5px;border:1px solid var(--border);padding:2px;cursor:pointer;background:var(--surface);">
+                        <input type="text"  id="ctpFcTimerHex" value="#0f1a2e" maxlength="7" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">긴급 글씨</div>
+                      <div style="display:flex;gap:5px;align-items:center;">
+                        <input type="color" id="ctpFcUrgent" value="#e05a4a" style="width:30px;height:30px;border-radius:5px;border:1px solid var(--border);padding:2px;cursor:pointer;background:var(--surface);">
+                        <input type="text"  id="ctpFcUrgentHex" value="#e05a4a" maxlength="7" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">액센트 글씨</div>
+                      <div style="display:flex;gap:5px;align-items:center;">
+                        <input type="color" id="ctpFcAccent" value="#3B82F6" style="width:30px;height:30px;border-radius:5px;border:1px solid var(--border);padding:2px;cursor:pointer;background:var(--surface);">
+                        <input type="text"  id="ctpFcAccentHex" value="#3B82F6" maxlength="7" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+                      </div>
+                    </div>
+                    <div>
+                      <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">버튼 글씨</div>
+                      <div style="display:flex;gap:5px;align-items:center;">
+                        <input type="color" id="ctpFcBtnText" value="#ffffff" style="width:30px;height:30px;border-radius:5px;border:1px solid var(--border);padding:2px;cursor:pointer;background:var(--surface);">
+                        <input type="text"  id="ctpFcBtnTextHex" value="#ffffff" maxlength="7" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+                      </div>
+                    </div>
+                  </div>
+                  <!-- 팔레트에서 불러오기 -->
+                  <button id="ctpFcFromPalette" style="width:100%;padding:8px;border-radius:var(--btn-radius);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;">
+                    팔레트 색에서 자동 가져오기
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <!-- 테마 이름 -->
             <div style="margin-bottom:10px;">
               <input type="text" id="customThemeName" value="나의 테마" maxlength="20" placeholder="테마 이름"
@@ -1441,6 +1511,122 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
             </div>
             <div id="customThemeStatus" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-align:center;margin-top:8px;min-height:14px;"></div>
           </div>
+        </div>
+      </div>
+
+      <!-- 진행바 설정 -->
+      <div class="setting-row">
+        <div class="collapsible-head" id="barThickHead">
+          <div><div class="setting-label">진행 바 설정</div><div class="setting-sub">두께 · 그라디언트 색상 조절</div></div>
+          <span class="collapse-arrow" id="barThickArrow">+</span>
+        </div>
+        <div id="barThickBody" style="display:none;margin-top:10px;">
+
+          <!-- 두께 -->
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">두께</div>
+          <div style="margin-bottom:12px;">
+            <div class="slider-header"><span class="slider-name">전체 진행 바</span><span class="slider-val" id="barTotalHVal">3px</span></div>
+            <input type="range" id="barTotalHSlider" min="1" max="16" step="1" value="3">
+            <div style="display:flex;justify-content:space-between;margin-top:3px;">
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">얇게</span>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">굵게</span>
+            </div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div class="slider-header"><span class="slider-name">단계 진행 바</span><span class="slider-val" id="barStepHVal">4px</span></div>
+            <input type="range" id="barStepHSlider" min="1" max="20" step="1" value="4">
+            <div style="display:flex;justify-content:space-between;margin-top:3px;">
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">얇게</span>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">굵게</span>
+            </div>
+          </div>
+
+          <!-- 그라디언트 색상 -->
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">단계 진행 바 그라디언트</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">시작색</div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="color" id="gradStartColor" value="#3B82F6"
+                  style="width:32px;height:32px;border:none;border-radius:6px;cursor:pointer;padding:2px;border:1px solid var(--border);background:var(--surface);">
+                <input type="text" id="gradStartHex" value="#3B82F6" maxlength="7"
+                  style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:5px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+              </div>
+            </div>
+            <div>
+              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">끝색</div>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <input type="color" id="gradEndColor" value="#e05a4a"
+                  style="width:32px;height:32px;border:none;border-radius:6px;cursor:pointer;padding:2px;border:1px solid var(--border);background:var(--surface);">
+                <input type="text" id="gradEndHex" value="#e05a4a" maxlength="7"
+                  style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:5px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);">
+              <input type="checkbox" id="gradUseTheme" style="accent-color:var(--accent);width:14px;height:14px;">
+              테마 색상 자동 사용
+            </label>
+          </div>
+
+          <!-- 미리보기 -->
+          <div style="padding:10px;background:var(--surface2);border-radius:var(--radius);">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;letter-spacing:.08em;">미리보기</div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;">전체 진행</div>
+            <div id="barPreviewTotal" style="border-radius:4px;background:var(--border);overflow:hidden;margin-bottom:8px;">
+              <div style="width:60%;background:var(--accent);border-radius:4px;transition:height .2s;"></div>
+            </div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;">단계 진행</div>
+            <div id="barPreviewStep" style="border-radius:4px;overflow:hidden;position:relative;">
+              <div id="barPreviewStepFill" style="position:absolute;top:0;right:0;width:35%;height:100%;background:var(--border);border-radius:0 4px 4px 0;transition:height .2s;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 폰트 설정 -->
+      <div class="setting-row">
+        <div class="collapsible-head" id="themeFontHead">
+          <div><div class="setting-label">폰트 설정</div><div class="setting-sub">테마별 본문·고정폭·제목 폰트 지정</div></div>
+          <span class="collapse-arrow" id="themeFontArrow">+</span>
+        </div>
+        <div id="themeFontBody" style="display:none;margin-top:12px;">
+
+          <!-- 현재 테마 표시 -->
+          <div id="themeFontCurrentBadge" style="display:inline-block;padding:3px 10px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);margin-bottom:14px;letter-spacing:.06em;"></div>
+
+          <!-- 본문 폰트 -->
+          <div style="margin-bottom:14px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">본문 폰트 (--font-body)</div>
+            <div id="tfBodyOptions" style="display:flex;flex-direction:column;gap:5px;"></div>
+          </div>
+
+          <!-- 고정폭 폰트 -->
+          <div style="margin-bottom:14px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">고정폭 폰트 (타이머 숫자 · 레이블)</div>
+            <div id="tfMonoOptions" style="display:flex;flex-direction:column;gap:5px;"></div>
+          </div>
+
+          <!-- 디스플레이 폰트 -->
+          <div style="margin-bottom:16px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">디스플레이 폰트 (로고 · 헤더)</div>
+            <div id="tfDisplayOptions" style="display:flex;flex-direction:column;gap:5px;"></div>
+          </div>
+
+          <!-- 미리보기 -->
+          <div style="padding:12px;background:var(--surface2);border-radius:var(--radius);margin-bottom:12px;">
+            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:10px;letter-spacing:.08em;">미리보기</div>
+            <div id="tfPreviewDisplay" style="font-size:13px;font-weight:500;color:var(--accent);margin-bottom:4px;letter-spacing:.08em;">HAND DRIP TIMER</div>
+            <div id="tfPreviewBody" style="font-size:13px;color:var(--text);margin-bottom:6px;">블루밍 포어오버 · 핸드드립</div>
+            <div id="tfPreviewMono" style="font-size:22px;font-weight:300;color:var(--text);letter-spacing:-.02em;">2:30</div>
+          </div>
+
+          <!-- 초기화 버튼 -->
+          <button id="tfResetBtn"
+            style="width:100%;padding:9px;border-radius:var(--btn-radius);border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;">
+            이 테마 폰트 초기화 (테마 기본값으로)
+          </button>
         </div>
       </div>
 
@@ -1762,77 +1948,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
         </div>
       </div>
 
-      <!-- 진행바 설정 -->
-      <div class="setting-row">
-        <div class="collapsible-head" id="barThickHead">
-          <div><div class="setting-label">진행 바 설정</div><div class="setting-sub">두께 · 그라디언트 색상 조절</div></div>
-          <span class="collapse-arrow" id="barThickArrow">+</span>
-        </div>
-        <div id="barThickBody" style="display:none;margin-top:10px;">
-
-          <!-- 두께 -->
-          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">두께</div>
-          <div style="margin-bottom:12px;">
-            <div class="slider-header"><span class="slider-name">전체 진행 바</span><span class="slider-val" id="barTotalHVal">3px</span></div>
-            <input type="range" id="barTotalHSlider" min="1" max="16" step="1" value="3">
-            <div style="display:flex;justify-content:space-between;margin-top:3px;">
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">얇게</span>
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">굵게</span>
-            </div>
-          </div>
-          <div style="margin-bottom:16px;">
-            <div class="slider-header"><span class="slider-name">단계 진행 바</span><span class="slider-val" id="barStepHVal">4px</span></div>
-            <input type="range" id="barStepHSlider" min="1" max="20" step="1" value="4">
-            <div style="display:flex;justify-content:space-between;margin-top:3px;">
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">얇게</span>
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">굵게</span>
-            </div>
-          </div>
-
-          <!-- 그라디언트 색상 -->
-          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">단계 진행 바 그라디언트</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
-            <div>
-              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">시작색</div>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <input type="color" id="gradStartColor" value="#3B82F6"
-                  style="width:32px;height:32px;border:none;border-radius:6px;cursor:pointer;padding:2px;border:1px solid var(--border);background:var(--surface);">
-                <input type="text" id="gradStartHex" value="#3B82F6" maxlength="7"
-                  style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:5px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
-              </div>
-            </div>
-            <div>
-              <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">끝색</div>
-              <div style="display:flex;align-items:center;gap:6px;">
-                <input type="color" id="gradEndColor" value="#e05a4a"
-                  style="width:32px;height:32px;border:none;border-radius:6px;cursor:pointer;padding:2px;border:1px solid var(--border);background:var(--surface);">
-                <input type="text" id="gradEndHex" value="#e05a4a" maxlength="7"
-                  style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:5px 6px;border-radius:6px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
-              </div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
-            <label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);">
-              <input type="checkbox" id="gradUseTheme" style="accent-color:var(--accent);width:14px;height:14px;">
-              테마 색상 자동 사용
-            </label>
-          </div>
-
-          <!-- 미리보기 -->
-          <div style="padding:10px;background:var(--surface2);border-radius:var(--radius);">
-            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:8px;letter-spacing:.08em;">미리보기</div>
-            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;">전체 진행</div>
-            <div id="barPreviewTotal" style="border-radius:4px;background:var(--border);overflow:hidden;margin-bottom:8px;">
-              <div style="width:60%;background:var(--accent);border-radius:4px;transition:height .2s;"></div>
-            </div>
-            <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:4px;">단계 진행</div>
-            <div id="barPreviewStep" style="border-radius:4px;overflow:hidden;position:relative;">
-              <div id="barPreviewStepFill" style="position:absolute;top:0;right:0;width:35%;height:100%;background:var(--border);border-radius:0 4px 4px 0;transition:height .2s;"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- 새로고침 민감도 -->
       <div class="setting-row">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
@@ -1874,6 +1989,10 @@ function _applyCustomFromStorage(){
       var found=themes.find(function(u){return u.id===aid;});
       if(found&&found.palette) p=found.palette;
       else if(found) p=[found.bg,found.surface||found.bg,found.accent,found.accent2||found.accent];
+      // fontColors 복원
+      if(found && typeof applyFontColorsFromFC==='function'){
+        applyFontColorsFromFC(found.fontColors||null);
+      }
     }
     // 2순위: palette4_v1 직접 (바로 적용 or aid 없는 경우)
     if(!p||p.length<4){
@@ -2131,8 +2250,14 @@ function applyTheme(t){
   if(t==='custom'){
     document.documentElement.setAttribute("data-theme","custom");
     localStorage.setItem("theme","custom");
-    // 팔레트 복원 + CSS 변수 인라인 적용 (applyCustomVars/deriveFromPalette 로드 여부 무관)
     _applyCustomFromStorage();
+    // 저장된 커스텀 테마의 fontColors 복원
+    try{
+      var _aid3=localStorage.getItem('active_custom_theme_id')||'';
+      var _themes3=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');
+      var _entry=_aid3?_themes3.find(function(u){return u.id===_aid3;}):null;
+      if(typeof window._ctpApplyFontColors==='function') window._ctpApplyFontColors(_entry?_entry.fontColors:null);
+    }catch(e){}
     var lbl=document.getElementById("themeCurrentLabel");
     if(lbl){
       var _aid2=localStorage.getItem('active_custom_theme_id')||'';
@@ -2142,6 +2267,8 @@ function applyTheme(t){
     }
     return;
   }
+  // 커스텀→일반 전환 시 인라인 CSS 변수 제거
+  ['--text','--muted','--danger'].forEach(function(v){ document.documentElement.style.removeProperty(v); });
   // 커스텀→일반 전환 시 인라인 CSS 변수 제거
   var customVars=['--bg','--surface','--surface2','--border','--border-hi','--text','--muted',
     '--accent','--accent2','--danger','--success','--header-bg','--card-shadow',
@@ -2392,6 +2519,232 @@ document.getElementById("barThickHead").addEventListener("click",function(){
     applyGradient(gradStart,gradEnd,gradUseTheme);
   }
 });
+
+// ── 테마별 폰트 설정 ─────────────────────────────────────────────
+(function(){
+  var FONT_STORE_KEY = 'theme_fonts_v1';
+
+  // 사용 가능한 폰트 목록
+  var BODY_FONTS = [
+    {label:'Noto Sans KR',   value:"'Noto Sans KR',sans-serif",    preview:'Noto Sans KR'},
+    {label:'Outfit',         value:"'Outfit',sans-serif",           preview:'Outfit'},
+    {label:'Playfair Display',value:"'Playfair Display',serif",     preview:'Playfair Display'},
+    {label:'Cormorant Garamond',value:"'Cormorant Garamond',serif", preview:'Cormorant Garamond'},
+  ];
+  var MONO_FONTS = [
+    {label:'DM Mono',        value:"'DM Mono',monospace",           preview:'DM Mono'},
+    {label:'IBM Plex Mono',  value:"'IBM Plex Mono',monospace",     preview:'IBM Plex Mono'},
+    {label:'Space Mono',     value:"'Space Mono',monospace",        preview:'Space Mono'},
+  ];
+  var DISPLAY_FONTS = [
+    {label:'DM Mono',        value:"'DM Mono',monospace",           preview:'DM Mono'},
+    {label:'Outfit',         value:"'Outfit',sans-serif",           preview:'Outfit'},
+    {label:'Noto Sans KR',   value:"'Noto Sans KR',sans-serif",     preview:'Noto Sans KR'},
+    {label:'Playfair Display',value:"'Playfair Display',serif",     preview:'Playfair Display'},
+    {label:'Cormorant Garamond',value:"'Cormorant Garamond',serif", preview:'Cormorant Garamond'},
+    {label:'Space Mono',     value:"'Space Mono',monospace",        preview:'Space Mono'},
+  ];
+
+  function loadAllFonts(){ try{return JSON.parse(localStorage.getItem(FONT_STORE_KEY)||'{}');}catch(e){return{};} }
+  function saveAllFonts(obj){ localStorage.setItem(FONT_STORE_KEY, JSON.stringify(obj)); }
+
+  function getThemeFonts(themeId){
+    var all = loadAllFonts();
+    return all[themeId] || null;
+  }
+  function setThemeFonts(themeId, fonts){
+    var all = loadAllFonts();
+    all[themeId] = fonts;
+    saveAllFonts(all);
+  }
+  function clearThemeFonts(themeId){
+    var all = loadAllFonts();
+    delete all[themeId];
+    saveAllFonts(all);
+  }
+
+  // CSS 변수에서 현재 테마 기본 폰트값 읽기
+  function getThemeDefaultFonts(){
+    var s = getComputedStyle(document.documentElement);
+    return {
+      body:    s.getPropertyValue('--font-body').trim(),
+      mono:    s.getPropertyValue('--font-mono').trim(),
+      display: s.getPropertyValue('--font-display').trim()
+    };
+  }
+
+  // 폰트 적용 (CSS 변수 + body.fontFamily)
+  function applyFonts(fonts){
+    var el = document.documentElement;
+    if(fonts && fonts.body)    el.style.setProperty('--font-body',    fonts.body);
+    if(fonts && fonts.mono)    el.style.setProperty('--font-mono',    fonts.mono);
+    if(fonts && fonts.display) el.style.setProperty('--font-display', fonts.display);
+    if(fonts && fonts.body)    document.body.style.fontFamily = fonts.body;
+  }
+
+  // 폰트 CSS 변수 인라인 제거 (테마 기본값으로 복귀)
+  function clearFontOverrides(){
+    var el = document.documentElement;
+    el.style.removeProperty('--font-body');
+    el.style.removeProperty('--font-mono');
+    el.style.removeProperty('--font-display');
+    // body.fontFamily는 applyTheme 후 갱신됨
+  }
+
+  // 전역: 테마 전환 시 저장된 폰트 자동 적용
+  window._applyThemeFonts = function(themeId){
+    var saved = getThemeFonts(themeId);
+    if(saved){
+      applyFonts(saved);
+    } else {
+      clearFontOverrides();
+    }
+  };
+
+  // applyTheme 후크 — 테마 변경 시 폰트 자동 교체
+  var _origApplyTheme = window.applyTheme;
+  if(typeof _origApplyTheme === 'function' && !_origApplyTheme._tfHooked){
+    window.applyTheme = function(t){
+      _origApplyTheme.apply(this, arguments);
+      window._applyThemeFonts(t);
+      // 패널이 열려있으면 UI도 갱신
+      var body = document.getElementById('themeFontBody');
+      if(body && body.style.display !== 'none') renderFontPanel();
+    };
+    window.applyTheme._tfHooked = true;
+  }
+
+  // 페이지 로드 시 현재 테마 폰트 적용
+  (function(){
+    var cur = localStorage.getItem('theme') || 'dark';
+    var saved = getThemeFonts(cur);
+    if(saved) applyFonts(saved);
+  })();
+
+  // ── 패널 UI 렌더링 ──
+  function renderFontPanel(){
+    var themeId = currentTheme || localStorage.getItem('theme') || 'dark';
+    var saved = getThemeFonts(themeId) || {};
+
+    // 배지
+    var badge = document.getElementById('themeFontCurrentBadge');
+    if(badge){
+      var tname = (typeof THEME_NAMES!=='undefined' && THEME_NAMES[themeId]) || themeId;
+      badge.textContent = '현재 테마: ' + tname;
+    }
+
+    // 현재 적용 중인 CSS 값 (인라인 override 포함)
+    var curBody    = saved.body    || getThemeDefaultFonts().body;
+    var curMono    = saved.mono    || getThemeDefaultFonts().mono;
+    var curDisplay = saved.display || getThemeDefaultFonts().display;
+
+    renderFontGroup('tfBodyOptions',    BODY_FONTS,    curBody,    'body',    themeId, saved);
+    renderFontGroup('tfMonoOptions',    MONO_FONTS,    curMono,    'mono',    themeId, saved);
+    renderFontGroup('tfDisplayOptions', DISPLAY_FONTS, curDisplay, 'display', themeId, saved);
+
+    updatePreviews(
+      saved.body    || curBody,
+      saved.mono    || curMono,
+      saved.display || curDisplay
+    );
+  }
+
+  function normalizeFont(v){
+    // "'DM Mono',monospace" → "DM Mono" 형태로 비교용 정규화
+    return v ? v.replace(/'/g,'').split(',')[0].trim() : '';
+  }
+
+  function renderFontGroup(containerId, fonts, current, key, themeId, saved){
+    var container = document.getElementById(containerId);
+    if(!container) return;
+    container.innerHTML = '';
+    var currentNorm = normalizeFont(current);
+
+    fonts.forEach(function(f){
+      var isActive = normalizeFont(f.value) === currentNorm;
+      var row = document.createElement('label');
+      row.style.cssText = 'display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius);border:1px solid '+(isActive?'var(--accent)':'var(--border)')+';background:'+(isActive?'rgba(128,128,128,.06)':'transparent')+';cursor:pointer;transition:border-color .15s;';
+
+      var radio = document.createElement('input');
+      radio.type = 'radio';
+      radio.name = 'tf_' + key;
+      radio.value = f.value;
+      radio.checked = isActive;
+      radio.style.cssText = 'accent-color:var(--accent);flex-shrink:0;';
+
+      var preview = document.createElement('span');
+      preview.style.cssText = 'font-family:'+f.value+';font-size:13px;color:var(--text);flex:1;';
+      preview.textContent = f.label;
+
+      var sampleMono = (key === 'mono') ? document.createElement('span') : null;
+      if(sampleMono){
+        sampleMono.style.cssText = 'font-family:'+f.value+';font-size:12px;color:var(--muted);';
+        sampleMono.textContent = '2:30';
+      }
+
+      radio.addEventListener('change', function(){
+        if(!this.checked) return;
+        var all = loadAllFonts();
+        if(!all[themeId]) all[themeId] = {};
+        all[themeId][key] = f.value;
+        saveAllFonts(all);
+        // 즉시 적용
+        document.documentElement.style.setProperty('--font-'+key, f.value);
+        if(key==='body') document.body.style.fontFamily = f.value;
+        // 저장값 갱신 후 패널 재렌더
+        renderFontPanel();
+        markPending && markPending();
+      });
+
+      row.appendChild(radio);
+      row.appendChild(preview);
+      if(sampleMono) row.appendChild(sampleMono);
+      container.appendChild(row);
+    });
+  }
+
+  function updatePreviews(body, mono, display){
+    var pBody    = document.getElementById('tfPreviewBody');
+    var pMono    = document.getElementById('tfPreviewMono');
+    var pDisplay = document.getElementById('tfPreviewDisplay');
+    if(pBody)    pBody.style.fontFamily    = body;
+    if(pMono)    pMono.style.fontFamily    = mono;
+    if(pDisplay) pDisplay.style.fontFamily = display;
+  }
+
+  // 패널 접기/펼치기
+  var head = document.getElementById('themeFontHead');
+  if(head){
+    head.addEventListener('click', function(){
+      var body = document.getElementById('themeFontBody');
+      var arrow = document.getElementById('themeFontArrow');
+      if(!body) return;
+      var open = body.style.display === 'none';
+      body.style.display = open ? 'block' : 'none';
+      arrow.textContent = open ? '-' : '+';
+      if(open) renderFontPanel();
+    });
+  }
+
+  // 초기화 버튼
+  var resetBtn = document.getElementById('tfResetBtn');
+  if(resetBtn){
+    resetBtn.addEventListener('click', function(){
+      var themeId = currentTheme || localStorage.getItem('theme') || 'dark';
+      clearThemeFonts(themeId);
+      clearFontOverrides();
+      // applyTheme 재호출로 테마 기본 폰트 복원
+      if(typeof _origApplyTheme === 'function') _origApplyTheme(themeId);
+      setTimeout(renderFontPanel, 50);
+      markPending && markPending();
+    });
+  }
+
+  // applySettings에서 저장 시 worker에도 포함하도록 전역 노출
+  window._tfGetAll = loadAllFonts;
+
+})();
+// ── 테마별 폰트 설정 끝 ──────────────────────────────────────────
 
 function applyRecipeDropdown(visible){
   recipeDropdownVisible=visible;
@@ -2814,6 +3167,11 @@ async function loadRecipes(){
           if(s.activeTheme){localStorage.setItem("theme",s.activeTheme);}
           if(s.activeCustomId){localStorage.setItem("active_custom_theme_id",s.activeCustomId);}
           if(s.palette4){localStorage.setItem("palette4_v1",JSON.stringify(s.palette4));}
+          // 테마별 폰트 복원
+          if(s.themeFonts){
+            localStorage.setItem('theme_fonts_v1',JSON.stringify(s.themeFonts));
+            if(typeof window._applyThemeFonts==='function') window._applyThemeFonts(s.activeTheme||currentTheme||'dark');
+          }
           // 커스텀 테마면 즉시 재적용
           if(s.activeTheme==='custom'){
             currentTheme='custom';
@@ -5076,13 +5434,16 @@ async function applySettings(){
           userThemes:_ut3,
           activeTheme:localStorage.getItem('theme')||'dark',
           activeCustomId:localStorage.getItem('active_custom_theme_id')||'',
-          palette4:_p43
+          palette4:_p43,
+          
+          themeFonts:(typeof window._tfGetAll==='function'?window._tfGetAll():{})
         }
       });
       hideSync();
     }
     catch{hideSync();showToast("동기화 실패");}
   }
+  // 테마별 폰트는 라디오 선택 즉시 localStorage에 저장되므로 별도 저장 불필요
   clearPending();
   showToast("설정 적용됨");
   return true;
@@ -5270,7 +5631,7 @@ previewBtn.addEventListener("click",async function(){
 
 // 내보내기/불러오기
 document.getElementById("exportBtn").addEventListener("click",function(){
-  var p={version:1,exportedAt:new Date().toISOString(),voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,elKey3:elKey3,workerUrl:workerUrl,defaultRecipe:defaultRecipeName,theme:currentTheme,startBtnSize:startBtnSize,pauseFlex:pauseFlex,pauseFlexLandscape:pauseFlexLandscape,pauseBtnSizeLandscape:pauseBtnSizeLandscape,scrollSens:scrollSens};
+  var p={version:1,exportedAt:new Date().toISOString(),voiceParams:voiceParams,elVoice:elVoice,elKey:elKey,elKey2:elKey2,elKey3:elKey3,workerUrl:workerUrl,defaultRecipe:defaultRecipeName,theme:currentTheme,startBtnSize:startBtnSize,pauseFlex:pauseFlex,pauseFlexLandscape:pauseFlexLandscape,pauseBtnSizeLandscape:pauseBtnSizeLandscape,scrollSens:scrollSens,themeFonts:(typeof window._tfGetAll==='function'?window._tfGetAll():{})};
   var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(p,null,2)],{type:"application/json"}));
   a.download="handdrip-settings.json";a.click();showToast("내보내기 완료");
 });
@@ -5293,6 +5654,10 @@ importFile.addEventListener("change",async function(){
     if(p.pauseBtnSizeLandscape)applyPauseBtnSizeLandscape(p.pauseBtnSizeLandscape);
     if(p.scrollSens)applyScrollSens(p.scrollSens);
     if(p.defaultRecipe!==undefined)defaultRecipeName=p.defaultRecipe;
+    if(p.themeFonts){
+      localStorage.setItem('theme_fonts_v1',JSON.stringify(p.themeFonts));
+      if(typeof window._applyThemeFonts==='function') window._applyThemeFonts(p.theme||currentTheme||'dark');
+    }
     localStorage.setItem("voice_params",JSON.stringify(voiceParams));
     localStorage.setItem("el_voice",elVoice);
     if(elKey)localStorage.setItem("el_key",elKey);
@@ -6519,7 +6884,14 @@ function buildBuiltinBtn(t, active){
   btn.style.cssText='width:100%;padding-right:30px;';
   btn.innerHTML='<span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;border:2px solid '+t.accent+';background:'+t.bg+';display:inline-block;"></span>'
     +'<span class="theme-btn-info"><span class="theme-btn-name">'+t.name+'</span><span class="theme-btn-desc">'+t.desc+'</span></span>';
-  btn.addEventListener('click',function(){setActiveCustomId('');applyTheme(t.id);markPending&&markPending();});
+  // 적용 중 체크 배지
+  if(active){
+    var chk=document.createElement('span');
+    chk.style.cssText='position:absolute;top:5px;right:5px;width:16px;height:16px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;line-height:1;pointer-events:none;';
+    chk.textContent='✓';
+    wrap.appendChild(chk);
+  }
+  btn.addEventListener('click',function(){setActiveCustomId('');applyTheme(t.id);['--text','--muted','--danger'].forEach(function(v){document.documentElement.style.removeProperty(v);});markPending&&markPending();});
   var x=document.createElement('button');
   x.style.cssText='position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px;border-radius:4px;opacity:0;transition:opacity .15s;';
   x.textContent='×';
@@ -6552,13 +6924,22 @@ function buildCustomBtn(t, active){
 
   btn.innerHTML=swatchHtml+'<span class="theme-btn-info"><span class="theme-btn-name">'+escHtml(t.name)+'</span>'
     +'<span class="theme-btn-desc">'+colors[0]+' · '+colors[2]+'</span></span>';
+
+  // 적용 중 체크 배지
+  if(active){
+    var chk=document.createElement('span');
+    chk.style.cssText='position:absolute;top:5px;right:5px;width:16px;height:16px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;line-height:1;pointer-events:none;';
+    chk.textContent='✓';
+    wrap.appendChild(chk);
+  }
   btn.addEventListener('click',function(){
     setActiveCustomId(t.id);
     localStorage.setItem('theme','custom');
     var p=t.palette||[t.bg,t.surface||lighten(t.bg,8),t.accent,t.accent2||lighten(t.accent,15)];
-    localStorage.setItem('palette4_v1',JSON.stringify(p)); // 새로고침 후 복원용
+    localStorage.setItem('palette4_v1',JSON.stringify(p));
     document.documentElement.setAttribute('data-theme','custom');
     applyCustomVars(deriveFromPalette(p));
+    window._ctpApplyFontColors(t.fontColors);
     var lbl=document.getElementById('themeCurrentLabel');
     if(lbl) lbl.textContent='현재: '+t.name;
     if(typeof syncCustomThemesToWorker==='function') syncCustomThemesToWorker();
@@ -6571,7 +6952,21 @@ function buildCustomBtn(t, active){
   edit.title='편집';
   edit.style.cssText='position:absolute;right:22px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:4px;border-radius:4px;opacity:0;transition:opacity .15s;';
   edit.textContent='✎';
-  edit.addEventListener('click',function(e){e.stopPropagation();loadIntoEditor(t);});
+  edit.addEventListener('click',function(e){
+    e.stopPropagation();
+    // 편집 대상 테마를 바로 적용
+    setActiveCustomId(t.id);
+    localStorage.setItem('theme','custom');
+    var p=t.palette||[t.bg,t.surface||lighten(t.bg,8),t.accent,t.accent2||lighten(t.accent,15)];
+    localStorage.setItem('palette4_v1',JSON.stringify(p));
+    document.documentElement.setAttribute('data-theme','custom');
+    applyCustomVars(deriveFromPalette(p));
+    window._ctpApplyFontColors(t.fontColors);
+    var lbl=document.getElementById('themeCurrentLabel');
+    if(lbl) lbl.textContent='현재: '+t.name;
+    renderThemeGrid();
+    loadIntoEditor(t);
+  });
 
   // 삭제
   var del=document.createElement('button');
@@ -6628,6 +7023,7 @@ function loadIntoEditor(t){
   savePaletteState();
   renderPaletteSlots(); updateShuffleBtn(); refreshPreview();
   var ni=document.getElementById('customThemeName'); if(ni) ni.value=t.name;
+  setEditorFontColors(t.fontColors||null);
   var sb=document.getElementById('saveCustomThemeBtn'); if(sb) sb.textContent='수정 저장';
   showStatus('"'+t.name+'" 편집 중','var(--accent)');
 }
@@ -6636,6 +7032,7 @@ function resetEditor(){
   var sb=document.getElementById('saveCustomThemeBtn'); if(sb) sb.textContent='목록에 저장';
   var st=document.getElementById('customThemeStatus'); if(st) st.textContent='';
   var ni=document.getElementById('customThemeName'); if(ni) ni.value='나의 테마';
+  setEditorFontColors(null);
 }
 
 function showStatus(msg,color){
@@ -6647,6 +7044,64 @@ function showStatus(msg,color){
 /* ════════════════════════════════════════
    초기화
 ════════════════════════════════════════ */
+/* ══════════════════════════════════════════
+   커스텀 테마 폰트 색상 — 전역 상수·함수
+   (loadIntoEditor / resetEditor 에서 사용)
+══════════════════════════════════════════ */
+var CTP_FC_DEFAULTS = {text:'#0f1a2e',muted:'#6b80a0',timer:'#0f1a2e',urgent:'#e05a4a',accent:'#3B82F6',btnText:'#ffffff'};
+var CTP_FC_PAIRS = [
+  ['ctpFcText',    'ctpFcTextHex',    'text'],
+  ['ctpFcMuted',   'ctpFcMutedHex',   'muted'],
+  ['ctpFcTimer',   'ctpFcTimerHex',   'timer'],
+  ['ctpFcUrgent',  'ctpFcUrgentHex',  'urgent'],
+  ['ctpFcAccent',  'ctpFcAccentHex',  'accent'],
+  ['ctpFcBtnText', 'ctpFcBtnTextHex', 'btnText'],
+];
+function validHexCtp(s){ return /^#[0-9a-fA-F]{6}$/.test(s); }
+
+/* 편집기 → fontColors 객체 읽기 */
+function getEditorFontColors(){
+  var tog = document.getElementById('ctpFcEnabled');
+  var fc = {enabled: tog ? tog.checked : false};
+  CTP_FC_PAIRS.forEach(function(p){
+    var cp = document.getElementById(p[0]);
+    fc[p[2]] = cp ? cp.value : CTP_FC_DEFAULTS[p[2]];
+  });
+  return fc;
+}
+
+/* fontColors 객체 → 편집기 UI에 세팅 */
+function setEditorFontColors(fc){
+  var tog  = document.getElementById('ctpFcEnabled');
+  var ctrl = document.getElementById('ctpFcControls');
+  var enabled = !!(fc && fc.enabled);
+  if(tog)  tog.checked = enabled;
+  if(ctrl){ ctrl.style.opacity = enabled?'1':'.4'; ctrl.style.pointerEvents = enabled?'auto':'none'; }
+  CTP_FC_PAIRS.forEach(function(p){
+    var cp = document.getElementById(p[0]);
+    var hp = document.getElementById(p[1]);
+    var val = (fc && fc[p[2]]) || CTP_FC_DEFAULTS[p[2]];
+    if(cp) cp.value = val;
+    if(hp) hp.value = val;
+  });
+}
+
+/* fontColors → CSS 변수 적용 / 제거 */
+function applyFontColorsFromFC(fc){
+  var el = document.documentElement;
+  ['--text','--muted','--danger'].forEach(function(v){ el.style.removeProperty(v); });
+  if(fc && fc.enabled){
+    el.style.setProperty('--text',   fc.text   || CTP_FC_DEFAULTS.text);
+    el.style.setProperty('--muted',  fc.muted  || CTP_FC_DEFAULTS.muted);
+    el.style.setProperty('--danger', fc.urgent || CTP_FC_DEFAULTS.urgent);
+  }
+}
+
+/* 커스텀 테마 entry의 fontColors 적용 (entry 자체를 인자로 받음) */
+window._ctpApplyFontColors = function(fc){
+  applyFontColorsFromFC(fc);
+};
+
 function init(){
   loadPaletteState();
 
@@ -6741,6 +7196,75 @@ function init(){
   });
 
   /* 목록에 저장 */
+  /* ══ 커스텀 테마 폰트 색상 이벤트 등록 (전역 함수는 init() 위에 정의됨) ══ */
+
+  /* 접기/펼치기 */
+  (function(){
+    var head = document.getElementById('ctpFcHead');
+    if(!head) return;
+    head.addEventListener('click', function(){
+      var body  = document.getElementById('ctpFcBody');
+      var arrow = document.getElementById('ctpFcArrow');
+      if(!body) return;
+      var open = body.style.display === 'none';
+      body.style.display = open ? 'block' : 'none';
+      arrow.textContent  = open ? '−' : '+';
+    });
+  })();
+
+  /* 토글 */
+  (function(){
+    var tog = document.getElementById('ctpFcEnabled');
+    if(!tog) return;
+    tog.addEventListener('change', function(){
+      var ctrl = document.getElementById('ctpFcControls');
+      if(ctrl){ ctrl.style.opacity = this.checked ? '1' : '.4'; ctrl.style.pointerEvents = this.checked ? 'auto' : 'none'; }
+    });
+  })();
+
+  /* 색상 페어 이벤트 */
+  CTP_FC_PAIRS.forEach(function(pair){
+    var cp = document.getElementById(pair[0]);
+    var hp = document.getElementById(pair[1]);
+    if(!cp || !hp) return;
+    cp.addEventListener('input', function(){ hp.value = this.value; });
+    hp.addEventListener('input', function(){
+      var v = this.value.trim();
+      if(!v.startsWith('#')) v = '#' + v;
+      if(validHexCtp(v)) cp.value = v;
+    });
+    hp.addEventListener('blur', function(){
+      var v = this.value.trim();
+      if(!v.startsWith('#')) v = '#' + v;
+      if(!validHexCtp(v)) this.value = cp.value;
+    });
+  });
+
+  /* 팔레트에서 자동 가져오기 */
+  (function(){
+    var btn = document.getElementById('ctpFcFromPalette');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      function rgb2hex(v){
+        var m = v.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+        if(m) return '#'+[m[1],m[2],m[3]].map(function(n){return parseInt(n).toString(16).padStart(2,'0');}).join('');
+        return v;
+      }
+      function getVar(prop){
+        return rgb2hex(getComputedStyle(document.documentElement).getPropertyValue(prop).trim()) || '';
+      }
+      var map = {text:'--text', muted:'--muted', timer:'--text', urgent:'--danger', accent:'--accent', btnText:null};
+      CTP_FC_PAIRS.forEach(function(pair){
+        var key = pair[2];
+        var cp  = document.getElementById(pair[0]);
+        var hp  = document.getElementById(pair[1]);
+        if(!cp || !hp) return;
+        var val = map[key] ? getVar(map[key]) : '#ffffff';
+        if(val && validHexCtp(val)){ cp.value = val; hp.value = val; }
+      });
+    });
+  })();
+
   document.getElementById('saveCustomThemeBtn').addEventListener('click',function(){
     var name=(document.getElementById('customThemeName').value||'').trim()||'나의 테마';
     var arr=loadUserThemes();
@@ -6749,13 +7273,15 @@ function init(){
       id: editingId||('usr_'+Date.now()),
       name:name,
       bg:palette[0], surface:palette[1], accent:palette[2], accent2:palette[3],
-      palette:palette.slice()
+      palette:palette.slice(),
+      fontColors: getEditorFontColors()
     };
     if(editingId){
       var idx=arr.findIndex(function(u){return u.id===editingId;});
       if(idx>=0) arr[idx]=entry; else arr.push(entry);
       if(getActiveCustomId()===editingId && localStorage.getItem('theme')==='custom'){
         applyCustomVars(derived);
+        window._ctpApplyFontColors(entry.fontColors);
       }
     } else {
       if(arr.length>=20){showStatus('최대 20개까지 저장 가능해요','var(--danger)');return;}
@@ -6772,9 +7298,10 @@ function init(){
   document.getElementById('applyCustomThemeBtn').addEventListener('click',function(){
     setActiveCustomId('');
     localStorage.setItem('theme','custom');
-    localStorage.setItem('palette4_v1',JSON.stringify(palette)); // 새로고침 후 복원용
+    localStorage.setItem('palette4_v1',JSON.stringify(palette));
     document.documentElement.setAttribute('data-theme','custom');
     applyCustomVars(deriveFromPalette(palette));
+    window._ctpApplyFontColors(getEditorFontColors());
     var lbl=document.getElementById('themeCurrentLabel');
     if(lbl) lbl.textContent='현재: 커스텀';
     renderThemeGrid();
