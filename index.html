@@ -3238,20 +3238,13 @@ async function loadRecipes(){
           if(s.elKey2){elKey2=s.elKey2;localStorage.setItem("el_key2",elKey2);apiKeyInput2.value=elKey2;setStatus(apiStatus2,apiStatusText2,"ok","연결됨");}
           if(s.elKey3){elKey3=s.elKey3;localStorage.setItem("el_key3",elKey3);apiKeyInput3.value=elKey3;setStatus(apiStatus3,apiStatusText3,"ok","연결됨");}
           if(s.activeKeySlot){activeKeySlot=s.activeKeySlot;localStorage.setItem("active_key_slot",activeKeySlot);}
-          // 커스텀 테마 동기화 복원
+          // 커스텀 테마 정의 동기화 (테마 목록만 공유, 어떤 테마 쓸지는 기기 로컬)
           if(s.userThemes){localStorage.setItem("user_themes_v2",JSON.stringify(s.userThemes));}
-          if(s.activeTheme){localStorage.setItem("theme",s.activeTheme);}
-          if(s.activeCustomId){localStorage.setItem("active_custom_theme_id",s.activeCustomId);}
-          if(s.palette4){localStorage.setItem("palette4_v1",JSON.stringify(s.palette4));}
+          // activeTheme / activeCustomId / palette4 는 기기별 로컬 전용 — worker에서 덮어쓰지 않음
           // 테마별 폰트 복원
           if(s.themeFonts){
             localStorage.setItem('theme_fonts_v1',JSON.stringify(s.themeFonts));
-            if(typeof window._applyThemeFonts==='function') window._applyThemeFonts(s.activeTheme||currentTheme||'dark');
-          }
-          // 커스텀 테마면 즉시 재적용
-          if(s.activeTheme==='custom'){
-            currentTheme='custom';
-            applyTheme('custom');
+            if(typeof window._applyThemeFonts==='function') window._applyThemeFonts(currentTheme||localStorage.getItem('theme')||'dark');
           }
         }
         return data.recipes;
@@ -3266,17 +3259,13 @@ async function persistAll(recipes,defRecipe){
     showSync("저장 중...");
     try{
       var _ut=[];try{_ut=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');}catch(e){}
-      var _p4=null;try{_p4=JSON.parse(localStorage.getItem('palette4_v1')||'null');}catch(e){}
       await workerSave({
         recipes:recipes,
         defaultRecipe:defRecipe!==undefined?defRecipe:defaultRecipeName,
         settings:{
           voiceParams:voiceParams,elVoice:elVoice,
           elKey:elKey,elKey2:elKey2,elKey3:elKey3,
-          userThemes:_ut,
-          activeTheme:localStorage.getItem('theme')||'dark',
-          activeCustomId:localStorage.getItem('active_custom_theme_id')||'',
-          palette4:_p4
+          userThemes:_ut
         }
       });
       hideSync();
@@ -5500,7 +5489,6 @@ async function applySettings(){
     showSync("설정 동기화 중...");
     try{
       var _ut3=[];try{_ut3=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');}catch(e){}
-      var _p43=null;try{_p43=JSON.parse(localStorage.getItem('palette4_v1')||'null');}catch(e){}
       await workerSave({
         recipes:getLocalRecipes(),
         defaultRecipe:defaultRecipeName,
@@ -5508,10 +5496,6 @@ async function applySettings(){
           voiceParams:voiceParams,elVoice:elVoice,
           elKey:elKey,elKey2:elKey2,elKey3:elKey3,
           userThemes:_ut3,
-          activeTheme:localStorage.getItem('theme')||'dark',
-          activeCustomId:localStorage.getItem('active_custom_theme_id')||'',
-          palette4:_p43,
-          
           themeFonts:(typeof window._tfGetAll==='function'?window._tfGetAll():{})
         }
       });
@@ -7539,15 +7523,11 @@ function init(){
       if(typeof workerUrl==='undefined'||!workerUrl) return;
       if(typeof workerSave!=='function') return;
       var _ut=loadUserThemes();
-      var _p4=null;try{_p4=JSON.parse(localStorage.getItem('palette4_v1')||'null');}catch(e){}
       workerSave({
         recipes: typeof getLocalRecipes==='function'?getLocalRecipes():[],
         defaultRecipe: typeof defaultRecipeName!=='undefined'?defaultRecipeName:'',
         settings:{
-          userThemes:_ut,
-          activeTheme:localStorage.getItem('theme')||'dark',
-          activeCustomId:localStorage.getItem('active_custom_theme_id')||'',
-          palette4:_p4
+          userThemes:_ut
         }
       }).catch(function(){});
     }catch(e){}
