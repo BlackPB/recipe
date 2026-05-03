@@ -1492,56 +1492,6 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
               </div>
             </div>
 
-            <!-- 진행바 설정 (커스텀 테마에 포함 저장) -->
-            <div style="margin-bottom:12px;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;">
-              <div id="ctpBarHead" style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;cursor:pointer;background:var(--surface);user-select:none;">
-                <div>
-                  <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--text);font-weight:500;">진행바</div>
-                  <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-top:1px;">두께 · 그라디언트 · 테마에 함께 저장</div>
-                </div>
-                <span id="ctpBarArrow" style="font-family:'DM Mono',monospace;font-size:14px;color:var(--muted);">+</span>
-              </div>
-              <div id="ctpBarBody" style="display:none;padding:12px;background:var(--surface2);border-top:1px solid var(--border);">
-                <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">두께</div>
-                <div style="margin-bottom:10px;">
-                  <div class="slider-header"><span class="slider-name">전체 진행 바</span><span class="slider-val" id="ctpBarTotalVal">3px</span></div>
-                  <input type="range" id="ctpBarTotalSlider" min="1" max="16" step="1" value="3">
-                </div>
-                <div style="margin-bottom:14px;">
-                  <div class="slider-header"><span class="slider-name">단계 진행 바</span><span class="slider-val" id="ctpBarStepVal">4px</span></div>
-                  <input type="range" id="ctpBarStepSlider" min="1" max="20" step="1" value="4">
-                </div>
-                <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;">단계 진행바 그라디언트</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-                  <div>
-                    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">시작색</div>
-                    <div style="display:flex;gap:5px;align-items:center;">
-                      <input type="color" id="ctpGradStart" value="#3B82F6" style="width:30px;height:30px;border-radius:5px;border:1px solid var(--border);padding:2px;cursor:pointer;background:var(--surface);">
-                      <input type="text"  id="ctpGradStartHex" value="#3B82F6" maxlength="7" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
-                    </div>
-                  </div>
-                  <div>
-                    <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:5px;">끝색</div>
-                    <div style="display:flex;gap:5px;align-items:center;">
-                      <input type="color" id="ctpGradEnd" value="#e05a4a" style="width:30px;height:30px;border-radius:5px;border:1px solid var(--border);padding:2px;cursor:pointer;background:var(--surface);">
-                      <input type="text"  id="ctpGradEndHex" value="#e05a4a" maxlength="7" style="flex:1;font-family:'DM Mono',monospace;font-size:10px;padding:4px 6px;border-radius:5px;border:1px solid var(--border);background:var(--surface);color:var(--text);width:0;">
-                    </div>
-                  </div>
-                </div>
-                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;color:var(--text);margin-bottom:10px;">
-                  <input type="checkbox" id="ctpGradUseTheme" checked style="accent-color:var(--accent);width:13px;height:13px;">
-                  테마 색상 자동 사용
-                </label>
-                <div style="padding:8px;background:var(--surface);border-radius:6px;border:1px solid var(--border);">
-                  <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:6px;">미리보기</div>
-                  <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:3px;">전체</div>
-                  <div id="ctpBarPreviewTotal" style="border-radius:4px;background:var(--border);overflow:hidden;margin-bottom:6px;height:3px;"><div style="width:60%;height:100%;background:var(--accent);border-radius:4px;"></div></div>
-                  <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:3px;">단계</div>
-                  <div id="ctpBarPreviewStep" style="border-radius:4px;height:4px;"></div>
-                </div>
-              </div>
-            </div>
-
             <!-- 테마 이름 -->
             <div style="margin-bottom:10px;">
               <input type="text" id="customThemeName" value="나의 테마" maxlength="20" placeholder="테마 이름"
@@ -2039,12 +1989,9 @@ function _applyCustomFromStorage(){
       var found=themes.find(function(u){return u.id===aid;});
       if(found&&found.palette) p=found.palette;
       else if(found) p=[found.bg,found.surface||found.bg,found.accent,found.accent2||found.accent];
-      // fontColors + bar 복원
+      // fontColors 복원
       if(found && typeof applyFontColorsFromFC==='function'){
         applyFontColorsFromFC(found.fontColors||null);
-      }
-      if(found && typeof applyBarFromEntry==='function'){
-        applyBarFromEntry(found.bar||null);
       }
     }
     // 2순위: palette4_v1 직접 (바로 적용 or aid 없는 경우)
@@ -2310,7 +2257,6 @@ function applyTheme(t){
       var _themes3=JSON.parse(localStorage.getItem('user_themes_v2')||'[]');
       var _entry=_aid3?_themes3.find(function(u){return u.id===_aid3;}):null;
       if(typeof window._ctpApplyFontColors==='function') window._ctpApplyFontColors(_entry?_entry.fontColors:null);
-      if(typeof window._ctpApplyBar==='function') window._ctpApplyBar(_entry?_entry.bar:null);
     }catch(e){}
     var lbl=document.getElementById("themeCurrentLabel");
     if(lbl){
@@ -6945,13 +6891,7 @@ function buildBuiltinBtn(t, active){
     chk.textContent='✓';
     wrap.appendChild(chk);
   }
-  btn.addEventListener('click',function(){
-    setActiveCustomId('');applyTheme(t.id);
-    ['--text','--muted','--danger'].forEach(function(v){document.documentElement.style.removeProperty(v);});
-    // 빌트인 테마 전환 시 진행바도 전역 설정으로 복귀
-    applyBarTotalH(barTotalH); applyBarStepH(barStepH); applyGradient(gradStart,gradEnd,gradUseTheme);
-    markPending&&markPending();
-  });
+  btn.addEventListener('click',function(){setActiveCustomId('');applyTheme(t.id);['--text','--muted','--danger'].forEach(function(v){document.documentElement.style.removeProperty(v);});markPending&&markPending();});
   var x=document.createElement('button');
   x.style.cssText='position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--muted);cursor:pointer;font-size:14px;padding:4px;border-radius:4px;opacity:0;transition:opacity .15s;';
   x.textContent='×';
@@ -7000,7 +6940,6 @@ function buildCustomBtn(t, active){
     document.documentElement.setAttribute('data-theme','custom');
     applyCustomVars(deriveFromPalette(p));
     window._ctpApplyFontColors(t.fontColors);
-    window._ctpApplyBar(t.bar);
     var lbl=document.getElementById('themeCurrentLabel');
     if(lbl) lbl.textContent='현재: '+t.name;
     if(typeof syncCustomThemesToWorker==='function') syncCustomThemesToWorker();
@@ -7023,7 +6962,6 @@ function buildCustomBtn(t, active){
     document.documentElement.setAttribute('data-theme','custom');
     applyCustomVars(deriveFromPalette(p));
     window._ctpApplyFontColors(t.fontColors);
-    window._ctpApplyBar(t.bar);
     var lbl=document.getElementById('themeCurrentLabel');
     if(lbl) lbl.textContent='현재: '+t.name;
     renderThemeGrid();
@@ -7086,7 +7024,6 @@ function loadIntoEditor(t){
   renderPaletteSlots(); updateShuffleBtn(); refreshPreview();
   var ni=document.getElementById('customThemeName'); if(ni) ni.value=t.name;
   setEditorFontColors(t.fontColors||null);
-  setEditorBar(t.bar||null);
   var sb=document.getElementById('saveCustomThemeBtn'); if(sb) sb.textContent='수정 저장';
   showStatus('"'+t.name+'" 편집 중','var(--accent)');
 }
@@ -7096,7 +7033,6 @@ function resetEditor(){
   var st=document.getElementById('customThemeStatus'); if(st) st.textContent='';
   var ni=document.getElementById('customThemeName'); if(ni) ni.value='나의 테마';
   setEditorFontColors(null);
-  setEditorBar(null);
 }
 
 function showStatus(msg,color){
@@ -7108,140 +7044,6 @@ function showStatus(msg,color){
 /* ════════════════════════════════════════
    초기화
 ════════════════════════════════════════ */
-/* ══════════════════════════════════════════
-   커스텀 테마 진행바 — 전역 상수·함수
-══════════════════════════════════════════ */
-var CTP_BAR_DEFAULTS = {totalH:3, stepH:4, gradStart:'#3B82F6', gradEnd:'#e05a4a', gradUseTheme:true};
-
-function validHexBar(s){ return /^#[0-9a-fA-F]{6}$/.test(s); }
-
-function getEditorBar(){
-  var ts = document.getElementById('ctpBarTotalSlider');
-  var ss = document.getElementById('ctpBarStepSlider');
-  var gc = document.getElementById('ctpGradStart');
-  var ec = document.getElementById('ctpGradEnd');
-  var ut = document.getElementById('ctpGradUseTheme');
-  return {
-    totalH:     ts ? parseInt(ts.value)||3 : CTP_BAR_DEFAULTS.totalH,
-    stepH:      ss ? parseInt(ss.value)||4 : CTP_BAR_DEFAULTS.stepH,
-    gradStart:  gc ? gc.value : CTP_BAR_DEFAULTS.gradStart,
-    gradEnd:    ec ? ec.value : CTP_BAR_DEFAULTS.gradEnd,
-    gradUseTheme: ut ? ut.checked : true
-  };
-}
-
-function setEditorBar(bar){
-  var b = bar || CTP_BAR_DEFAULTS;
-  var ts  = document.getElementById('ctpBarTotalSlider');
-  var tv  = document.getElementById('ctpBarTotalVal');
-  var ss  = document.getElementById('ctpBarStepSlider');
-  var sv  = document.getElementById('ctpBarStepVal');
-  var gc  = document.getElementById('ctpGradStart');
-  var gh  = document.getElementById('ctpGradStartHex');
-  var ec  = document.getElementById('ctpGradEnd');
-  var eh  = document.getElementById('ctpGradEndHex');
-  var ut  = document.getElementById('ctpGradUseTheme');
-  if(ts){ ts.value = b.totalH; }
-  if(tv){ tv.textContent = b.totalH + 'px'; }
-  if(ss){ ss.value = b.stepH; }
-  if(sv){ sv.textContent = b.stepH + 'px'; }
-  if(gc){ gc.value = b.gradStart || CTP_BAR_DEFAULTS.gradStart; }
-  if(gh){ gh.value = b.gradStart || CTP_BAR_DEFAULTS.gradStart; }
-  if(ec){ ec.value = b.gradEnd   || CTP_BAR_DEFAULTS.gradEnd; }
-  if(eh){ eh.value = b.gradEnd   || CTP_BAR_DEFAULTS.gradEnd; }
-  if(ut){ ut.checked = b.gradUseTheme !== false; }
-  updateCtpBarPreview();
-}
-
-function updateCtpBarPreview(){
-  var ts  = document.getElementById('ctpBarTotalSlider');
-  var ss  = document.getElementById('ctpBarStepSlider');
-  var gc  = document.getElementById('ctpGradStart');
-  var ec  = document.getElementById('ctpGradEnd');
-  var ut  = document.getElementById('ctpGradUseTheme');
-  var pt  = document.getElementById('ctpBarPreviewTotal');
-  var ps  = document.getElementById('ctpBarPreviewStep');
-  var totalH = ts ? parseInt(ts.value)||3 : 3;
-  var stepH  = ss ? parseInt(ss.value)||4 : 4;
-  var useTheme = ut ? ut.checked : true;
-  var start = gc ? gc.value : '#3B82F6';
-  var end_  = ec ? ec.value : '#e05a4a';
-  if(pt){ pt.style.height = totalH+'px'; var f=pt.firstElementChild; if(f) f.style.height=totalH+'px'; }
-  if(ps){
-    ps.style.height = stepH+'px';
-    ps.style.background = useTheme
-      ? 'linear-gradient(90deg,var(--step-bar-1,var(--accent)) 0%,var(--step-bar-2,var(--accent2)) 40%,var(--step-bar-3,#ff9060) 75%,var(--step-bar-4,var(--danger)) 100%)'
-      : 'linear-gradient(90deg,'+start+' 0%,'+end_+' 100%)';
-  }
-}
-
-/* CSS에 진행바 설정 적용 */
-function applyBarFromEntry(bar){
-  var b = bar || CTP_BAR_DEFAULTS;
-  applyBarTotalH(b.totalH);
-  applyBarStepH(b.stepH);
-  applyGradient(
-    b.gradUseTheme ? '' : b.gradStart,
-    b.gradUseTheme ? '' : b.gradEnd,
-    b.gradUseTheme !== false
-  );
-}
-
-/* 전역 노출: 테마 적용 시 사용 */
-window._ctpApplyBar = function(bar){ applyBarFromEntry(bar); };
-
-/* 이벤트 등록 */
-(function(){
-  // 접기/펼치기
-  var head = document.getElementById('ctpBarHead');
-  if(head) head.addEventListener('click', function(){
-    var body  = document.getElementById('ctpBarBody');
-    var arrow = document.getElementById('ctpBarArrow');
-    if(!body) return;
-    var open = body.style.display === 'none';
-    body.style.display = open ? 'block' : 'none';
-    arrow.textContent  = open ? '−' : '+';
-    if(open) updateCtpBarPreview();
-  });
-
-  // 두께 슬라이더
-  function wireSlider(sliderId, valId){
-    var sl = document.getElementById(sliderId);
-    var vl = document.getElementById(valId);
-    if(!sl) return;
-    sl.addEventListener('input', function(){
-      if(vl) vl.textContent = this.value + 'px';
-      updateCtpBarPreview();
-    });
-  }
-  wireSlider('ctpBarTotalSlider','ctpBarTotalVal');
-  wireSlider('ctpBarStepSlider','ctpBarStepVal');
-
-  // 그라디언트 색상 페어
-  function wireColorPair(picId, hexId){
-    var cp = document.getElementById(picId);
-    var hp = document.getElementById(hexId);
-    if(!cp||!hp) return;
-    cp.addEventListener('input', function(){ hp.value = this.value; updateCtpBarPreview(); });
-    hp.addEventListener('input', function(){
-      var v = this.value.trim();
-      if(!v.startsWith('#')) v='#'+v;
-      if(validHexBar(v)){ cp.value=v; updateCtpBarPreview(); }
-    });
-    hp.addEventListener('blur', function(){
-      var v=this.value.trim();
-      if(!v.startsWith('#')) v='#'+v;
-      if(!validHexBar(v)) this.value=cp.value;
-    });
-  }
-  wireColorPair('ctpGradStart','ctpGradStartHex');
-  wireColorPair('ctpGradEnd','ctpGradEndHex');
-
-  // 테마 자동 체크박스
-  var ut = document.getElementById('ctpGradUseTheme');
-  if(ut) ut.addEventListener('change', function(){ updateCtpBarPreview(); });
-})();
-
 /* ══════════════════════════════════════════
    커스텀 테마 폰트 색상 — 전역 상수·함수
    (loadIntoEditor / resetEditor 에서 사용)
@@ -7472,8 +7274,7 @@ function init(){
       name:name,
       bg:palette[0], surface:palette[1], accent:palette[2], accent2:palette[3],
       palette:palette.slice(),
-      fontColors: getEditorFontColors(),
-      bar: getEditorBar()
+      fontColors: getEditorFontColors()
     };
     if(editingId){
       var idx=arr.findIndex(function(u){return u.id===editingId;});
@@ -7481,7 +7282,6 @@ function init(){
       if(getActiveCustomId()===editingId && localStorage.getItem('theme')==='custom'){
         applyCustomVars(derived);
         window._ctpApplyFontColors(entry.fontColors);
-        window._ctpApplyBar(entry.bar);
       }
     } else {
       if(arr.length>=20){showStatus('최대 20개까지 저장 가능해요','var(--danger)');return;}
@@ -7502,7 +7302,6 @@ function init(){
     document.documentElement.setAttribute('data-theme','custom');
     applyCustomVars(deriveFromPalette(palette));
     window._ctpApplyFontColors(getEditorFontColors());
-    window._ctpApplyBar(getEditorBar());
     var lbl=document.getElementById('themeCurrentLabel');
     if(lbl) lbl.textContent='현재: 커스텀';
     renderThemeGrid();
