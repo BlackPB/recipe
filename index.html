@@ -1367,16 +1367,20 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
           <!-- 커스텀 테마 편집기 -->
           <div id="customThemePanel" style="margin-top:14px;padding:14px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border);">
 
-            <!-- 헤더 + 2색/4색 모드 토글 -->
+            <!-- 헤더 + 2색/3색/4색 모드 토글 -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
               <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;">커스텀 테마 만들기</span>
               <div style="display:flex;border:1px solid var(--border);border-radius:20px;overflow:hidden;background:var(--surface);">
                 <button id="mode2Btn" data-mode="2"
-                  style="padding:4px 12px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;transition:all .15s;border-radius:20px 0 0 20px;">
+                  style="padding:4px 10px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;transition:all .15s;border-radius:20px 0 0 20px;">
                   2색
                 </button>
+                <button id="mode3Btn" data-mode="3"
+                  style="padding:4px 10px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;transition:all .15s;border-radius:0;border-left:1px solid var(--border);border-right:1px solid var(--border);">
+                  3색
+                </button>
                 <button id="mode4Btn" data-mode="4"
-                  style="padding:4px 12px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;transition:all .15s;border-radius:0 20px 20px 0;">
+                  style="padding:4px 10px;border:none;cursor:pointer;font-family:'DM Mono',monospace;font-size:10px;transition:all .15s;border-radius:0 20px 20px 0;">
                   4색
                 </button>
               </div>
@@ -2048,12 +2052,17 @@ function _applyCustomFromStorage(){
       }
     }
     // 2순위: palette4_v1 직접 (바로 적용 or aid 없는 경우)
+    var foundMode = found ? (found.paletteMode||4) : 4;
     if(!p||p.length<4){
       var raw=JSON.parse(localStorage.getItem('palette4_v1')||'null');
-      if(raw&&raw.length===4) p=raw;
+      if(raw&&raw.length>=4){ p=raw; foundMode=parseInt(localStorage.getItem('palette4_mode')||'4'); }
     }
     if(!p||p.length<4) return;
-    // applyCustomVars/deriveFromPalette가 이미 로드됐으면 사용, 아니면 인라인 처리
+    // applyPaletteVars(mode 포함) 또는 폴백
+    if(typeof applyPaletteVars==='function'){
+      applyPaletteVars(p, foundMode);
+      return;
+    }
     if(typeof applyCustomVars==='function' && typeof deriveFromPalette==='function'){
       applyCustomVars(deriveFromPalette(p));
       return;
@@ -6598,6 +6607,63 @@ function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(
    4색 팔레트 → CSS 변수 파생
    [0]=bg  [1]=surface  [2]=accent  [3]=accent2
 ════════════════════════════════════════ */
+var ROLE_LABELS_3 = ['배경 60%','보조 30%','강조 10%'];
+
+/* 3색(60:30:10) → 4색 파생
+   p[0]=bg(60%), p[1]=secondary(30%), p[2]=accent(10%)
+   - bg계열: p[0] 그대로
+   - surface: p[0]와 p[1] 사이 (dominant 영역이지만 약간 변화)
+   - surface2: p[1] 기반 (secondary 30%)
+   - accent: p[2] 그대로
+   - accent2: p[2] 색조 ±30° 회전
+   - border: bg 계열 밝기 조절
+   - text/muted: bg 밝기 기반 자동 */
+function derive4From3(bg, secondary, accent){
+  var dark = !isLight(bg);
+  // surface = bg와 secondary 중간 → dominant 60% 영역에 자연스럽게 배치
+  var bgRgb  = hexToRgb(bg);
+  var secRgb = hexToRgb(secondary);
+  var blendR = Math.round(bgRgb[0]*.65 + secRgb[0]*.35);
+  var blendG = Math.round(bgRgb[1]*.65 + secRgb[1]*.35);
+  var blendB = Math.round(bgRgb[2]*.65 + secRgb[2]*.35);
+  var surface = rgbToHex(blendR, blendG, blendB);
+  // accent2: accent 색조에서 30° 이동
+  var hsl  = rgbToHsl(...hexToRgb(accent));
+  var acc2 = makeHsl((hsl[0]+30)%360, Math.min(100,hsl[1]+5), Math.min(90,hsl[2]+12));
+  return [bg, surface, accent, acc2, secondary]; // [0..3] 기존 4색, [4]=secondary for css
+}
+
+/* 3색 전용 CSS 적용 — secondary(30%)를 surface/surface2에 반영 */
+function applyCustomVars3(bg, secondary, accent){
+  var parts = derive4From3(bg, secondary, accent);
+  var p4 = [parts[0], parts[1], parts[2], parts[3]];
+  var t  = deriveFromPalette(p4);
+  // secondary를 surface2에 덮어씌워 30% 영역에 명확히 반영
+  t.surface2 = secondary;
+  // border도 secondary 기반으로
+  var dark = !isLight(bg);
+  t.border = dark
+    ? rgbToHex(...hexToRgb(secondary).map(function(c){return Math.min(255,c+20);}))
+    : rgbToHex(...hexToRgb(secondary).map(function(c){return Math.max(0,c-15);}));
+  var el = document.documentElement;
+  [['--bg',t.bg],['--surface',t.surface],['--surface2',t.surface2],
+   ['--border',t.border],['--border-hi',t.borderHi],['--text',t.text],['--muted',t.muted],
+   ['--accent',t.accent],['--accent2',t.accent2],['--danger',t.danger],['--success',t.success],
+   ['--header-bg',secondary],  // 헤더에 secondary(30%) 적용
+   ['--card-shadow','0 2px 16px '+hexAlpha(t.accent,.12)],
+   ['--step-bar-1',t.sb1],['--step-bar-2',t.sb2],['--step-bar-3',t.sb3],['--step-bar-4',t.sb4]
+  ].forEach(function(x){el.style.setProperty(x[0],x[1]);});
+}
+
+/* 팔레트 적용 헬퍼 — 모드(2/3/4) 자동 판별 */
+function applyPaletteVars(p, mode){
+  if(mode===3 && p[4]){
+    applyCustomVars3(p[0], p[4], p[2]);
+  } else {
+    applyCustomVars(deriveFromPalette(p));
+  }
+}
+
 function deriveFromPalette(p){
   var bg=p[0], surf=p[1], acc=p[2], acc2=p[3];
   var dark=!isLight(bg);
@@ -6629,22 +6695,26 @@ function applyCustomVars(t){
 ════════════════════════════════════════ */
 var palette = ['#1a1a2e','#16213e','#e94560','#f5a623'];
 var locked  = [false, false, false, false];
-var paletteMode = 4; // 2 or 4
+var paletteMode = 4; // 2, 3, or 4
 var ROLE_LABELS_4 = ['배경','서피스','포인트','강조'];
 var ROLE_LABELS_2 = ['배경','포인트'];
 var ROLE_LABELS   = ROLE_LABELS_4;
 var ROLE_ICONS  = ['■','▪','●','◆'];
 
 function savePaletteState(){
-  localStorage.setItem('palette4_v1', JSON.stringify(palette));
-  localStorage.setItem('palette4_locked', JSON.stringify(locked));
+  // palette[4](3색 모드 secondary)까지 포함 저장
+  localStorage.setItem('palette4_v1', JSON.stringify(palette.slice(0,5)));
+  localStorage.setItem('palette4_locked', JSON.stringify(locked.slice(0,5)));
   localStorage.setItem('palette4_mode', String(paletteMode));
 }
 function loadPaletteState(){
-  try{var p=JSON.parse(localStorage.getItem('palette4_v1'));if(p&&p.length===4)palette=p;}catch(e){}
-  try{var l=JSON.parse(localStorage.getItem('palette4_locked'));if(l&&l.length===4)locked=l;}catch(e){}
+  try{
+    var p=JSON.parse(localStorage.getItem('palette4_v1'));
+    if(p&&p.length>=4){ palette=p.length>=5?p.slice(0,5):[p[0],p[1],p[2],p[3],null]; }
+  }catch(e){}
+  try{var l=JSON.parse(localStorage.getItem('palette4_locked'));if(l&&l.length>=4)locked=l.slice(0,5);}catch(e){}
   var m=parseInt(localStorage.getItem('palette4_mode')||'4');
-  paletteMode=(m===2)?2:4;
+  paletteMode=(m===2)?2:(m===3)?3:4;
 }
 
 /* ════════════════════════════════════════
@@ -6741,16 +6811,35 @@ function renderPaletteSlots(){
   if(!container) return;
   container.innerHTML='';
 
-  // 2색 모드면 슬롯 0,2만 표시 (배경, 포인트)
-  var slotIndices = paletteMode===2 ? [0,2] : [0,1,2,3];
-  ROLE_LABELS = paletteMode===2 ? ROLE_LABELS_2 : ROLE_LABELS_4;
+  // 모드별 표시 슬롯 인덱스
+  // 2색: [0]=bg, [2]=accent
+  // 3색: [0]=bg(60%), [4]=secondary(30%), [2]=accent(10%)  ← 슬롯4를 secondary로 사용
+  // 4색: [0,1,2,3]
+  var slotIndices;
+  if(paletteMode===2)      slotIndices=[0,2];
+  else if(paletteMode===3) slotIndices=[0,4,2]; // 인덱스4 = palette[4] = secondary
+  else                     slotIndices=[0,1,2,3];
 
-  // 2색 모드: palette[1], palette[3]을 자동 파생으로 채움
   if(paletteMode===2){
+    ROLE_LABELS = ROLE_LABELS_2;
     var derived = derive4From2(palette[0], palette[2]);
-    palette[1] = derived[1];
-    palette[3] = derived[3];
+    palette[1] = derived[1]; palette[3] = derived[3];
+  } else if(paletteMode===3){
+    ROLE_LABELS = ROLE_LABELS_3;
+    // palette[4] 없으면 기본값 생성
+    if(!palette[4]){
+      var secRgb3=hexToRgb(palette[0]);
+      palette[4]=lighten(palette[0], !isLight(palette[0])?12:-10);
+    }
+    // palette[1] = surface blend, palette[3] = accent2 (파생)
+    var d3=derive4From3(palette[0], palette[4], palette[2]);
+    palette[1]=d3[1]; palette[3]=d3[3];
+  } else {
+    ROLE_LABELS = ROLE_LABELS_4;
   }
+
+  // locked 배열을 slotIndices 길이에 맞게 보장
+  while(locked.length < 5) locked.push(false);
 
   slotIndices.forEach(function(idx, slotPos){
     var color = palette[idx];
@@ -6856,7 +6945,7 @@ function renderPaletteSlots(){
 function updateShuffleBtn(){
   var btn=document.getElementById('paletteShuffleBtn');
   if(!btn) return;
-  var activeIdx = paletteMode===2 ? [0,2] : [0,1,2,3];
+  var activeIdx = paletteMode===2 ? [0,2] : paletteMode===3 ? [0,4,2] : [0,1,2,3];
   var unlocked=activeIdx.filter(function(i){return!locked[i];}).length;
   btn.style.opacity=unlocked<2?'0.38':'1';
   btn.title=unlocked<2?'섞을 수 있는 슬롯이 2개 이상 필요해요':'입력한 색상들 사이에서 셔플';
@@ -6866,7 +6955,19 @@ function updateShuffleBtn(){
    미리보기 업데이트
 ════════════════════════════════════════ */
 function refreshPreview(){
-  var t=deriveFromPalette(palette);
+  var t;
+  if(paletteMode===3 && palette[4]){
+    // 3색: bg/secondary/accent 기반으로 파생
+    var p4_3=[palette[0],palette[1],palette[2],palette[3]];
+    t=deriveFromPalette(p4_3);
+    t.surface2=palette[4];
+    var dark3=!isLight(palette[0]);
+    t.border=dark3
+      ? rgbToHex(...hexToRgb(palette[4]).map(function(c){return Math.min(255,c+20);}))
+      : rgbToHex(...hexToRgb(palette[4]).map(function(c){return Math.max(0,c-15);}));
+  } else {
+    t=deriveFromPalette(palette);
+  }
   var p=document.getElementById('customThemePreview'); if(!p) return;
   p.style.background=t.bg; p.style.borderColor=t.border;
   var h=document.getElementById('ctp-header'); if(h) h.style.background=t.surface;
@@ -6982,14 +7083,20 @@ function buildCustomBtn(t, active){
   btn.className='theme-btn theme-btn-wide'+(active?' active':'');
   btn.style.cssText='width:100%;padding-right:46px;';
 
-  // 4색 도트 또는 기존 2색 swatch
-  var colors = t.palette || [t.bg, t.surface||lighten(t.bg,8), t.accent, t.accent2||lighten(t.accent,15)];
+  // 모드별 스워치 색상: 3색이면 [0,4,2], 나머지는 [0..3]
+  var rawPalette = t.palette || [t.bg, t.surface||lighten(t.bg,8), t.accent, t.accent2||lighten(t.accent,15)];
+  var swatchColors;
+  if(t.paletteMode===3 && rawPalette[4]){
+    swatchColors=[rawPalette[0], rawPalette[4], rawPalette[2]];
+  } else {
+    swatchColors=rawPalette.slice(0,4).filter(Boolean);
+  }
   var swatchHtml='<span style="flex-shrink:0;display:flex;gap:2px;align-items:center;">'
-    +colors.map(function(c){return '<span style="width:10px;height:22px;border-radius:3px;background:'+c+';display:inline-block;"></span>';}).join('')
+    +swatchColors.map(function(c){return '<span style="width:10px;height:22px;border-radius:3px;background:'+c+';display:inline-block;"></span>';}).join('')
     +'</span>';
 
   btn.innerHTML=swatchHtml+'<span class="theme-btn-info"><span class="theme-btn-name">'+escHtml(t.name)+'</span>'
-    +'<span class="theme-btn-desc">'+colors[0]+' · '+colors[2]+'</span></span>';
+    +'<span class="theme-btn-desc">'+swatchColors[0]+' · '+swatchColors[swatchColors.length-1]+'</span></span>';
 
   // 적용 중 체크 배지
   if(active){
@@ -7004,7 +7111,7 @@ function buildCustomBtn(t, active){
     var p=t.palette||[t.bg,t.surface||lighten(t.bg,8),t.accent,t.accent2||lighten(t.accent,15)];
     localStorage.setItem('palette4_v1',JSON.stringify(p));
     document.documentElement.setAttribute('data-theme','custom');
-    applyCustomVars(deriveFromPalette(p));
+    applyPaletteVars(p, t.paletteMode||4);
     window._ctpApplyFontColors(t.fontColors);
     window._ctpApplyBar(t.bar);
     var lbl=document.getElementById('themeCurrentLabel');
@@ -7027,7 +7134,7 @@ function buildCustomBtn(t, active){
     var p=t.palette||[t.bg,t.surface||lighten(t.bg,8),t.accent,t.accent2||lighten(t.accent,15)];
     localStorage.setItem('palette4_v1',JSON.stringify(p));
     document.documentElement.setAttribute('data-theme','custom');
-    applyCustomVars(deriveFromPalette(p));
+    applyPaletteVars(p, t.paletteMode||4);
     window._ctpApplyFontColors(t.fontColors);
     window._ctpApplyBar(t.bar);
     var lbl=document.getElementById('themeCurrentLabel');
@@ -7087,8 +7194,11 @@ var editingId=null;
 function loadIntoEditor(t){
   editingId=t.id;
   var p=t.palette||[t.bg, t.surface||lighten(t.bg,8), t.accent, t.accent2||lighten(t.accent,15)];
-  palette=p.slice(); locked=[false,false,false,false];
+  while(p.length<5) p.push(null);
+  palette=p.slice(0,5); locked=[false,false,false,false,false];
+  paletteMode=t.paletteMode||4;
   savePaletteState();
+  if(typeof applyModeUI==='function') applyModeUI();
   renderPaletteSlots(); updateShuffleBtn(); refreshPreview();
   var ni=document.getElementById('customThemeName'); if(ni) ni.value=t.name;
   setEditorFontColors(t.fontColors||null);
@@ -7326,26 +7436,18 @@ function init(){
   /* 모드 토글 버튼 초기화 */
   function applyModeUI(){
     var b2=document.getElementById('mode2Btn');
+    var b3=document.getElementById('mode3Btn');
     var b4=document.getElementById('mode4Btn');
-    if(!b2||!b4) return;
-    var activeStyle='background:var(--accent);color:'+(isLight?'#fff':'#fff')+';color:#fff;font-weight:600;';
-    var inactiveStyle='background:transparent;color:var(--muted);font-weight:400;';
-    b2.style.cssText=b2.style.cssText.replace(/background:[^;]+;color:[^;]+;font-weight:[^;]+;/,'');
-    b4.style.cssText=b4.style.cssText.replace(/background:[^;]+;color:[^;]+;font-weight:[^;]+;/,'');
-    if(paletteMode===2){
-      b2.style.background='var(--accent)'; b2.style.color='#fff'; b2.style.fontWeight='600';
-      b4.style.background='transparent'; b4.style.color='var(--muted)'; b4.style.fontWeight='400';
-    } else {
-      b4.style.background='var(--accent)'; b4.style.color='#fff'; b4.style.fontWeight='600';
-      b2.style.background='transparent'; b2.style.color='var(--muted)'; b2.style.fontWeight='400';
-    }
+    [b2,b3,b4].forEach(function(b){ if(b){ b.style.background='transparent'; b.style.color='var(--muted)'; b.style.fontWeight='400'; }});
+    var active = paletteMode===2?b2:paletteMode===3?b3:b4;
+    if(active){ active.style.background='var(--accent)'; active.style.color='#fff'; active.style.fontWeight='600'; }
   }
-  ['mode2Btn','mode4Btn'].forEach(function(id){
+  ['mode2Btn','mode3Btn','mode4Btn'].forEach(function(id){
     var btn=document.getElementById(id);
     if(!btn) return;
     btn.addEventListener('click',function(){
       paletteMode=parseInt(this.dataset.mode);
-      locked=[false,false,false,false];
+      locked=[false,false,false,false,false];
       savePaletteState();
       applyModeUI();
       renderPaletteSlots();
@@ -7366,13 +7468,13 @@ function init(){
     if(found){
       var p=found.palette||[found.bg,found.surface||lighten(found.bg,8),found.accent,found.accent2||lighten(found.accent,15)];
       document.documentElement.setAttribute('data-theme','custom');
-      applyCustomVars(deriveFromPalette(p));
+      applyPaletteVars(p, found.paletteMode||4);
     }
   }
 
   /* 팔레트 셔플 버튼 — 입력한 색상 풀 안에서 잠금 해제 슬롯 재배치 */
   document.getElementById('paletteShuffleBtn').addEventListener('click',function(){
-    var activeIdx = paletteMode===2 ? [0,2] : [0,1,2,3];
+    var activeIdx = paletteMode===2 ? [0,2] : paletteMode===3 ? [0,4,2] : [0,1,2,3];
     var unlocked = activeIdx.filter(function(i){return!locked[i];}).length;
     if(unlocked < 2){showStatus('섞을 슬롯이 2개 이상 필요해요','var(--muted)');return;}
     var icon=document.getElementById('shuffleIcon');
@@ -7477,7 +7579,8 @@ function init(){
       id: editingId||('usr_'+Date.now()),
       name:name,
       bg:palette[0], surface:palette[1], accent:palette[2], accent2:palette[3],
-      palette:palette.slice(),
+      palette:palette.slice(0,5),
+      paletteMode:paletteMode,
       fontColors: getEditorFontColors(),
       bar: getEditorBar()
     };
@@ -7485,7 +7588,7 @@ function init(){
       var idx=arr.findIndex(function(u){return u.id===editingId;});
       if(idx>=0) arr[idx]=entry; else arr.push(entry);
       if(getActiveCustomId()===editingId && localStorage.getItem('theme')==='custom'){
-        applyCustomVars(derived);
+        applyPaletteVars(palette, paletteMode);
         window._ctpApplyFontColors(entry.fontColors);
         window._ctpApplyBar(entry.bar);
       }
@@ -7506,7 +7609,7 @@ function init(){
     localStorage.setItem('theme','custom');
     localStorage.setItem('palette4_v1',JSON.stringify(palette));
     document.documentElement.setAttribute('data-theme','custom');
-    applyCustomVars(deriveFromPalette(palette));
+    applyPaletteVars(palette, paletteMode);
     window._ctpApplyFontColors(getEditorFontColors());
     window._ctpApplyBar(getEditorBar());
     var lbl=document.getElementById('themeCurrentLabel');
