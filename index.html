@@ -1143,6 +1143,16 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
           <!-- 원형 링 모드 -->
           <div class="ring-wrap" id="ringWrap">
             <svg class="ring-svg" id="ringSvg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="ringGradTotal" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop id="rgts0" offset="0%" stop-color="var(--accent)"/>
+                  <stop id="rgts1" offset="100%" stop-color="var(--muted)"/>
+                </linearGradient>
+                <linearGradient id="ringGradStep" x1="0%" y1="0%" x2="100%" y2="0%">
+                  <stop id="rgss0" offset="0%" stop-color="var(--accent)"/>
+                  <stop id="rgss1" offset="100%" stop-color="var(--danger)"/>
+                </linearGradient>
+              </defs>
               <circle class="ring-bg ring-outer-bg" id="ringOuterBg" cx="100" cy="100" r="90"/>
               <circle class="ring-total" id="ringTotal" cx="100" cy="100" r="90"/>
               <circle class="ring-bg ring-inner-bg" id="ringInnerBg" cx="100" cy="100" r="76"/>
@@ -2725,19 +2735,37 @@ function applyBarStepH(v){
 function applyGradient(start,end,useTheme){
   gradStart=start||""; gradEnd=end||""; gradUseTheme=!!useTheme;
   var grad;
+  // 링에 쓸 실제 색상값 계산 (CSS var는 SVG stop-color에 직접 못 쓰므로 resolved color 사용)
+  var c0,c1,c2,c3;
   if(gradUseTheme||!gradStart||!gradEnd){
     grad="linear-gradient(90deg,var(--step-bar-1,var(--accent)) 0%,var(--step-bar-2,var(--accent2)) 40%,var(--step-bar-3,#ff9060) 75%,var(--step-bar-4,var(--danger)) 100%)";
+    // 테마 색상은 CSS 변수에서 resolved
+    var cs=getComputedStyle(document.documentElement);
+    c0=cs.getPropertyValue("--step-bar-1").trim()||cs.getPropertyValue("--accent").trim()||"#3b82f6";
+    c1=cs.getPropertyValue("--step-bar-4").trim()||cs.getPropertyValue("--danger").trim()||"#ef4444";
+    c2=cs.getPropertyValue("--accent").trim()||"#3b82f6";
+    c3=cs.getPropertyValue("--step-bar-3").trim()||cs.getPropertyValue("--danger").trim()||"#ff9060";
   } else {
     grad="linear-gradient(90deg,"+gradStart+" 0%,"+gradEnd+" 100%)";
+    c0=gradStart; c1=gradEnd; c2=gradStart; c3=gradEnd;
   }
   document.documentElement.style.setProperty("--step-grad",grad);
-  // step-track들에 직접 적용 (CSS var fallback 위해)
-  document.querySelectorAll(".step-track").forEach(function(el){
-    el.style.background=grad;
-  });
-  // 미리보기 track에도 적용
+  // 막대: step-track에 직접 적용
+  document.querySelectorAll(".step-track").forEach(function(el){ el.style.background=grad; });
   var prevTrack=document.getElementById("barPreviewStep");
   if(prevTrack) prevTrack.style.background=grad;
+  // 링: SVG linearGradient stop-color 업데이트
+  function setSvgStop(id,color){
+    var el=document.getElementById(id);
+    if(el&&color) el.setAttribute("stop-color",color);
+  }
+  setSvgStop("rgts0",c2||c0); setSvgStop("rgts1",c3||c1);  // 전체진행 링 (outer)
+  setSvgStop("rgss0",c0);     setSvgStop("rgss1",c1);       // 단계진행 링 (inner)
+  // 링 circle에 gradient stroke 적용
+  var rt=document.getElementById("ringTotal");
+  var rs=document.getElementById("ringStep");
+  if(rt) rt.style.stroke="url(#ringGradTotal)";
+  if(rs&&!rs.classList.contains("urgent")) rs.style.stroke="url(#ringGradStep)";
 }
 function applyScrollSens(v){
   scrollSens=parseFloat(v);
@@ -2935,6 +2963,10 @@ document.getElementById("barThickHead").addEventListener("click",function(){
       // 패널이 열려있으면 UI도 갱신
       var body = document.getElementById('themeFontBody');
       if(body && body.style.display !== 'none') renderFontPanel();
+      // 테마 색상 변경 후 링 그라디언트 재적용 (CSS var resolved 후)
+      setTimeout(function(){
+        if(typeof applyGradient==='function') applyGradient(gradStart,gradEnd,gradUseTheme);
+      }, 50);
     };
     window.applyTheme._tfHooked = true;
   }
@@ -6085,10 +6117,13 @@ function updateUI(){
     var stepRatio=Math.max(0,Math.min(1,remaining/Math.max(s.sec||1,1)));
     ringStep.style.strokeDasharray=stepCirc.toFixed(1);
     ringStep.style.strokeDashoffset=(stepCirc*stepRatio).toFixed(1);
-    ringStep.classList.toggle("urgent",remaining<=5&&remaining>0);
+    var isUrgent=remaining<=5&&remaining>0;
+    ringStep.classList.toggle("urgent",isUrgent);
+    if(!isUrgent) ringStep.style.stroke="url(#ringGradStep)";
     var totalPct=totalElapsed/Math.max(total,1);
     ringTotal.style.strokeDasharray=totalCirc.toFixed(1);
     ringTotal.style.strokeDashoffset=(totalCirc*(1-totalPct)).toFixed(1);
+    ringTotal.style.stroke="url(#ringGradTotal)";
   }
   var elL=document.getElementById("totalElapsedDispL");
   var ttL=document.getElementById("totalTimeDispL");
@@ -6254,6 +6289,9 @@ function startStepRun(stepIdx){
   // bar 모드 타이머도 초기화
   var _tdb0=document.getElementById("timeDisplayBar");
   if(_tdb0){_tdb0.textContent=fmt(s.sec||0);_tdb0.classList.remove("urgent");}
+  // 링 stroke 복원 (urgent 해제)
+  var _rs0=document.getElementById("ringStep");
+  if(_rs0){_rs0.classList.remove("urgent");_rs0.style.stroke="url(#ringGradStep)";}
   requestAnimationFrame(function(){
     titleEl.classList.remove("highlight");
     void titleEl.offsetWidth;
@@ -6718,9 +6756,11 @@ if(localStorage.getItem('theme')==='custom'){
     applyBarStepH(barStepH);
     applyRingSize(ringSize);
     applyRingStroke(ringStroke);
-    applyRingSize(ringSize);
-    applyRingStroke(ringStroke);
+    applyRingFont(ringFont);
+    applyBarFont(barFont);
+    applyProgressMode(progressMode);
     applyGradient(gradStart,gradEnd,gradUseTheme);
+    setTimeout(initTouchSliders,100);
   })();
 
   // Pull-to-refresh (모든 브라우저 환경)
