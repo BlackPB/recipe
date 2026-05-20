@@ -407,7 +407,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
   .timer-info-bar{margin-bottom:3px;flex-shrink:0;}
   .progress-wrap{margin-bottom:3px;flex-shrink:0;}
   .main-card{padding:8px 12px 6px;margin-bottom:3px;flex-shrink:1;overflow:hidden;}
-  .time-display{font-size:clamp(24px, min(calc(8dvh * var(--start-btn-size, 1)), calc(11dvw * var(--start-btn-size, 1))), 80px) !important;margin-bottom:4px;overflow:hidden;white-space:nowrap;}
+  .ring-wrap{width:min(calc(var(--ring-size,200)*0.6px),22vh);height:min(calc(var(--ring-size,200)*0.6px),22vh);margin-bottom:4px;}
+  .time-display{font-size:clamp(18px, min(calc(7dvh * var(--start-btn-size, 1)), calc(9dvw * var(--start-btn-size, 1))), 64px) !important;}
   .step-title-timer{font-size:clamp(12px,2dvh,20px) !important;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
   .next-card{padding:5px 12px;margin-bottom:3px;flex-shrink:0;}
   .step-list-mini{flex:1;max-height:none;overflow-y:auto;}
@@ -533,8 +534,35 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
 .step-fill{position:absolute;top:0;right:0;height:100%;background:var(--border);border-radius:0 4px 4px 0;transition:width 1s linear;}
 .main-card{flex-shrink:1;min-height:0;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 16px 14px;text-align:center;margin-bottom:10px;box-shadow:var(--card-shadow,none);}
 .step-tag{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;margin-bottom:6px;}
-.step-title-timer{font-weight:300;margin-bottom:12px;transition:color .3s;white-space:nowrap;overflow:hidden;width:100%;display:block;font-size:clamp(13px, calc(2.2dvh * var(--start-btn-size, 1)), 36px);}
-.time-display{font-family:var(--font-mono,'DM Mono',monospace);font-weight:300;letter-spacing:-.02em;line-height:1;margin-bottom:12px;color:var(--text);transition:color .3s;font-size:clamp(36px, calc(10dvh * var(--start-btn-size, 1)), 120px);}
+.step-title-timer{font-weight:300;margin-bottom:10px;transition:color .3s;white-space:nowrap;overflow:hidden;width:100%;display:block;font-size:clamp(13px, calc(2.2dvh * var(--start-btn-size, 1)), 36px);}
+/* ── 원형 링 진행바 ── */
+:root{--ring-size:200;--ring-stroke:7;}
+.ring-wrap{
+  position:relative;display:inline-flex;align-items:center;justify-content:center;
+  width:min(calc(var(--ring-size,200) * 1px), 80vw, 60dvh);
+  height:min(calc(var(--ring-size,200) * 1px), 80vw, 60dvh);
+  margin-bottom:10px;flex-shrink:0;
+}
+.ring-svg{position:absolute;top:0;left:0;width:100%;height:100%;transform:rotate(-90deg);}
+.ring-bg{fill:none;stroke:var(--border);stroke-width:var(--ring-stroke,7);}
+.ring-total{
+  fill:none;stroke:var(--muted);stroke-width:var(--ring-stroke,7);
+  stroke-linecap:round;
+  stroke-dasharray:565.5;stroke-dashoffset:565.5;
+  transition:stroke-dashoffset 1s linear,stroke .3s;
+}
+.ring-step{
+  fill:none;stroke:var(--accent);
+  stroke-width:calc(var(--ring-stroke,7) * 1.3);
+  stroke-linecap:round;
+  stroke-dasharray:477.5;stroke-dashoffset:0;
+  transition:stroke-dashoffset 1s linear,stroke .3s;
+}
+.ring-step.urgent{stroke:var(--danger);}
+.ring-center{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;pointer-events:none;}
+.ring-sub{font-family:var(--font-mono,'DM Mono',monospace);font-size:10px;color:var(--muted);display:flex;align-items:center;gap:4px;}
+.ring-sub-sep{opacity:.4;}
+.time-display{font-family:var(--font-mono,'DM Mono',monospace);font-weight:300;letter-spacing:-.02em;line-height:1;margin-bottom:0;color:var(--text);transition:color .3s;font-size:clamp(22px, calc(6dvh * var(--start-btn-size, 1)), 72px);}
 /* 단계 1: 큰 화면 (900px+) — 기본 */
 /* 단계 2: 중간 화면 (700~900px) */
 @media(max-height:900px) and (orientation:portrait){
@@ -1078,7 +1106,8 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <!-- 왼쪽: 타이머 콘텐츠 -->
       <div class="timer-content-area">
         <div class="timer-info-bar" id="timerInfoBar"></div>
-        <div class="progress-wrap">
+        <!-- 막대 진행바 (숨김 — 원형 링으로 대체, JS 참조용으로만 유지) -->
+        <div class="progress-wrap" style="display:none;">
           <div class="progress-labels">
             <span class="progress-lbl">전체 진행</span>
             <span class="progress-val" id="totalTimeVal">0 / 0초</span>
@@ -1095,10 +1124,28 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
         <div id="mainCard" class="main-card">
           <div class="step-tag" id="stepTag">STEP 1</div>
           <div class="step-title-timer" id="stepTitle">-</div>
-          <div class="time-display" id="timeDisplay">00:00</div>
+          <!-- 원형 링 진행바: 링이 시간 텍스트를 둘러싼 구조 -->
+          <div class="ring-wrap" id="ringWrap">
+            <svg class="ring-svg" id="ringSvg" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+              <!-- 바깥 링 (전체 진행) -->
+              <circle class="ring-bg ring-outer-bg" id="ringOuterBg" cx="100" cy="100" r="90"/>
+              <circle class="ring-total" id="ringTotal" cx="100" cy="100" r="90"/>
+              <!-- 안쪽 링 (현재 단계) -->
+              <circle class="ring-bg ring-inner-bg" id="ringInnerBg" cx="100" cy="100" r="76"/>
+              <circle class="ring-step" id="ringStep" cx="100" cy="100" r="76"/>
+            </svg>
+            <div class="ring-center">
+              <div class="time-display" id="timeDisplay">00:00</div>
+              <div class="ring-sub">
+                <span id="totalElapsedDisp">0s</span>
+                <span class="ring-sub-sep">/</span>
+                <span id="totalTimeDisp">-</span>
+              </div>
+            </div>
+          </div>
           <div class="card-meta">
-            <div class="meta-item"><div class="meta-lbl">총 경과</div><div class="meta-val hi" id="totalElapsedDisp">0s</div></div>
-            <div class="meta-item"><div class="meta-lbl">총 추출</div><div class="meta-val" id="totalTimeDisp">-</div></div>
+            <div class="meta-item"><div class="meta-lbl">총 경과</div><div class="meta-val hi" id="totalElapsedDisp2">0s</div></div>
+            <div class="meta-item"><div class="meta-lbl">총 추출</div><div class="meta-val" id="totalTimeDisp2">-</div></div>
           </div>
         </div>
         <div class="voice-loading" id="voiceLoading"><div class="dots"><span></span><span></span><span></span></div><span>음성 생성 중</span></div>
@@ -1571,28 +1618,39 @@ input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;bac
       <!-- 진행바 설정 -->
       <div class="setting-row">
         <div class="collapsible-head" id="barThickHead">
-          <div><div class="setting-label">진행 바 설정</div><div class="setting-sub">두께 · 그라디언트 색상 조절</div></div>
+          <div><div class="setting-label">진행 링 설정</div><div class="setting-sub">크기 · 두께 · 그라디언트 색상 조절</div></div>
           <span class="collapse-arrow" id="barThickArrow">+</span>
         </div>
         <div id="barThickBody" style="display:none;margin-top:10px;">
 
-          <!-- 두께 -->
-          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">두께</div>
+          <!-- 원형 링 크기/두께 -->
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">원형 링</div>
           <div style="margin-bottom:12px;">
-            <div class="slider-header"><span class="slider-name">전체 진행 바</span><span class="slider-val" id="barTotalHVal">3px</span></div>
-            <input type="range" id="barTotalHSlider" min="1" max="16" step="1" value="3">
+            <div class="slider-header"><span class="slider-name">링 크기</span><span class="slider-val" id="ringSizeVal">200px</span></div>
+            <input type="range" id="ringSizeSlider" min="80" max="400" step="4" value="200">
+            <div style="display:flex;justify-content:space-between;margin-top:3px;">
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">작게</span>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">크게</span>
+            </div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div class="slider-header"><span class="slider-name">링 두께</span><span class="slider-val" id="ringStrokeVal">7px</span></div>
+            <input type="range" id="ringStrokeSlider" min="1" max="40" step="1" value="7">
             <div style="display:flex;justify-content:space-between;margin-top:3px;">
               <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">얇게</span>
               <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">굵게</span>
             </div>
           </div>
-          <div style="margin-bottom:16px;">
+
+          <!-- 막대 두께 (숨김 처리된 막대 호환용) -->
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">막대 진행 바 (미사용)</div>
+          <div style="margin-bottom:12px;opacity:0.4;pointer-events:none;">
+            <div class="slider-header"><span class="slider-name">전체 진행 바</span><span class="slider-val" id="barTotalHVal">3px</span></div>
+            <input type="range" id="barTotalHSlider" min="1" max="16" step="1" value="3">
+          </div>
+          <div style="margin-bottom:16px;opacity:0.4;pointer-events:none;">
             <div class="slider-header"><span class="slider-name">단계 진행 바</span><span class="slider-val" id="barStepHVal">4px</span></div>
             <input type="range" id="barStepHSlider" min="1" max="20" step="1" value="4">
-            <div style="display:flex;justify-content:space-between;margin-top:3px;">
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">얇게</span>
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">굵게</span>
-            </div>
           </div>
 
           <!-- 그라디언트 색상 -->
@@ -2139,6 +2197,8 @@ var pauseBtnSizeLandscape = parseFloat(localStorage.getItem("pause_btn_size_land
 var scrollSens   = parseFloat(localStorage.getItem("scroll_sens")||"0.3");
 var barTotalH    = parseInt(localStorage.getItem("bar_total_h")||"3");
 var barStepH     = parseInt(localStorage.getItem("bar_step_h")||"4");
+var ringSize     = parseInt(localStorage.getItem("ring_size")||"200");
+var ringStroke   = parseInt(localStorage.getItem("ring_stroke")||"7");
 var gradStart    = localStorage.getItem("grad_start")||"";  // 빈 문자열 = 테마 자동
 var gradEnd      = localStorage.getItem("grad_end")||"";
 var gradUseTheme = localStorage.getItem("grad_use_theme")!=="false";
@@ -2458,6 +2518,36 @@ document.getElementById("pauseFlexHead").addEventListener("click",function(){
   arrow.textContent=open?"-":"+";
 });
 
+function applyRingSize(v){
+  ringSize=parseInt(v)||200;
+  document.documentElement.style.setProperty("--ring-size", ringSize);
+  localStorage.setItem("ring_size", ringSize);
+  var sl=document.getElementById("ringSizeSlider");
+  var vl=document.getElementById("ringSizeVal");
+  if(sl)sl.value=ringSize;
+  if(vl)vl.textContent=ringSize+"px";
+  // SVG circle r 동적 업데이트: outer=크기의 45%, inner=outer-14
+  var rOuter=Math.round(ringSize*0.45);
+  var rInner=Math.max(10, rOuter-14);
+  var svgEl=document.getElementById("ringSvg");
+  if(svgEl){
+    var vc=ringSize; svgEl.setAttribute("viewBox","0 0 "+vc+" "+vc);
+    var cx=vc/2, cy=vc/2;
+    var setBg=function(id,r){var el=document.getElementById(id);if(el){el.setAttribute("cx",cx);el.setAttribute("cy",cy);el.setAttribute("r",r);}};
+    var setRing=function(id,r){var el=document.getElementById(id);if(el){el.setAttribute("cx",cx);el.setAttribute("cy",cy);el.setAttribute("r",r);}};
+    setBg("ringOuterBg",rOuter); setRing("ringTotal",rOuter);
+    setBg("ringInnerBg",rInner); setRing("ringStep",rInner);
+  }
+}
+function applyRingStroke(v){
+  ringStroke=parseInt(v)||7;
+  document.documentElement.style.setProperty("--ring-stroke", ringStroke);
+  localStorage.setItem("ring_stroke", ringStroke);
+  var sl=document.getElementById("ringStrokeSlider");
+  var vl=document.getElementById("ringStrokeVal");
+  if(sl)sl.value=ringStroke;
+  if(vl)vl.textContent=ringStroke+"px";
+}
 function applyBarTotalH(v){
   barTotalH=parseInt(v)||3;
   document.documentElement.style.setProperty("--bar-total-h", barTotalH+"px");
@@ -2505,6 +2595,14 @@ document.getElementById("barTotalHSlider").addEventListener("input",function(){
 });
 document.getElementById("barStepHSlider").addEventListener("input",function(){
   applyBarStepH(parseInt(this.value));
+  markPending();
+});
+document.getElementById("ringSizeSlider").addEventListener("input",function(){
+  applyRingSize(parseInt(this.value));
+  markPending();
+});
+document.getElementById("ringStrokeSlider").addEventListener("input",function(){
+  applyRingStroke(parseInt(this.value));
   markPending();
 });
 // 그라디언트 색상 이벤트
@@ -2565,6 +2663,10 @@ document.getElementById("barThickHead").addEventListener("click",function(){
   if(open){
     applyBarTotalH(barTotalH);
     applyBarStepH(barStepH);
+    applyRingSize(ringSize);
+    applyRingStroke(ringStroke);
+    applyRingSize(ringSize);
+    applyRingStroke(ringStroke);
     // 그라디언트 입력 초기화
     var sc=document.getElementById("gradStartColor");
     var se=document.getElementById("gradStartHex");
@@ -2826,7 +2928,9 @@ function applyRecipeDropdown(visible){
 // 화면 회전 시 드롭다운/목록 재적용
 window.addEventListener("orientationchange",function(){setTimeout(function(){applyRecipeDropdown(recipeDropdownVisible);
   applyBarTotalH(barTotalH);
-  applyBarStepH(barStepH);},200);});
+  applyBarStepH(barStepH);
+  applyRingSize(ringSize);
+  applyRingStroke(ringStroke);},200);});
 window.addEventListener("resize",function(){applyRecipeDropdown(recipeDropdownVisible);});
 function applyLandscapeReverse(v){
   landscapeReverse=v;
@@ -5489,6 +5593,8 @@ async function applySettings(){
   localStorage.setItem("scroll_sens",scrollSens);
   localStorage.setItem("bar_total_h",barTotalH);
   localStorage.setItem("bar_step_h",barStepH);
+  localStorage.setItem("ring_size",ringSize);
+  localStorage.setItem("ring_stroke",ringStroke);
   localStorage.setItem("grad_start",gradStart);
   localStorage.setItem("grad_end",gradEnd);
   localStorage.setItem("grad_use_theme",gradUseTheme);
@@ -5785,12 +5891,27 @@ function updateUI(){
   var stepEl=(s.sec||0)-remaining;
   var stepPct=(stepEl/Math.max(s.sec||1,1))*100;
   var sfill=document.getElementById("stepFill");
-  // 오버레이(우측 가림막)가 줄어들수록 그라디언트가 왼쪽부터 드러남
   sfill.style.width=(100-stepPct)+"%";
   document.getElementById("totalFill").style.width=((totalElapsed/Math.max(total,1))*100)+"%";
   document.getElementById("totalTimeVal").textContent=totalElapsed+" / "+total+"초";
   document.getElementById("totalElapsedDisp").textContent=fmtSec(totalElapsed);
   document.getElementById("totalTimeDisp").textContent=fmtSec(total);
+  // ── 원형 링 업데이트 ──
+  var ringStep=document.getElementById("ringStep");
+  var ringTotal=document.getElementById("ringTotal");
+  if(ringStep&&ringTotal){
+    var rInner=parseFloat(ringStep.getAttribute("r")||"76");
+    var rOuter=parseFloat(ringTotal.getAttribute("r")||"90");
+    var stepCirc=2*Math.PI*rInner;
+    var totalCirc=2*Math.PI*rOuter;
+    var stepRatio=Math.max(0,Math.min(1,remaining/Math.max(s.sec||1,1)));
+    ringStep.style.strokeDasharray=stepCirc.toFixed(1);
+    ringStep.style.strokeDashoffset=(stepCirc*stepRatio).toFixed(1);
+    ringStep.classList.toggle("urgent",remaining<=5&&remaining>0);
+    var totalPct=totalElapsed/Math.max(total,1);
+    ringTotal.style.strokeDasharray=totalCirc.toFixed(1);
+    ringTotal.style.strokeDashoffset=(totalCirc*(1-totalPct)).toFixed(1);
+  }
   var elL=document.getElementById("totalElapsedDispL");
   var ttL=document.getElementById("totalTimeDispL");
   if(elL)elL.textContent=fmtSec(totalElapsed);
@@ -6413,6 +6534,10 @@ if(localStorage.getItem('theme')==='custom'){
     if(ss){ss.value=barStepH;if(sv)sv.textContent=barStepH+"px";}
     applyBarTotalH(barTotalH);
     applyBarStepH(barStepH);
+    applyRingSize(ringSize);
+    applyRingStroke(ringStroke);
+    applyRingSize(ringSize);
+    applyRingStroke(ringStroke);
     applyGradient(gradStart,gradEnd,gradUseTheme);
   })();
 
@@ -7062,7 +7187,7 @@ function buildBuiltinBtn(t, active){
     setActiveCustomId('');applyTheme(t.id);
     ['--text','--muted','--danger'].forEach(function(v){document.documentElement.style.removeProperty(v);});
     // 빌트인 테마 전환 시 진행바도 전역 설정으로 복귀
-    applyBarTotalH(barTotalH); applyBarStepH(barStepH); applyGradient(gradStart,gradEnd,gradUseTheme);
+    applyBarTotalH(barTotalH); applyBarStepH(barStepH); applyRingSize(ringSize); applyRingStroke(ringStroke); applyGradient(gradStart,gradEnd,gradUseTheme);
     markPending&&markPending();
   });
   var x=document.createElement('button');
