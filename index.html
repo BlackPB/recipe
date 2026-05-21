@@ -625,6 +625,8 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
   padding-top:0 !important;
   padding-bottom:0 !important;
   min-height:36px;
+  font-size:clamp(13px, calc(2.2dvh * var(--timer-btn-size,1)), 48px) !important;
+  border-radius:clamp(10px, calc(1.8dvh * var(--timer-btn-size,1)), 28px) !important;
 }
 /* pauseBtn flex 비율 유지 */
 #timerBtnRow #pauseBtn{flex:var(--pause-flex,2);}
@@ -681,12 +683,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
 }
 /* 타이머 버튼들도 비례 확대 */
 #timerPanel .btn-primary{
-  padding:clamp(10px, calc(2.5dvh * var(--start-btn-size)), 60px) 11px;
-  font-size:clamp(13px, calc(1.8dvh * var(--start-btn-size)), 36px);
+  padding:clamp(10px, calc(2.5dvh * var(--timer-btn-size,1)), 60px) 11px;
+  font-size:clamp(13px, calc(1.8dvh * var(--timer-btn-size,1)), 36px);
 }
 #timerPanel .btn-secondary{
-  padding:clamp(10px, calc(2.5dvh * var(--start-btn-size)), 60px) clamp(12px, calc(2dvh * var(--start-btn-size)), 36px);
-  font-size:clamp(12px, calc(1.6dvh * var(--start-btn-size)), 32px);
+  padding:clamp(10px, calc(2.5dvh * var(--timer-btn-size,1)), 60px) clamp(12px, calc(2dvh * var(--timer-btn-size,1)), 36px);
+  font-size:clamp(12px, calc(1.6dvh * var(--timer-btn-size,1)), 32px);
 }
 @media(min-width:700px){
   #startBtn{padding:clamp(12px, calc(2vh * var(--start-btn-size)), 40px) 11px;font-size:clamp(14px, calc(1.5vh * var(--start-btn-size)), 24px);border-radius:var(--radius);}
@@ -966,9 +968,10 @@ input[type=number]:hover::-webkit-inner-spin-button,
 input[type=number]:hover::-webkit-outer-spin-button{
   background:var(--border-hi);
 }
-input[type=range]{width:100%;-webkit-appearance:none;height:3px;background:var(--border);border-radius:3px;outline:none;cursor:pointer;touch-action:none;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 0 4px rgba(0,0,0,.08);}
-input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--accent);border:none;box-shadow:0 0 0 4px rgba(0,0,0,.08);}
+input[type=range]{width:100%;-webkit-appearance:none;height:4px;background:var(--border);border-radius:4px;outline:none;cursor:pointer;touch-action:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.2);}
+input[type=range]::-webkit-slider-thumb:active{transform:scale(1.15);}
+input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:var(--accent);border:none;box-shadow:0 2px 8px rgba(0,0,0,.2);}
 /* 커스텀 터치 슬라이더 */
 .touch-slider-wrap{position:relative;height:36px;display:flex;align-items:center;user-select:none;touch-action:none;cursor:pointer;}
 .touch-slider-track{position:relative;width:100%;height:4px;background:var(--border);border-radius:4px;overflow:visible;}
@@ -1853,77 +1856,60 @@ input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;bac
       <!-- 버튼 크기 설정 -->
       <div class="setting-row">
         <div class="collapsible-head" id="btnSizeHead">
-          <div><div class="setting-label">버튼 크기 설정</div><div class="setting-sub">세로·가로·타이머 모드별 조절</div></div>
+          <div><div class="setting-label">버튼 크기 설정</div><div class="setting-sub">시작버튼 · 진행화면 버튼 크기 조절</div></div>
           <span class="collapse-arrow" id="btnSizeArrow">+</span>
         </div>
         <div id="btnSizeBody" style="display:none;margin-top:10px;">
-          <!-- 세로 모드 시작버튼 -->
-          <div style="margin-bottom:12px;">
-            <div class="slider-header"><span class="slider-name">세로 모드 시작버튼</span><span class="slider-val" id="startBtnSizeVal">1.0</span></div>
+          <!-- 시작화면 버튼 -->
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">시작화면</div>
+          <div style="margin-bottom:16px;">
+            <div class="slider-header"><span class="slider-name">시작 버튼 크기</span><span class="slider-val" id="startBtnSizeVal">1.0</span></div>
             <input type="range" id="startBtnSizeSlider" min="0.5" max="3.0" step="0.1" value="1.0">
             <div style="display:flex;justify-content:space-between;margin-top:3px;">
               <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">작게</span>
               <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">크게</span>
             </div>
           </div>
-          <!-- 가로 모드 시작버튼 -->
-          <div style="margin-bottom:12px;">
-            <div class="slider-header"><span class="slider-name">가로 모드 시작버튼 글씨</span><span class="slider-val" id="startBtnLandscapeVal">1.0</span></div>
-            <input type="range" id="startBtnLandscapeSlider" min="0.5" max="3.0" step="0.1" value="1.0">
-            <div style="display:flex;justify-content:space-between;margin-top:3px;">
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">작게</span>
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">크게</span>
-            </div>
-          </div>
-          <!-- 타이머 버튼 -->
+          <!-- 진행화면 버튼 -->
+          <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;padding-top:12px;border-top:1px solid var(--border);">진행화면 하단 버튼</div>
           <div style="margin-bottom:4px;">
-            <div class="slider-header"><span class="slider-name">타이머 버튼</span><span class="slider-val" id="startBtnTimerVal">1.0</span></div>
-            <input type="range" id="startBtnTimerSlider" min="0.5" max="3.0" step="0.1" value="1.0">
-            <div style="display:flex;justify-content:space-between;margin-top:3px;">
+            <div class="slider-header"><span class="slider-name">일시정지·건너뛰기·중단 크기</span><span class="slider-val" id="timerBtnSizeVal">1.0</span></div>
+            <div class="touch-slider-wrap" id="timerBtnSizeWrap" data-min="0.3" data-max="4.0" data-step="0.05" data-val="1.0" data-target="timerBtnSizeVal" data-fn="applyTimerBtnSize">
+              <div class="touch-slider-track"><div class="touch-slider-fill" id="timerBtnSizeFill"></div><div class="touch-slider-thumb" id="timerBtnSizeThumb"></div></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px;">
               <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">작게</span>
               <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">크게</span>
             </div>
           </div>
-          <!-- 가로모드 일시정지 버튼 크기 -->
-          <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
-            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">가로 모드 일시정지 버튼</div>
-            <div style="margin-bottom:4px;">
-              <div class="slider-header"><span class="slider-name">일시정지 버튼 글씨 크기</span><span class="slider-val" id="pauseBtnSizeLandscapeVal">1.0</span></div>
-              <input type="range" id="pauseBtnSizeLandscapeSlider" min="0.5" max="3.0" step="0.1" value="1.0">
-              <div style="display:flex;justify-content:space-between;margin-top:3px;">
-                <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">작게</span>
-                <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">크게</span>
-              </div>
-            </div>
-          </div>
+          <!-- 숨김 처리된 호환용 input (JS 참조용) -->
+          <input type="range" id="startBtnLandscapeSlider" style="display:none" min="0.5" max="3.0" step="0.1" value="1.0">
+          <input type="range" id="startBtnTimerSlider" style="display:none" min="0.5" max="3.0" step="0.1" value="1.0">
+          <input type="range" id="pauseBtnSizeLandscapeSlider" style="display:none" min="0.5" max="3.0" step="0.1" value="1.0">
         </div>
       </div>
 
       <!-- 일시정지 버튼 비율 (세로/가로 모드) -->
       <div class="setting-row">
         <div class="collapsible-head" id="pauseFlexHead">
-          <div><div class="setting-label">일시정지 버튼 비율</div><div class="setting-sub">일시정지 : 건너뛰기 : 중단 비율 조정</div></div>
+          <div><div class="setting-label">진행화면 버튼 비율</div><div class="setting-sub">일시정지 버튼이 차지하는 비율 조정</div></div>
           <span class="collapse-arrow" id="pauseFlexArrow">+</span>
         </div>
         <div id="pauseFlexBody" style="display:none;margin-top:10px;">
-          <!-- 세로 모드 비율 -->
-          <div style="margin-bottom:12px;">
-            <div class="slider-header"><span class="slider-name">세로 모드 비율</span><span class="slider-val" id="pauseFlexVal">2</span></div>
+          <div>
+            <div class="slider-header"><span class="slider-name">일시정지 버튼 비율 (1~5)</span><span class="slider-val" id="pauseFlexVal">2</span></div>
             <input type="range" id="pauseFlexSlider" min="1" max="5" step="1" value="2">
             <div style="display:flex;justify-content:space-between;margin-top:3px;">
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">1:1:1</span>
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">5:1:1</span>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">1:1:1 (같은 크기)</span>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">5:1:1 (일시정지 강조)</span>
             </div>
           </div>
-          <!-- 가로 모드 비율 -->
-          <div>
-            <div class="slider-header"><span class="slider-name">가로 모드 비율</span><span class="slider-val" id="pauseFlexLandscapeVal">2</span></div>
-            <input type="range" id="pauseFlexLandscapeSlider" min="1" max="8" step="1" value="2">
-            <div style="display:flex;justify-content:space-between;margin-top:3px;">
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">1:1:1</span>
-              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);">8:1:1</span>
-            </div>
-          </div>
+          <!-- 숨김 처리된 호환용 input -->
+          <input type="range" id="pauseFlexLandscapeSlider" style="display:none" min="1" max="8" step="1" value="2">
+          <span id="pauseFlexLandscapeVal" style="display:none">2</span>
+          <span id="startBtnLandscapeVal" style="display:none">1.0</span>
+          <span id="startBtnTimerVal" style="display:none">1.0</span>
+          <span id="pauseBtnSizeLandscapeVal" style="display:none">1.0</span>
         </div>
       </div>
 
@@ -2299,6 +2285,7 @@ var currentTheme = localStorage.getItem("theme") || "dark";
 var startBtnSize          = parseFloat(localStorage.getItem("start_btn_size")||"1.0");
 var startBtnSizeLandscape = parseFloat(localStorage.getItem("start_btn_size_landscape")||"1.0");
 var startBtnSizeTimer     = parseFloat(localStorage.getItem("start_btn_size_timer")||"1.0");
+var timerBtnSize          = parseFloat(localStorage.getItem("timer_btn_size")||"1.0");
 var pauseFlex    = parseInt(localStorage.getItem("pause_flex")||"2");
 var pauseFlexLandscape = parseInt(localStorage.getItem("pause_flex_landscape")||"2");
 var pauseBtnSizeLandscape = parseFloat(localStorage.getItem("pause_btn_size_landscape")||"1.0");
@@ -2583,6 +2570,16 @@ document.getElementById("startBtnTimerSlider").addEventListener("input",function
   markPending();
 });
 
+function applyTimerBtnSize(v){
+  timerBtnSize=parseFloat(v)||1.0;
+  timerBtnSize=Math.max(0.3,Math.min(4.0,timerBtnSize));
+  document.documentElement.style.setProperty("--timer-btn-size", timerBtnSize);
+  localStorage.setItem("timer_btn_size", timerBtnSize);
+  var vl=document.getElementById("timerBtnSizeVal");
+  if(vl) vl.textContent=timerBtnSize.toFixed(1);
+  syncTouchSlider("timerBtnSizeWrap", timerBtnSize);
+}
+
 // 버튼 크기 접기/펼치기
 document.getElementById("btnSizeHead").addEventListener("click",function(){
   var body=document.getElementById("btnSizeBody");
@@ -2590,6 +2587,7 @@ document.getElementById("btnSizeHead").addEventListener("click",function(){
   var open=body.style.display==="none";
   body.style.display=open?"block":"none";
   arrow.textContent=open?"-":"+";
+  if(open) setTimeout(initTouchSliders,30);
 });
 
 function applyPauseFlex(v){
@@ -2627,6 +2625,7 @@ document.getElementById("pauseFlexHead").addEventListener("click",function(){
   var open=body.style.display==="none";
   body.style.display=open?"block":"none";
   arrow.textContent=open?"-":"+";
+  if(open) setTimeout(initTouchSliders,30);
 });
 
 // ── 터치 슬라이더 공통 유틸 ──
@@ -2641,7 +2640,9 @@ function syncTouchSlider(wrapId, val){
   if(thumb)thumb.style.left=pct+"%";
 }
 function initTouchSliders(){
+  // ── 커스텀 touch-slider-wrap ──
   document.querySelectorAll('.touch-slider-wrap').forEach(function(wrap){
+    if(wrap._touchSliderInit) return; wrap._touchSliderInit=true;
     var min=parseFloat(wrap.dataset.min),max=parseFloat(wrap.dataset.max),step=parseFloat(wrap.dataset.step);
     var fnName=wrap.dataset.fn;
     function getValFromX(clientX){
@@ -2650,7 +2651,6 @@ function initTouchSliders(){
       var pct=Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
       var raw=min+pct*(max-min);
       var stepped=Math.round(raw/step)*step;
-      // float precision fix
       var dec=step.toString().split(".")[1];
       return dec?parseFloat(stepped.toFixed(dec.length)):stepped;
     }
@@ -2659,33 +2659,42 @@ function initTouchSliders(){
       if(window[fnName]) window[fnName](v);
       if(typeof markPending==="function") markPending();
     }
-    // 터치
-    wrap.addEventListener('touchstart',function(e){
-      e.preventDefault();
-      wrap.querySelector('.touch-slider-thumb').classList.add('dragging');
-      update(e.touches[0].clientX);
-    },{passive:false});
-    wrap.addEventListener('touchmove',function(e){
-      e.preventDefault();
-      update(e.touches[0].clientX);
-    },{passive:false});
-    wrap.addEventListener('touchend',function(){
-      wrap.querySelector('.touch-slider-thumb').classList.remove('dragging');
-    });
-    // 마우스
+    var thumb=wrap.querySelector('.touch-slider-thumb');
+    wrap.addEventListener('touchstart',function(e){e.preventDefault();if(thumb)thumb.classList.add('dragging');update(e.touches[0].clientX);},{passive:false});
+    wrap.addEventListener('touchmove',function(e){e.preventDefault();update(e.touches[0].clientX);},{passive:false});
+    wrap.addEventListener('touchend',function(){if(thumb)thumb.classList.remove('dragging');});
     wrap.addEventListener('mousedown',function(e){
-      e.preventDefault();
-      wrap.querySelector('.touch-slider-thumb').classList.add('dragging');
-      update(e.clientX);
+      e.preventDefault();if(thumb)thumb.classList.add('dragging');update(e.clientX);
       function onMove(ev){update(ev.clientX);}
-      function onUp(){
-        wrap.querySelector('.touch-slider-thumb').classList.remove('dragging');
-        document.removeEventListener('mousemove',onMove);
-        document.removeEventListener('mouseup',onUp);
-      }
-      document.addEventListener('mousemove',onMove);
-      document.addEventListener('mouseup',onUp);
+      function onUp(){if(thumb)thumb.classList.remove('dragging');document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);}
+      document.addEventListener('mousemove',onMove);document.addEventListener('mouseup',onUp);
     });
+  });
+
+  // ── 네이티브 input[type=range] — 터치 드래그 보강 ──
+  document.querySelectorAll('input[type=range]').forEach(function(sl){
+    if(sl._touchDragInit||sl.style.display==='none') return; sl._touchDragInit=true;
+    function applyFromX(clientX){
+      var rect=sl.getBoundingClientRect();
+      var pct=Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
+      var min=parseFloat(sl.min),max=parseFloat(sl.max),step=parseFloat(sl.step)||1;
+      var raw=min+pct*(max-min);
+      var stepped=Math.round(raw/step)*step;
+      var dec=step.toString().split(".")[1];
+      var v=dec?parseFloat(stepped.toFixed(dec.length)):stepped;
+      v=Math.max(min,Math.min(max,v));
+      if(parseFloat(sl.value)===v) return;
+      sl.value=v;
+      sl.dispatchEvent(new Event('input',{bubbles:true}));
+    }
+    sl.addEventListener('touchstart',function(e){
+      e.preventDefault();
+      applyFromX(e.touches[0].clientX);
+    },{passive:false});
+    sl.addEventListener('touchmove',function(e){
+      e.preventDefault();
+      applyFromX(e.touches[0].clientX);
+    },{passive:false});
   });
 }
 
@@ -3020,9 +3029,13 @@ document.getElementById("barThickHead").addEventListener("click",function(){
       // 패널이 열려있으면 UI도 갱신
       var body = document.getElementById('themeFontBody');
       if(body && body.style.display !== 'none') renderFontPanel();
-      // 테마 색상 변경 후 링 그라디언트 재적용 (CSS var resolved 후)
+      // 테마 변경 후: 버튼 크기 변수 보호 (테마가 CSS var 초기화해도 복원)
       setTimeout(function(){
         if(typeof applyGradient==='function') applyGradient(gradStart,gradEnd,gradUseTheme);
+        // 버튼 크기/비율 CSS 변수 재적용 (테마 영향 차단)
+        document.documentElement.style.setProperty('--start-btn-size', startBtnSize);
+        document.documentElement.style.setProperty('--timer-btn-size', timerBtnSize);
+        document.documentElement.style.setProperty('--pause-flex', pauseFlex);
       }, 50);
     };
     window.applyTheme._tfHooked = true;
@@ -5607,6 +5620,8 @@ function syncSettingsUI(){
   document.getElementById("recipeDropdownToggle").checked=recipeDropdownVisible;
   document.getElementById("landscapeReverseToggle").checked=landscapeReverse;
   if(workerUrl){workerUrlInput.value=workerUrl;setStatus(workerStatus,workerStatusText,"ok","연결됨");}
+  // voice 슬라이더 포함 모든 range에 터치 드래그 재적용
+  setTimeout(initTouchSliders, 50);
 }
 function restoreSettings(){
   voiceToggle.checked=voiceEnabled;
@@ -5650,6 +5665,7 @@ document.getElementById("paramsHead").addEventListener("click",function(){
   var open=body.style.display==="none";
   body.style.display=open?"block":"none";
   arrow.textContent=open?"-":"+";
+  if(open) setTimeout(initTouchSliders,30);
 });
 
 // --- 전체 음성 일괄 생성 ---
@@ -5850,6 +5866,7 @@ async function applySettings(){
   localStorage.setItem("ring_stroke",ringStroke);
   localStorage.setItem("ring_font",ringFont);
   localStorage.setItem("bar_font",barFont);
+  localStorage.setItem("timer_btn_size",timerBtnSize);
   localStorage.setItem("progress_mode",progressMode);
   localStorage.setItem("grad_start",gradStart);
   localStorage.setItem("grad_end",gradEnd);
@@ -6745,6 +6762,7 @@ if(localStorage.getItem('theme')==='custom'){
   applyStartBtnSize(startBtnSize);
   applyStartBtnSizeLandscape(startBtnSizeLandscape);
   applyStartBtnSizeTimer(startBtnSizeTimer);
+  applyTimerBtnSize(timerBtnSize);
   applyPauseFlex(pauseFlex);
   applyPauseFlexLandscape(pauseFlexLandscape);
   applyPauseBtnSizeLandscape(pauseBtnSizeLandscape);
@@ -6795,8 +6813,6 @@ if(localStorage.getItem('theme')==='custom'){
     label.textContent=saved+"px";
     slider.addEventListener("input",function(){
       label.textContent=this.value+"px";
-    });
-    slider.addEventListener("change",function(){
       localStorage.setItem("ptr_threshold",this.value);
     });
   })();
@@ -7737,7 +7753,7 @@ window._ctpApplyBar = function(bar){ applyBarFromEntry(bar); };
     var open = body.style.display === 'none';
     body.style.display = open ? 'block' : 'none';
     arrow.textContent  = open ? '−' : '+';
-    if(open) updateCtpBarPreview();
+    if(open){ updateCtpBarPreview(); setTimeout(initTouchSliders,30); }
   });
 
   // 두께 슬라이더
@@ -8078,7 +8094,7 @@ function init(){
   if(typeof _os==='function' && !_os._hooked){
     window.openSettings=function(){
       _os.apply(this,arguments);
-      setTimeout(function(){renderThemeGrid();renderHiddenList();renderPaletteSlots();updateShuffleBtn();refreshPreview();initTouchSliders();applyBarFont(barFont);applyRingFont(ringFont);applyProgressMode(progressMode);},30);
+      setTimeout(function(){renderThemeGrid();renderHiddenList();renderPaletteSlots();updateShuffleBtn();refreshPreview();initTouchSliders();applyBarFont(barFont);applyRingFont(ringFont);applyTimerBtnSize(timerBtnSize);applyProgressMode(progressMode);},30);
     };
     window.openSettings._hooked=true;
   }
