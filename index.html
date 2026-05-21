@@ -377,12 +377,12 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
   /* 가로 모드에서 card-meta 숨김 (오른쪽 패널로 이동) */
   .card-meta{display:none !important;}
   /* 타이머 시간 더 크게 */
-  .ring-time{font-size:clamp(14px, min(calc(9dvh * var(--start-btn-size,1) * var(--ring-font,1)), calc(12dvw * var(--start-btn-size,1) * var(--ring-font,1))), 130px) !important;}
+  .ring-time{font-size:clamp(10px, calc(var(--ring-size,200) * 0.27px * var(--ring-font,1)), 130px) !important;}
   .bar-time{font-size:clamp(28px, min(calc(9dvh * var(--start-btn-size,1) * var(--bar-font,1)), calc(12dvw * var(--start-btn-size,1) * var(--bar-font,1))), 160px);}
 
   /* 아이폰12미니 가로 (780×360) — 왼쪽 타이머 시간 잘림 방지 */
   @media(max-width:820px) and (max-height:400px){
-    .ring-time{font-size:clamp(10px, min(calc(7dvh * var(--start-btn-size,1) * var(--ring-font,1)), calc(9dvw * var(--start-btn-size,1) * var(--ring-font,1))), 80px) !important;}
+    .ring-time{font-size:clamp(8px, calc(var(--ring-size,200) * 0.22px * var(--ring-font,1)), 80px) !important;}
     .bar-time{font-size:clamp(20px, min(calc(7dvh * var(--start-btn-size,1) * var(--bar-font,1)), calc(9dvw * var(--start-btn-size,1) * var(--bar-font,1))), 110px);}
     .timer-content-area{padding:4px 8px;}
     .step-title-timer{font-size:clamp(11px,1.8dvh,16px) !important;}
@@ -570,19 +570,19 @@ body{background:var(--bg);color:var(--text);font-family:var(--font-body,'Noto Sa
 .ring-sub-sep{opacity:.4;}
 :root{--ring-font:1.0;--bar-font:1.0;}
 .time-display{font-family:var(--font-mono,'DM Mono',monospace);font-weight:300;letter-spacing:-.02em;line-height:1;margin-bottom:0;color:var(--text);transition:color .3s;}
-.ring-time{font-size:clamp(12px, calc(5.5dvh * var(--start-btn-size,1) * var(--ring-font,1)), 160px);}
+.ring-time{font-size:clamp(10px, calc(var(--ring-size,200) * 0.27px * var(--ring-font,1)), 140px);}
 .bar-time{font-size:clamp(28px, calc(10dvh * var(--start-btn-size,1) * var(--bar-font,1)), 200px);}
 .bar-time-wrap{text-align:center;padding:8px 0 4px;flex-shrink:0;}
 .bar-time-sub{font-family:var(--font-mono,'DM Mono',monospace);font-size:11px;color:var(--muted);margin-top:4px;}
 /* 단계 1: 큰 화면 (900px+) — 기본 */
 /* 단계 2: 중간 화면 (700~900px) */
 @media(max-height:900px) and (orientation:portrait){
-  .ring-time{font-size:clamp(12px, calc(6dvh * var(--start-btn-size,1) * var(--ring-font,1)), 130px);}
+  .ring-time{font-size:clamp(10px, calc(var(--ring-size,200) * 0.27px * var(--ring-font,1)), 130px);}
   .bar-time{font-size:clamp(32px, calc(10dvh * var(--start-btn-size,1) * var(--bar-font,1)), 180px);}
 }
 /* 단계 3: 작은 화면 (~700px) */
 @media(max-height:700px) and (orientation:portrait){
-  .ring-time{font-size:clamp(11px, calc(5.5dvh * var(--start-btn-size,1) * var(--ring-font,1)), 110px);}
+  .ring-time{font-size:clamp(10px, calc(var(--ring-size,200) * 0.27px * var(--ring-font,1)), 110px);}
   .bar-time{font-size:clamp(28px, calc(9dvh * var(--start-btn-size,1) * var(--bar-font,1)), 150px);}
 }
 .time-display.urgent{color:var(--danger);}
@@ -1716,7 +1716,7 @@ input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;bac
 
           <!-- 원형 링 설정 -->
           <div id="ringSettingsBlock">
-            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">원형 링</div>
+            <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">원형 링 <span style="font-weight:normal;text-transform:none;letter-spacing:0;opacity:.7;">— 숫자 크기는 링 크기에 자동 비례</span></div>
             <div style="margin-bottom:14px;">
               <div class="slider-header"><span class="slider-name">링 크기</span><span class="slider-val" id="ringSizeVal">200px</span></div>
               <div class="touch-slider-wrap" id="ringSizeWrap" data-min="80" data-max="400" data-step="4" data-val="200" data-target="ringSizeVal" data-fn="applyRingSize">
